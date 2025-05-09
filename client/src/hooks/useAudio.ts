@@ -116,9 +116,22 @@ export function useAudioPlayer() {
   }, []);
   
   // Get audio URL from AlQuran Cloud API
-  const getAudioUrl = useCallback((verseKey: string): string => {
-    const [surahNum, verseNum] = verseKey.split(':');
-    return `https://cdn.islamic.network/quran/audio/128/${audioState.reciterId}/${verseNum}.mp3?surah=${surahNum}`;
+  const getAudioUrl = useCallback(async (verseKey: string): Promise<string> => {
+    try {
+      // We need to fetch the actual audio URL from the API since verse numbers
+      // in the AlQuran Cloud API are continuous throughout the Quran
+      const response = await fetch(`https://api.alquran.cloud/v1/ayah/${verseKey}/${audioState.reciterId}`);
+      const data = await response.json();
+      
+      if (data.code === 200 && data.data && data.data.audio) {
+        return data.data.audio;
+      } else {
+        throw new Error('Audio URL not found');
+      }
+    } catch (error) {
+      console.error('Error fetching audio URL:', error);
+      throw error;
+    }
   }, [audioState.reciterId]);
   
   // Play audio function
@@ -134,47 +147,53 @@ export function useAudioPlayer() {
       }
     }
     
-    // Get audio URL from AlQuran Cloud API
-    const audioUrl = getAudioUrl(verseKey);
-    
-    // Set new audio source
-    audioRef.current.src = audioUrl;
-    audioRef.current.currentTime = 0;
-    
+    // Show loading state immediately
     setAudioState(prev => ({ ...prev, loading: true }));
     
-    // Play the audio
-    audioRef.current.play().then(() => {
-      setAudioState(prev => ({ 
-        ...prev, 
-        isPlaying: true,
-        loading: false,
-        currentVerse: verseInfo ? { ...verseInfo, key: verseKey } : undefined
-      }));
-      
-      // Start interval for tracking current time
-      intervalRef.current = setInterval(() => {
-        if (audioRef.current) {
-          setAudioState(prev => ({ 
-            ...prev, 
-            currentTime: audioRef.current?.currentTime || 0 
-          }));
-        }
-      }, 1000);
-    }).catch(err => {
-      console.error('Error playing audio:', err);
-      toast({
-        title: "Playback Error",
-        description: "Could not play audio. Please try again or select another reciter.",
-        variant: "destructive"
+    // Get audio URL from AlQuran Cloud API (async)
+    getAudioUrl(verseKey)
+      .then(audioUrl => {
+        if (!audioRef.current) return;
+        
+        // Set new audio source
+        audioRef.current.src = audioUrl;
+        audioRef.current.currentTime = 0;
+        
+        // Play the audio
+        return audioRef.current.play();
+      })
+      .then(() => {
+        setAudioState(prev => ({ 
+          ...prev, 
+          isPlaying: true,
+          loading: false,
+          currentVerse: verseInfo ? { ...verseInfo, key: verseKey } : undefined
+        }));
+        
+        // Start interval for tracking current time
+        intervalRef.current = setInterval(() => {
+          if (audioRef.current) {
+            setAudioState(prev => ({ 
+              ...prev, 
+              currentTime: audioRef.current?.currentTime || 0 
+            }));
+          }
+        }, 1000);
+      })
+      .catch(err => {
+        console.error('Error playing audio:', err);
+        toast({
+          title: "Playback Error",
+          description: "Could not play audio. Please try again or select another reciter.",
+          variant: "destructive"
+        });
+        setAudioState(prev => ({ ...prev, loading: false, isPlaying: false }));
       });
-      setAudioState(prev => ({ ...prev, loading: false, isPlaying: false }));
-    });
-  }, [audioState.isPlaying, audioState.reciterId, getAudioUrl, toast]);
+  }, [audioState.isPlaying, getAudioUrl, toast]);
   
   // Toggle play/pause
   const togglePlayPause = useCallback(() => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !audioRef.current.src) return;
     
     if (audioState.isPlaying) {
       audioRef.current.pause();
@@ -197,9 +216,14 @@ export function useAudioPlayer() {
         }, 1000);
       }).catch(err => {
         console.error('Error playing audio:', err);
+        toast({
+          title: "Playback Error",
+          description: "Could not resume audio playback.",
+          variant: "destructive"
+        });
       });
     }
-  }, [audioState.isPlaying]);
+  }, [audioState.isPlaying, toast]);
   
   // Seek to a specific time
   const seekTo = useCallback((time: number) => {
