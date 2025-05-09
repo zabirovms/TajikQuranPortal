@@ -119,37 +119,23 @@ export function useAudioPlayer() {
     }
   }, []);
   
-  // Get audio URL - Try direct URL first, then fallback to API
+  // Get audio URL from the API
   const getAudioUrl = useCallback(async (verseKey: string): Promise<string> => {
     try {
-      // Direct URL approach - format the verse key from "1:1" to "1_1" for the URL
-      const formattedKey = verseKey.replace(':', '_');
+      // Important: The API URL format is different from the direct URL format
+      // For example, verse "1:1" uses file name "1.mp3" (not "1_1.mp3")
       
-      // Audio URL format: https://cdn.islamic.network/quran/audio/128/ar.alafasy/1_1.mp3
-      const directUrl = `https://cdn.islamic.network/quran/audio/128/${audioState.reciterId}/${formattedKey}.mp3`;
+      console.log('Fetching audio URL for verse', verseKey);
       
-      console.log('Trying direct URL:', directUrl);
-      
-      // Try a HEAD request first to verify the file exists
-      try {
-        const response = await fetch(directUrl, { method: 'HEAD' });
-        
-        if (response.ok) {
-          return directUrl;
-        }
-      } catch (e) {
-        console.warn('HEAD request failed, will try API fallback', e);
-      }
-      
-      // Fallback to API method if direct URL fails
-      console.log('Using API fallback for audio URL');
+      // Use the API to get the correct audio URL
       const apiResponse = await fetch(`https://api.alquran.cloud/v1/ayah/${verseKey}/${audioState.reciterId}`);
       const data = await apiResponse.json();
       
       if (data.code === 200 && data.data && data.data.audio) {
+        console.log('Found audio URL:', data.data.audio);
         return data.data.audio;
       } else {
-        throw new Error('Audio URL not found');
+        throw new Error('Audio URL not found in API response');
       }
     } catch (error) {
       console.error('Error fetching audio URL:', error);
@@ -307,21 +293,57 @@ export function useAudioPlayer() {
       currentVerse: undefined // Clear current verse since we're playing a full surah
     }));
     
-    // Construct the URL for entire surah audio
-    // Format: https://cdn.islamic.network/quran/audio-surah/128/{edition}/{number}.mp3
-    const surahAudioUrl = `https://cdn.islamic.network/quran/audio-surah/128/${audioState.reciterId}/${surahNumber}.mp3`;
-    
-    console.log('Trying to play surah audio from:', surahAudioUrl);
+    // Try multiple URL formats for surah audio
+    const attemptPlayback = async () => {
+      // Format 1: audio-surah format (main)
+      const surahAudioUrl1 = `https://cdn.islamic.network/quran/audio-surah/128/${audioState.reciterId}/${surahNumber}.mp3`;
+      
+      // Format 2: surah format (backup)
+      const surahAudioUrl2 = `https://cdn.islamic.network/quran/audio/128/${audioState.reciterId}/surah/${surahNumber}.mp3`;
+      
+      // Format 3: direct format with reciter name variation (backup)
+      const reciterVariation = audioState.reciterId.replace('ar.', '');
+      const surahAudioUrl3 = `https://cdn.alquran.cloud/media/audio/ayah/${reciterVariation}/${surahNumber}/128`;
+      
+      console.log('Trying to play surah audio from:', surahAudioUrl1);
+      
+      // Try each URL in sequence
+      let success = false;
+      
+      for (const url of [surahAudioUrl1, surahAudioUrl2, surahAudioUrl3]) {
+        if (success) break;
+        
+        try {
+          if (!audioRef.current) return;
+          
+          // Set new audio source
+          audioRef.current.src = url;
+          audioRef.current.currentTime = 0;
+          
+          console.log('Attempting to play from:', url);
+          
+          // Try to play and see if it works
+          await audioRef.current.play();
+          success = true;
+          console.log('Successfully playing from:', url);
+          break;
+        } catch (err) {
+          console.warn(`Failed to play from ${url}:`, err);
+          // Continue to next URL
+        }
+      }
+      
+      if (!success) {
+        throw new Error('Failed to play surah audio from all sources');
+      }
+    };
     
     try {
       if (!audioRef.current) return;
       
-      // Set new audio source
-      audioRef.current.src = surahAudioUrl;
-      audioRef.current.currentTime = 0;
-      
-      // Play the audio
-      audioRef.current.play()
+      // Try the multiple playback sources
+      // This handles the actual playback inside the function
+      attemptPlayback()
         .then(() => {
           setAudioState(prev => ({ 
             ...prev, 
