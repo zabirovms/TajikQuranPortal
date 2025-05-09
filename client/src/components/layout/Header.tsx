@@ -1,4 +1,5 @@
 import { useTheme } from '@/hooks/useTheme';
+import { useTajweedMode } from '@/hooks/useTajweedMode';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState } from 'react';
@@ -7,7 +8,7 @@ import { Surah } from '@shared/schema';
 import { Link, useLocation } from 'wouter';
 import { 
   Sun, Moon, Search, BookmarkIcon, ChevronLeft, ChevronRight, 
-  Menu, Home, FolderKanban
+  Menu, Home, FolderKanban, Settings, Book
 } from 'lucide-react';
 import { 
   Sheet, 
@@ -19,6 +20,15 @@ import {
   SheetFooter
 } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch";
 
 interface HeaderProps {
   surahs?: Surah[];
@@ -36,6 +46,7 @@ export default function Header({
   isLoading = false 
 }: HeaderProps) {
   const { theme, setTheme } = useTheme();
+  const { tajweedMode, toggleTajweedMode } = useTajweedMode();
   const [location, navigate] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -137,27 +148,52 @@ export default function Header({
             <Search className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </Button>
           
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onOpenOverlay('bookmarks')}
-            aria-label="Bookmarks"
-          >
-            <BookmarkIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {theme === 'dark' ? (
-              <Sun className="h-5 w-5 text-yellow-300" />
-            ) : (
-              <Moon className="h-5 w-5 text-gray-600" />
-            )}
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Settings"
+              >
+                <Settings className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Танзимот</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem 
+                onClick={() => onOpenOverlay('bookmarks')}
+                className="flex items-center cursor-pointer"
+              >
+                <BookmarkIcon className="h-4 w-4 mr-2" />
+                <span>Хатчӯбҳо</span>
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem className="flex justify-between items-center cursor-pointer">
+                <div className="flex items-center">
+                  <Book className="h-4 w-4 mr-2" />
+                  <span>Таҷвид</span>
+                </div>
+                <Switch 
+                  checked={tajweedMode} 
+                  onCheckedChange={toggleTajweedMode}
+                  aria-label="Toggle Tajweed mode"
+                />
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem className="flex justify-between items-center cursor-pointer" onClick={toggleTheme}>
+                <div className="flex items-center">
+                  {theme === 'dark' ? (
+                    <Sun className="h-4 w-4 mr-2 text-yellow-300" />
+                  ) : (
+                    <Moon className="h-4 w-4 mr-2" />
+                  )}
+                  <span>{theme === 'dark' ? 'Равшан' : 'Торик'}</span>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
       
