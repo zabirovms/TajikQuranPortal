@@ -1,0 +1,186 @@
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Verse } from '@shared/schema';
+import { getArabicFontClass, formatArabicNumber } from '@/lib/fonts';
+import { Play, Copy, Share, BookmarkIcon } from 'lucide-react';
+import { useAudioPlayer } from '@/hooks/useAudio';
+import { useToast } from '@/hooks/use-toast';
+import { useIsVerseBookmarked, useAddBookmark, useRemoveBookmark } from '@/hooks/useBookmarks';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface VerseItemProps {
+  verse: Verse;
+  surahName: string;
+  isLoading?: boolean;
+}
+
+export default function VerseItem({ verse, surahName, isLoading = false }: VerseItemProps) {
+  const { playAudio } = useAudioPlayer();
+  const { toast } = useToast();
+  
+  const { isBookmarked, bookmarkId, isLoading: isBookmarkLoading } = useIsVerseBookmarked(verse.id);
+  const addBookmark = useAddBookmark();
+  const removeBookmark = useRemoveBookmark();
+  
+  // Handle playing audio for this verse
+  const handlePlayAudio = () => {
+    if (verse.audio_url) {
+      playAudio(verse.audio_url, {
+        key: verse.unique_key,
+        surahName: surahName,
+        verseNumber: verse.verse_number
+      });
+    } else {
+      toast({
+        title: "Audio not available",
+        description: "Audio for this verse is not available.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Handle copying verse text
+  const handleCopyVerse = () => {
+    const textToCopy = `${verse.arabic_text}\n\n${verse.tajik_text}\n\n(${verse.unique_key})`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      toast({
+        title: "Copied to clipboard",
+        description: "Verse text copied to clipboard.",
+      });
+    });
+  };
+  
+  // Handle sharing verse
+  const handleShareVerse = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: `Quran - ${verse.unique_key}`,
+        text: `${verse.arabic_text}\n\n${verse.tajik_text}`,
+        url: `${window.location.href.split('#')[0]}#verse-${verse.unique_key.replace(':', '-')}`
+      }).catch(() => {
+        // Fallback if share fails
+        handleCopyVerse();
+      });
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      handleCopyVerse();
+    }
+  };
+  
+  // Handle bookmark toggle
+  const toggleBookmark = () => {
+    if (isBookmarked && bookmarkId) {
+      removeBookmark.mutate(bookmarkId);
+      toast({
+        title: "Bookmark removed",
+        description: "Verse removed from bookmarks."
+      });
+    } else {
+      addBookmark.mutate(verse.id);
+      toast({
+        title: "Bookmark added", 
+        description: "Verse added to bookmarks."
+      });
+    }
+  };
+  
+  if (isLoading) {
+    return (
+      <Card className="mb-6 overflow-hidden">
+        <div className="border-b border-gray-100 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-700 flex justify-between items-center">
+          <div className="flex items-center">
+            <Skeleton className="w-8 h-8 rounded-full mr-2" />
+            <Skeleton className="w-12 h-4" />
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Skeleton className="w-6 h-6 rounded-full" />
+            <Skeleton className="w-6 h-6 rounded-full" />
+            <Skeleton className="w-6 h-6 rounded-full" />
+            <Skeleton className="w-6 h-6 rounded-full" />
+          </div>
+        </div>
+        
+        <CardContent className="p-4 md:p-6">
+          <Skeleton className="w-full h-12 mb-4" />
+          <Skeleton className="w-full h-4 mb-1" />
+          <Skeleton className="w-3/4 h-4" />
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  const verseId = `verse-${verse.unique_key.replace(':', '-')}`;
+  const isBookmarkPending = addBookmark.isPending || removeBookmark.isPending;
+  
+  return (
+    <Card 
+      id={verseId} 
+      className={`mb-6 overflow-hidden ${isBookmarked ? 'ring-2 ring-accent' : ''}`}
+      data-verse={verse.unique_key}
+    >
+      <div className="border-b border-gray-100 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-700 flex justify-between items-center">
+        <div className="flex items-center">
+          <span className="ayah-number bg-primary dark:bg-accent text-white text-sm">
+            {formatArabicNumber(verse.verse_number)}
+          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">{verse.unique_key}</span>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-gray-400 hover:text-primary dark:hover:text-accent"
+            onClick={handlePlayAudio}
+            title="Play Audio"
+          >
+            <Play className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-gray-400 hover:text-primary dark:hover:text-accent"
+            onClick={handleCopyVerse}
+            title="Copy Verse"
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-gray-400 hover:text-primary dark:hover:text-accent"
+            onClick={handleShareVerse}
+            title="Share Verse"
+          >
+            <Share className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            className={isBookmarked ? "text-accent" : "text-gray-400 hover:text-accent"}
+            onClick={toggleBookmark}
+            disabled={isBookmarkPending || isBookmarkLoading}
+            title={isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
+          >
+            <BookmarkIcon className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
+          </Button>
+        </div>
+      </div>
+      
+      <CardContent className="p-4 md:p-6">
+        <div className={`${getArabicFontClass()} text-right mb-4 leading-loose`}>
+          {verse.arabic_text}
+        </div>
+        
+        <div className="border-t border-gray-100 dark:border-gray-700 pt-4 text-gray-800 dark:text-gray-200">
+          <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
+          <p>{verse.tajik_text}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

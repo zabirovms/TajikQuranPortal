@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 45 30% 98%;
+  --foreground: 20 14.3% 4.1%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14.3% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14.3% 4.1%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  
+  /* Primary: Green (#076E66) */
+  --primary: 175 87% 23%;
+  --primary-foreground: 211 100% 99%;
+  
+  /* Secondary: Brown (#8D5524) */
+  --secondary: 28 60% 35%;
+  --secondary-foreground: 60 9.1% 97.8%;
+  
+  /* Accent: Gold (#C3A343) */
+  --accent: 43 50% 52%;
+  --accent-foreground: 24 9.8% 10%;
+  
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --ring: 20 14.3% 4.1%;
+  --radius: 0.5rem;
+  
+  /* Chart colors */
+  --chart-1: 175 87% 23%;
+  --chart-2: 28 60% 35%;
+  --chart-3: 43 50% 52%;
+  --chart-4: 354 70% 54%;
+  --chart-5: 197 71% 73%;
+  
+  /* Sidebar */
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 20 14.3% 4.1%;
+  --sidebar-primary: 175 87% 23%;
+  --sidebar-primary-foreground: 60 9.1% 97.8%;
+  --sidebar-accent: 43 50% 52%;
+  --sidebar-accent-foreground: 24 9.8% 10%;
+  --sidebar-border: 20 5.9% 90%;
+  --sidebar-ring: 20 14.3% 4.1%;
+}
+
+.dark {
+  --background: 240 10% 8%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 10%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 12%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  
+  /* Primary: Darker green for dark mode */
+  --primary: 175 87% 23%;
+  --primary-foreground: 211 100% 99%;
+  
+  /* Secondary: More vibrant for dark mode */
+  --secondary: 28 60% 40%;
+  --secondary-foreground: 0 0% 98%;
+  
+  /* Accent: Brighter gold for dark mode */
+  --accent: 43 60% 60%;
+  --accent-foreground: 0 0% 12%;
+  
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+  
+  /* Sidebar */
+  --sidebar-background: 240 10% 12%;
+  --sidebar-foreground: 0 0% 98%;
+  --sidebar-primary: 175 87% 23%;
+  --sidebar-primary-foreground: 60 9.1% 97.8%;
+  --sidebar-accent: 43 50% 52%;
+  --sidebar-accent-foreground: 0 0% 12%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 240 4.9% 83.9%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans bg-background text-foreground antialiased transition-colors duration-300;
+  }
+  
+  /* Arabic text styling */
+  .arabic-text {
+    font-family: 'Scheherazade New', serif;
+    direction: rtl;
+    line-height: 1.8;
+    @apply text-2xl leading-relaxed tracking-wide;
+  }
+  
+  /* Ayah (verse) number styling */
+  .ayah-number {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium mx-2;
+  }
+  
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-[6px];
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-black/5 dark:bg-white/5;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-black/20 dark:bg-white/20 rounded-sm;
+  }
+}
