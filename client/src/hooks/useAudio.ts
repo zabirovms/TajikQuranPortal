@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface AudioPlayerState {
   isPlaying: boolean;
@@ -10,15 +11,33 @@ interface AudioPlayerState {
     surahName: string;
     verseNumber: number;
   };
+  reciterId: string;
 }
 
+// Available Qari (reciters) from AlQuran.Cloud API
+export interface Reciter {
+  id: string;
+  name: string;
+  englishName: string;
+}
+
+export const availableReciters: Reciter[] = [
+  { id: 'ar.alafasy', name: 'مشاري العفاسي', englishName: 'Mishary Rashid Alafasy' },
+  { id: 'ar.abdullahbasfar', name: 'عبد الله بصفر', englishName: 'Abdullah Basfar' },
+  { id: 'ar.abdurrahmaansudais', name: 'عبدالرحمن السديس', englishName: 'Abdurrahmaan As-Sudais' },
+  { id: 'ar.mahermuaiqly', name: 'ماهر المعيقلي', englishName: 'Maher Al Muaiqly' },
+  { id: 'ar.muhammadayyoub', name: 'محمد أيوب', englishName: 'Muhammad Ayyoub' },
+];
+
 export function useAudioPlayer() {
+  const { toast } = useToast();
   const [audioState, setAudioState] = useState<AudioPlayerState>({
     isPlaying: false,
     currentTime: 0,
     duration: 0,
     loading: false,
     currentVerse: undefined,
+    reciterId: 'ar.alafasy', // Default reciter
   });
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -71,8 +90,39 @@ export function useAudioPlayer() {
     }
   }, []);
   
+  // Set reciter
+  const setReciter = useCallback((reciterId: string) => {
+    setAudioState(prev => ({ ...prev, reciterId }));
+    
+    // Save preference to localStorage
+    localStorage.setItem('preferredReciter', reciterId);
+    
+    // Show toast notification
+    const reciter = availableReciters.find(r => r.id === reciterId);
+    if (reciter) {
+      toast({
+        title: "Reciter changed",
+        description: `Now playing audio from ${reciter.englishName}`,
+      });
+    }
+  }, [toast]);
+  
+  // Load stored reciter preference
+  useEffect(() => {
+    const storedReciter = localStorage.getItem('preferredReciter');
+    if (storedReciter && availableReciters.some(r => r.id === storedReciter)) {
+      setAudioState(prev => ({ ...prev, reciterId: storedReciter }));
+    }
+  }, []);
+  
+  // Get audio URL from AlQuran Cloud API
+  const getAudioUrl = useCallback((verseKey: string): string => {
+    const [surahNum, verseNum] = verseKey.split(':');
+    return `https://cdn.islamic.network/quran/audio/128/${audioState.reciterId}/${verseNum}.mp3?surah=${surahNum}`;
+  }, [audioState.reciterId]);
+  
   // Play audio function
-  const playAudio = useCallback((audioUrl: string, verseInfo?: AudioPlayerState['currentVerse']) => {
+  const playAudio = useCallback((verseKey: string, verseInfo?: Omit<AudioPlayerState['currentVerse'], 'key'>) => {
     if (!audioRef.current) return;
     
     // Stop current audio if playing
@@ -84,16 +134,22 @@ export function useAudioPlayer() {
       }
     }
     
+    // Get audio URL from AlQuran Cloud API
+    const audioUrl = getAudioUrl(verseKey);
+    
     // Set new audio source
     audioRef.current.src = audioUrl;
     audioRef.current.currentTime = 0;
+    
+    setAudioState(prev => ({ ...prev, loading: true }));
     
     // Play the audio
     audioRef.current.play().then(() => {
       setAudioState(prev => ({ 
         ...prev, 
         isPlaying: true,
-        currentVerse: verseInfo
+        loading: false,
+        currentVerse: verseInfo ? { ...verseInfo, key: verseKey } : undefined
       }));
       
       // Start interval for tracking current time
@@ -107,9 +163,14 @@ export function useAudioPlayer() {
       }, 1000);
     }).catch(err => {
       console.error('Error playing audio:', err);
+      toast({
+        title: "Playback Error",
+        description: "Could not play audio. Please try again or select another reciter.",
+        variant: "destructive"
+      });
       setAudioState(prev => ({ ...prev, loading: false, isPlaying: false }));
     });
-  }, [audioState.isPlaying]);
+  }, [audioState.isPlaying, audioState.reciterId, getAudioUrl, toast]);
   
   // Toggle play/pause
   const togglePlayPause = useCallback(() => {
