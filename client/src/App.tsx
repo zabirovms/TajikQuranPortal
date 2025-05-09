@@ -2,7 +2,7 @@ import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
-import Home from "@/pages/home";
+import HomePage from "@/pages/home-new";
 import Surah from "@/pages/surah";
 import { useState } from "react";
 import SearchOverlay from "./components/overlay/SearchOverlay";
@@ -30,7 +30,7 @@ function Router() {
       />
       
       <Switch>
-        <Route path="/" component={() => <Home onOpenOverlay={openOverlay} />} />
+        <Route path="/" component={() => <HomePage onOpenOverlay={openOverlay} />} />
         <Route path="/surah/:number">
           {(params) => <Surah surahNumber={Number(params.number)} onOpenOverlay={openOverlay} />}
         </Route>
