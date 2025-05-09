@@ -1,0 +1,77 @@
+/* Tajweed CSS styles based on https://github.com/meezaan/alquran-tools/tree/master/examples/css/tajweed.css */
+
+/* Silent letters */
+tajweed.ham_wasl,
+tajweed.slnt {
+  color: #AAAAAA;
+}
+
+/* Normal prolongation */
+tajweed.madda_normal {
+  color: #537FFF;
+}
+
+/* Permissible prolongation */
+tajweed.madda_permissible {
+  color: #4050FF;
+}
+
+/* Necessary prolongation */
+tajweed.madda_necessary {
+  color: #000EBC;
+}
+
+/* Qalqalah */
+tajweed.qlq {
+  color: #DD0008;
+}
+
+/* Obligatory prolongation */
+tajweed.madda_obligatory {
+  color: #2144C1;
+}
+
+/* Ikhafa Shafawi - With Meem */
+tajweed.ikhf_shfw {
+  color: #D500B7;
+}
+
+/* Ikhafa */
+tajweed.ikhf {
+  color: #9400A8;
+}
+
+/* Idgham Shafawi - With Meem */
+tajweed.idghm_shfw {
+  color: #58B800;
+}
+
+/* Iqlab */
+tajweed.iqlb {
+  color: #26BFFD;
+}
+
+/* Idgham - With Ghunnah */
+tajweed.idgh_ghn {
+  color: #169777;
+}
+
+/* Idgham - Without Ghunnah */
+tajweed.idgh_w_ghn {
+  color: #169200;
+}
+
+/* Idgham - Mutajanisayn */
+tajweed.idgh_mus {
+  color: #A1A1A1;
+}
+
+/* Idgham - Mutaqaribayn */
+tajweed.idgh_mut {
+  color: #A1A1A1;
+}
+
+/* Ghunnah: 2 Vowels */
+tajweed.ghn {
+  color: #FF7E1E;
+}

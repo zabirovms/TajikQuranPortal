@@ -1,14 +1,26 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Verse } from '@shared/schema';
 import { getArabicFontClass, formatArabicNumber } from '@/lib/fonts';
-import { Play, Copy, Share, BookmarkIcon, Image as ImageIcon } from 'lucide-react';
+import { 
+  Play, Copy, Share, BookmarkIcon, Image as ImageIcon, 
+  Type as TypeIcon, Book, Settings
+} from 'lucide-react';
 import { useAudioPlayer } from '@/hooks/useAudio';
 import { useToast } from '@/hooks/use-toast';
 import { useIsVerseBookmarked, useAddBookmark, useRemoveBookmark } from '@/hooks/useBookmarks';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '@/components/ui/dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import TajweedText from './TajweedText';
 
 interface VerseItemProps {
   verse: Verse;
@@ -17,6 +29,7 @@ interface VerseItemProps {
 }
 
 export default function VerseItem({ verse, surahName, isLoading = false }: VerseItemProps) {
+  const [textMode, setTextMode] = useState<'plain' | 'tajweed'>('plain');
   const { playAudio } = useAudioPlayer();
   const { toast } = useToast();
   
@@ -306,9 +319,42 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
       </div>
       
       <CardContent className="p-4 md:p-6">
-        <div className={`${getArabicFontClass()} text-right mb-4 leading-loose`}>
-          {verse.arabic_text}
+        {/* Controls for text mode */}
+        <div className="flex justify-end mb-2">
+          <div className="inline-flex items-center rounded-md border p-1 text-sm">
+            <Button
+              variant="ghost" 
+              size="sm" 
+              className={`h-8 ${textMode === 'plain' ? 'bg-secondary text-secondary-foreground' : ''}`}
+              onClick={() => setTextMode('plain')}
+            >
+              <TypeIcon className="h-3.5 w-3.5 mr-1" />
+              Standard
+            </Button>
+            <Button
+              variant="ghost" 
+              size="sm" 
+              className={`h-8 ${textMode === 'tajweed' ? 'bg-secondary text-secondary-foreground' : ''}`}
+              onClick={() => setTextMode('tajweed')}
+            >
+              <Book className="h-3.5 w-3.5 mr-1" />
+              Tajweed
+            </Button>
+          </div>
         </div>
+        
+        {/* Arabic Text - conditionally show Tajweed or normal text */}
+        {textMode === 'plain' ? (
+          <div className={`${getArabicFontClass()} text-right mb-4 leading-loose`}>
+            {verse.arabic_text}
+          </div>
+        ) : (
+          <TajweedText 
+            surahNumber={parseInt(verse.unique_key.split(':')[0])}
+            verseNumber={verse.verse_number}
+            className="text-right mb-4"
+          />
+        )}
         
         <div className="border-t border-gray-100 dark:border-gray-700 pt-4 text-gray-800 dark:text-gray-200">
           <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
