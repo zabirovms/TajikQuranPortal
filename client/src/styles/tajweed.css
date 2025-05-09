@@ -1,6 +1,7 @@
 /**
  * Tajweed CSS Styles
  * Based on AlQuran Cloud Tajweed coloring guide
+ * Colors taken directly from the documentation
  * https://alquran.cloud/tajweed-guide
  */
 
@@ -10,52 +11,9 @@ tajweed {
   display: inline;
 }
 
-/* Hamzat al-Wasl - pink */
+/* Hamzat al-Wasl - gray */
 tajweed.ham_wasl {
-  color: #E400F5;
-}
-
-/* Idgham - green */
-tajweed.idgh_ghn,
-tajweed.idgh_w_ghn,
-tajweed.idgh_mus,
-tajweed.idgh_mut {
-  color: #169200;
-}
-
-/* Idgham - without ghunnah - light green */
-tajweed.idgh_w_ghn {
-  color: #35ba00;
-}
-
-/* Ikhfa - blue */
-tajweed.ikhf {
-  color: #1041FF;
-}
-
-/* Ikhfa Shafawi - blue */
-tajweed.ikhf_shfw {
-  color: #5568f9;
-}
-
-/* Iqlab - blue-green */
-tajweed.iqlb {
-  color: #26BFFD;
-}
-
-/* Qalqalah - purple */
-tajweed.qlq {
-  color: #DD0008;
-}
-
-/* Ghunnah - dark orange */
-tajweed.ghn {
-  color: #FF7E1E;
-}
-
-/* Idgham Shafawi - brown */
-tajweed.idghm_shfw {
-  color: #9B5DB0;
+  color: #AAAAAA;
 }
 
 /* Silent letter - gray */
@@ -63,30 +21,72 @@ tajweed.slnt {
   color: #AAAAAA;
 }
 
-/* Madd letters - red */
+/* Normal Prolongation - blue */
 tajweed.madda_normal {
-  color: #DD0008;
+  color: #537FFF;
 }
 
-/* Madda Obligatory - black with red waves underneath */
-tajweed.madda_obligatory {
-  position: relative;
-  color: #000000;
-  background: linear-gradient(to top, rgba(255, 0, 0, 0.3) 15%, transparent 15%);
-  background-size: 100% 4px;
-  background-position: bottom;
-  background-repeat: repeat-x;
-}
-
-/* Madda Permissible - light red */
+/* Permissible Prolongation - darker blue */
 tajweed.madda_permissible {
-  color: #FF7E1E;
+  color: #4050FF;
 }
 
-/* Madda Necessary - dark red */
+/* Necessary Prolongation - very dark blue */
 tajweed.madda_necessary {
-  color: #DD0008;
+  color: #000EBC;
   font-weight: bold;
+}
+
+/* Qalqalah - red */
+tajweed.qlq {
+  color: #DD0008;
+}
+
+/* Obligatory Prolongation - dark blue */
+tajweed.madda_obligatory {
+  color: #2144C1;
+  position: relative;
+}
+
+/* Ikhafa Shafawi - pink */
+tajweed.ikhf_shfw {
+  color: #D500B7;
+}
+
+/* Ikhafa - purple */
+tajweed.ikhf {
+  color: #9400A8;
+}
+
+/* Idgham Shafawi - green */
+tajweed.idghm_shfw {
+  color: #58B800;
+}
+
+/* Iqlab - light blue */
+tajweed.iqlb {
+  color: #26BFFD;
+}
+
+/* Idgham - With Ghunnah - teal */
+tajweed.idgh_ghn {
+  color: #169777;
+}
+
+/* Idgham - Without Ghunnah - green */
+tajweed.idgh_w_ghn {
+  color: #169200;
+}
+
+/* Idgham - Mutajanisayn and Mutaqaribayn - light gray */
+tajweed.idgh_mus,
+tajweed.idgh_mut {
+  color: #A1A1A1;
+}
+
+/* Ghunnah - orange */
+tajweed.ghn {
+  color: #FF7E1E;
 }
 
 /* Tooltip styling (to be used if tooltips are added) */

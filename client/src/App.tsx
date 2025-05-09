@@ -7,6 +7,8 @@ import Surah from "@/pages/surah";
 import { useState } from "react";
 import SearchOverlay from "./components/overlay/SearchOverlay";
 import BookmarksOverlay from "./components/overlay/BookmarksOverlay";
+import { TajweedProvider } from "./hooks/useTajweedMode";
+import { ThemeProvider } from "./hooks/useTheme";
 
 // Global context for overlays
 export type GlobalOverlayType = 'search' | 'bookmarks' | null;
@@ -42,9 +44,13 @@ function Router() {
 
 function App() {
   return (
-    <TooltipProvider>
-      <Router />
-    </TooltipProvider>
+    <ThemeProvider>
+      <TajweedProvider>
+        <TooltipProvider>
+          <Router />
+        </TooltipProvider>
+      </TajweedProvider>
+    </ThemeProvider>
   );
 }
 
