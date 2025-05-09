@@ -2,11 +2,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Verse } from '@shared/schema';
 import { getArabicFontClass, formatArabicNumber } from '@/lib/fonts';
-import { Play, Copy, Share, BookmarkIcon } from 'lucide-react';
+import { Play, Copy, Share, BookmarkIcon, Image as ImageIcon } from 'lucide-react';
 import { useAudioPlayer } from '@/hooks/useAudio';
 import { useToast } from '@/hooks/use-toast';
 import { useIsVerseBookmarked, useAddBookmark, useRemoveBookmark } from '@/hooks/useBookmarks';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 interface VerseItemProps {
   verse: Verse;
@@ -21,6 +23,15 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
   const { isBookmarked, bookmarkId, isLoading: isBookmarkLoading } = useIsVerseBookmarked(verse.id);
   const addBookmark = useAddBookmark();
   const removeBookmark = useRemoveBookmark();
+  
+  // Generate verse image URL from Islamic Network CDN
+  const getVerseImageUrl = (highRes = false) => {
+    // Extract surah number from the unique key (format: surah:verse)
+    const [surahNumber, verseNumber] = verse.unique_key.split(':');
+    return highRes
+      ? `https://cdn.islamic.network/quran/images/high-resolution/${surahNumber}_${verseNumber}.png`
+      : `https://cdn.islamic.network/quran/images/${surahNumber}_${verseNumber}.png`;
+  };
   
   // Handle playing audio for this verse
   const handlePlayAudio = () => {
@@ -90,6 +101,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
             <Skeleton className="w-6 h-6 rounded-full" />
             <Skeleton className="w-6 h-6 rounded-full" />
             <Skeleton className="w-6 h-6 rounded-full" />
+            <Skeleton className="w-6 h-6 rounded-full" />
           </div>
         </div>
         
@@ -129,6 +141,40 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
           >
             <Play className="h-4 w-4" />
           </Button>
+          
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-gray-400 hover:text-primary dark:hover:text-accent"
+                title="View Verse Image"
+              >
+                <ImageIcon className="h-4 w-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[700px]">
+              <div className="pt-4">
+                <AspectRatio ratio={16/9}>
+                  <img 
+                    src={getVerseImageUrl(true)} 
+                    alt={`Quran verse ${verse.unique_key}`}
+                    className="rounded-md object-contain h-full w-full bg-white"
+                    onError={(e) => {
+                      // If high-res image fails, try standard resolution
+                      const target = e.target as HTMLImageElement;
+                      if (target.src.includes('high-resolution')) {
+                        target.src = getVerseImageUrl(false);
+                      }
+                    }}
+                  />
+                </AspectRatio>
+                <div className="mt-4 text-center text-sm text-muted-foreground">
+                  Verse {verse.unique_key}
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
           
           <Button
             variant="ghost"
