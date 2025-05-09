@@ -72,8 +72,8 @@ export default function Header({
     <header className="sticky top-0 z-30 bg-white dark:bg-gray-900 shadow-md">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center gap-3">
-          {/* Only show the hamburger menu on the home page */}
-          {!currentSurah && (
+          {/* On home page: Show hamburger menu */}
+          {!currentSurah ? (
             <Sheet>
               <SheetTrigger asChild>
                 <Button
@@ -106,6 +106,18 @@ export default function Header({
                 </SheetFooter>
               </SheetContent>
             </Sheet>
+          ) : (
+            /* On surah page: Show home button to go back to main page */
+            <Link href="/">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-gray-600 dark:text-gray-300"
+                aria-label="Home"
+              >
+                <Home className="h-5 w-5" />
+              </Button>
+            </Link>
           )}
           
           <Link href="/">
