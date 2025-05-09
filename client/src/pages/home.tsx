@@ -8,12 +8,9 @@ import { getArabicFontClass } from '@/lib/fonts';
 import Header from '@/components/layout/Header';
 import { GlobalOverlayType } from '@/App';
 import { 
-  Search, BookOpen, ChevronRight, ArrowUp, ArrowDown,
-  Home, Menu, X, Facebook, Instagram
+  Search, BookOpen, ChevronRight, ArrowUp, ArrowDown
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
-import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 
 interface LastReadSection {
   surahNumber: number;
@@ -42,11 +39,10 @@ const popularSurahs: PopularSurah[] = [
 ];
 
 export default function Home({ onOpenOverlay }: HomeProps) {
-  const { data: surahs, isLoading } = useSurahs();
-  const [filteredSurahs, setFilteredSurahs] = useState(surahs);
+  const { data: surahs = [], isLoading } = useSurahs();
+  const [filteredSurahs, setFilteredSurahs] = useState<typeof surahs>(surahs);
   const [searchTerm, setSearchTerm] = useState('');
   const [lastRead, setLastRead] = useState<LastReadSection | null>(null);
-  const [isMainMenuOpen, setIsMainMenuOpen] = useState(false);
   const [scrollDirection, setScrollDirection] = useState<'top' | 'bottom'>('top');
   
   // Function to scroll to top or bottom
@@ -164,105 +160,6 @@ export default function Home({ onOpenOverlay }: HomeProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <Header onOpenOverlay={onOpenOverlay} />
-      
-      {/* Hamburger menu at top-left */}
-      <div className="fixed top-5 left-5 z-30">
-        <Drawer open={isMainMenuOpen} onOpenChange={setIsMainMenuOpen}>
-          <DrawerTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="rounded-full bg-primary dark:bg-accent text-white shadow-lg w-10 h-10 flex items-center justify-center"
-            >
-              <Menu className="h-4 w-4" />
-              <span className="sr-only">Open main menu</span>
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className="h-[80vh] px-0 pt-0 pb-0 bg-white dark:bg-gray-800">
-            <div className="p-4">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-bold text-primary dark:text-accent">Меню</h2>
-                <DrawerTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <X className="h-5 w-5" />
-                  </Button>
-                </DrawerTrigger>
-              </div>
-              
-              <div className="pr-3 space-y-4">
-                {/* Main Menu */}
-                <div className="mb-4">
-                  <Link 
-                    href="/"
-                    className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setIsMainMenuOpen(false)}
-                  >
-                    <Home className="h-4 w-4" />
-                    <span>Асосӣ</span>
-                  </Link>
-                  <Link 
-                    href="/projects"
-                    className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setIsMainMenuOpen(false)}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                    <span>Лоиҳаҳои мо</span>
-                  </Link>
-                </div>
-
-                <Separator className="my-2" />
-                
-                {/* Popular Surahs */}
-                <div className="mb-4">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Сураҳои маъмул</h3>
-                  <div className="space-y-1">
-                    {popularSurahs.map(surah => (
-                      <div key={surah.number} onClick={() => setIsMainMenuOpen(false)}>
-                        {renderPopularSurahLink(surah)}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <Separator className="my-4" />
-                
-                {/* Social Media Links */}
-                <div className="mt-4">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Шабакаҳои иҷтимоӣ</h3>
-                  <div className="flex items-center space-x-4 p-2">
-                    <a 
-                      href="https://www.instagram.com" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-accent"
-                    >
-                      <Instagram className="h-5 w-5" />
-                    </a>
-                    <a 
-                      href="https://t.me" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-accent"
-                    >
-                      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.568 7.382c-.12.55-.45.678-.913.422l-2.53-1.862-1.219 1.175c-.138.134-.253.247-.516.247l.181-2.572 4.693-4.237c.203-.18-.044-.282-.316-.101L9.36 12.756l-2.532-.806c-.55-.172-.56-.557.128-.825l9.873-3.8c.42-.167.789.106.586.897z" />
-                      </svg>
-                    </a>
-                    <a 
-                      href="https://www.facebook.com" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-accent"
-                    >
-                      <Facebook className="h-5 w-5" />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </DrawerContent>
-        </Drawer>
-      </div>
       
       {/* Scroll to top/bottom button */}
       <Button 

@@ -5,7 +5,17 @@ import { useState } from 'react';
 import { GlobalOverlayType } from '@/App';
 import { Surah } from '@shared/schema';
 import { Link, useLocation } from 'wouter';
-import { Sun, Moon, Search, BookmarkIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sun, Moon, Search, BookmarkIcon, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { 
+  Drawer, 
+  DrawerContent, 
+  DrawerTrigger,
+  DrawerClose,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter
+} from '@/components/ui/drawer';
+import { Separator } from '@/components/ui/separator';
 
 interface HeaderProps {
   surahs?: Surah[];
@@ -24,6 +34,7 @@ export default function Header({
 }: HeaderProps) {
   const { theme, setTheme } = useTheme();
   const [location, navigate] = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Navigate to the previous/next surah if available
   const goToPreviousSurah = () => {
@@ -57,7 +68,43 @@ export default function Header({
   return (
     <header className="sticky top-0 z-30 bg-white dark:bg-gray-900 shadow-md">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center">
+        <div className="flex items-center gap-3">
+          {/* Only show the hamburger menu on the home page */}
+          {!currentSurah && (
+            <Drawer open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <DrawerTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-600 dark:text-gray-300"
+                  aria-label="Menu"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>Меню</DrawerTitle>
+                </DrawerHeader>
+                <div className="p-4 space-y-3">
+                  <Link href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
+                    <div className="h-5 w-5" />
+                    <span>Асосӣ</span>
+                  </Link>
+                  <Link href="/projects" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
+                    <div className="h-5 w-5" />
+                    <span>Лоиҳаҳои мо</span>
+                  </Link>
+                </div>
+                <DrawerFooter>
+                  <DrawerClose asChild>
+                    <Button variant="outline">Пӯшидан</Button>
+                  </DrawerClose>
+                </DrawerFooter>
+              </DrawerContent>
+            </Drawer>
+          )}
+          
           <Link href="/">
             <h1 className="text-xl font-bold text-primary dark:text-accent cursor-pointer">
               Қуръон <span className="text-secondary dark:text-white text-sm">бо тарҷумаи тоҷикӣ</span>

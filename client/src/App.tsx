@@ -2,7 +2,7 @@ import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
-import HomePage from "@/pages/home-new";
+import HomePage from "@/pages/home";
 import Surah from "@/pages/surah";
 import { useState } from "react";
 import SearchOverlay from "./components/overlay/SearchOverlay";
