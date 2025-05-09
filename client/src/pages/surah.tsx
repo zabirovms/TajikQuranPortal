@@ -7,6 +7,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import AudioPlayer from '@/components/layout/AudioPlayer';
 import SurahHeader from '@/components/quran/SurahHeader';
 import VerseItem from '@/components/quran/VerseItem';
+import Bismillah from '@/components/quran/Bismillah';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'wouter';
@@ -74,7 +75,7 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <Header 
-        surahs={surahs}
+        surahs={surahs as any}
         currentSurah={surah} 
         versesCount={surah?.verses_count}
         onOpenOverlay={onOpenOverlay}
@@ -83,7 +84,7 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
       
       <div className="container mx-auto px-4 py-6 md:flex flex-1">
         <Sidebar 
-          surahs={surahs || []} 
+          surahs={surahs as any || []} 
           isLoading={isSurahsLoading} 
           currentSurahNumber={surah?.number}
         />
@@ -112,6 +113,9 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
               isLoading={true}
             />
           )}
+          
+          {/* Bismillah displayed for all surahs except Surah 1 (Al-Fatiha) and Surah 9 (At-Tawbah) */}
+          {surah && <Bismillah surahNumber={surah.number} />}
           
           <div className="space-y-6 mb-8">
             {isVersesLoading && (
