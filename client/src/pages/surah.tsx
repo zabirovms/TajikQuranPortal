@@ -23,7 +23,7 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
   const { data: surahs, isLoading: isSurahsLoading } = useSurahs();
   const { data: surah, isLoading: isSurahLoading } = useSurah(surahNumber);
   const { data: verses, isLoading: isVersesLoading } = useVerses(surahNumber);
-  const { playAudio, audioState } = useAudioPlayer();
+  const { playAudio, playSurah, audioState } = useAudioPlayer();
   const { toast } = useToast();
   
   // Save the last read position
@@ -42,19 +42,22 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
   
   // Handle playing the entire surah
   const handlePlaySurah = () => {
-    if (!verses || verses.length === 0) {
+    if (!surah) {
       toast({
         title: "Play error",
-        description: "No verses available to play",
+        description: "Surah information not available",
         variant: "destructive"
       });
       return;
     }
     
-    // Play the first verse using AlQuran Cloud API
-    playAudio(verses[0].unique_key, {
-      surahName: surah?.name_tajik || "",
-      verseNumber: verses[0].verse_number
+    // Use the new playSurah function to play the entire surah from CDN
+    const { playSurah } = useAudioPlayer();
+    playSurah(surah.number, surah.name_tajik);
+    
+    toast({
+      title: "Playing Surah",
+      description: `Now playing Сураи ${surah.name_tajik}`,
     });
   };
   

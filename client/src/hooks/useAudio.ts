@@ -11,6 +11,10 @@ interface AudioPlayerState {
     surahName: string;
     verseNumber: number;
   };
+  playingEntireSurah?: {
+    surahNumber: number;
+    surahName: string;
+  };
   reciterId: string;
 }
 
@@ -233,6 +237,90 @@ export function useAudioPlayer() {
     setAudioState(prev => ({ ...prev, currentTime: time }));
   }, []);
   
+  // Play entire surah audio
+  const playSurah = useCallback((surahNumber: number, surahName: string) => {
+    if (!audioRef.current) return;
+    
+    // Stop current audio if playing
+    if (audioState.isPlaying) {
+      audioRef.current.pause();
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+    
+    // Show loading state immediately
+    setAudioState(prev => ({ 
+      ...prev, 
+      loading: true,
+      currentVerse: undefined // Clear current verse since we're playing a full surah
+    }));
+    
+    // Construct the URL for entire surah audio
+    // Format: https://cdn.islamic.network/quran/audio-surah/128/{edition}/{number}.mp3
+    const surahAudioUrl = `https://cdn.islamic.network/quran/audio-surah/128/${audioState.reciterId}/${surahNumber}.mp3`;
+    
+    try {
+      if (!audioRef.current) return;
+      
+      // Set new audio source
+      audioRef.current.src = surahAudioUrl;
+      audioRef.current.currentTime = 0;
+      
+      // Play the audio
+      audioRef.current.play()
+        .then(() => {
+          setAudioState(prev => ({ 
+            ...prev, 
+            isPlaying: true,
+            loading: false,
+            playingEntireSurah: { 
+              surahNumber, 
+              surahName 
+            }
+          }));
+          
+          // Start interval for tracking current time
+          intervalRef.current = setInterval(() => {
+            if (audioRef.current) {
+              setAudioState(prev => ({ 
+                ...prev, 
+                currentTime: audioRef.current?.currentTime || 0 
+              }));
+            }
+          }, 1000);
+        })
+        .catch(err => {
+          console.error('Error playing surah audio:', err);
+          toast({
+            title: "Playback Error",
+            description: "Could not play surah audio. Please try again or select another reciter.",
+            variant: "destructive"
+          });
+          setAudioState(prev => ({ 
+            ...prev, 
+            loading: false, 
+            isPlaying: false,
+            playingEntireSurah: undefined
+          }));
+        });
+    } catch (error) {
+      console.error('Error setting up surah audio:', error);
+      toast({
+        title: "Playback Error",
+        description: "Could not access surah audio. Please try again later.",
+        variant: "destructive"
+      });
+      setAudioState(prev => ({ 
+        ...prev, 
+        loading: false, 
+        isPlaying: false,
+        playingEntireSurah: undefined
+      }));
+    }
+  }, [audioState.isPlaying, audioState.reciterId, toast]);
+
   // Stop audio
   const stopAudio = useCallback(() => {
     if (!audioRef.current) return;
@@ -249,13 +337,15 @@ export function useAudioPlayer() {
       ...prev,
       isPlaying: false,
       currentTime: 0,
-      currentVerse: undefined
+      currentVerse: undefined,
+      playingEntireSurah: undefined
     }));
   }, []);
   
   return {
     audioState,
     playAudio,
+    playSurah,
     togglePlayPause,
     seekTo,
     stopAudio,

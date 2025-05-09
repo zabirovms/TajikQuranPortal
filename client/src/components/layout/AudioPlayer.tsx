@@ -30,8 +30,9 @@ export default function AudioPlayer() {
     setReciter(value);
   };
 
-  // If there's no current verse, don't render the player
-  if (!audioState.currentVerse) {
+  // Don't render the player if there's nothing playing
+  const isPlaying = Boolean(audioState.currentVerse || audioState.playingEntireSurah);
+  if (!isPlaying) {
     return null;
   }
 
@@ -40,8 +41,17 @@ export default function AudioPlayer() {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center">
           <div className="w-24 text-sm text-gray-600 dark:text-gray-400">
-            <div className="font-medium">{audioState.currentVerse.key}</div>
-            <div className="text-xs">{audioState.currentVerse.surahName}</div>
+            {audioState.currentVerse ? (
+              <>
+                <div className="font-medium">{audioState.currentVerse.key}</div>
+                <div className="text-xs">{audioState.currentVerse.surahName}</div>
+              </>
+            ) : audioState.playingEntireSurah ? (
+              <>
+                <div className="font-medium">Сураи {audioState.playingEntireSurah.surahNumber}</div>
+                <div className="text-xs">{audioState.playingEntireSurah.surahName}</div>
+              </>
+            ) : null}
           </div>
           
           <div className="flex-1 flex items-center space-x-3">
