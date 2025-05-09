@@ -19,7 +19,27 @@ const surahsMetadata = [
   { number: 3, name_arabic: "آل عمران", name_tajik: "Оли Имрон", name_english: "Aal-Imran", revelation_type: "Medinan", verses_count: 200 },
   { number: 4, name_arabic: "النساء", name_tajik: "Нисо", name_english: "An-Nisa", revelation_type: "Medinan", verses_count: 176 },
   { number: 5, name_arabic: "المائدة", name_tajik: "Моида", name_english: "Al-Ma'idah", revelation_type: "Medinan", verses_count: 120 },
-  // Add more surahs here
+  { number: 6, name_arabic: "الأنعام", name_tajik: "Анъом", name_english: "Al-An'am", revelation_type: "Meccan", verses_count: 165 },
+  { number: 7, name_arabic: "الأعراف", name_tajik: "Аъроф", name_english: "Al-A'raf", revelation_type: "Meccan", verses_count: 206 },
+  { number: 8, name_arabic: "الأنفال", name_tajik: "Анфол", name_english: "Al-Anfal", revelation_type: "Medinan", verses_count: 75 },
+  { number: 9, name_arabic: "التوبة", name_tajik: "Тавба", name_english: "At-Tawbah", revelation_type: "Medinan", verses_count: 129 },
+  { number: 10, name_arabic: "يونس", name_tajik: "Юнус", name_english: "Yunus", revelation_type: "Meccan", verses_count: 109 },
+  { number: 11, name_arabic: "هود", name_tajik: "Ҳуд", name_english: "Hud", revelation_type: "Meccan", verses_count: 123 },
+  { number: 12, name_arabic: "يوسف", name_tajik: "Юсуф", name_english: "Yusuf", revelation_type: "Meccan", verses_count: 111 },
+  { number: 13, name_arabic: "الرعد", name_tajik: "Раъд", name_english: "Ar-Ra'd", revelation_type: "Medinan", verses_count: 43 },
+  { number: 14, name_arabic: "ابراهيم", name_tajik: "Иброҳим", name_english: "Ibrahim", revelation_type: "Meccan", verses_count: 52 },
+  { number: 15, name_arabic: "الحجر", name_tajik: "Ҳиҷр", name_english: "Al-Hijr", revelation_type: "Meccan", verses_count: 99 },
+  { number: 16, name_arabic: "النحل", name_tajik: "Наҳл", name_english: "An-Nahl", revelation_type: "Meccan", verses_count: 128 },
+  { number: 17, name_arabic: "الإسراء", name_tajik: "Исро", name_english: "Al-Isra", revelation_type: "Meccan", verses_count: 111 },
+  { number: 18, name_arabic: "الكهف", name_tajik: "Каҳф", name_english: "Al-Kahf", revelation_type: "Meccan", verses_count: 110 },
+  { number: 19, name_arabic: "مريم", name_tajik: "Марям", name_english: "Maryam", revelation_type: "Meccan", verses_count: 98 },
+  { number: 20, name_arabic: "طه", name_tajik: "Тоҳо", name_english: "Taha", revelation_type: "Meccan", verses_count: 135 },
+  { number: 21, name_arabic: "الأنبياء", name_tajik: "Анбиё", name_english: "Al-Anbya", revelation_type: "Meccan", verses_count: 112 },
+  { number: 22, name_arabic: "الحج", name_tajik: "Ҳаҷ", name_english: "Al-Hajj", revelation_type: "Medinan", verses_count: 78 },
+  { number: 23, name_arabic: "المؤمنون", name_tajik: "Мӯъминун", name_english: "Al-Mu'minun", revelation_type: "Meccan", verses_count: 118 },
+  { number: 24, name_arabic: "النور", name_tajik: "Нур", name_english: "An-Nur", revelation_type: "Medinan", verses_count: 64 },
+  { number: 25, name_arabic: "الفرقان", name_tajik: "Фурқон", name_english: "Al-Furqan", revelation_type: "Meccan", verses_count: 77 },
+  // Add the remaining 89 surahs with similar pattern
 ];
 
 async function setupDatabase() {
