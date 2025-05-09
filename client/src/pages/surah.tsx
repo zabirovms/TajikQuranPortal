@@ -7,7 +7,6 @@ import Sidebar from '@/components/layout/Sidebar';
 import AudioPlayer from '@/components/layout/AudioPlayer';
 import SurahHeader from '@/components/quran/SurahHeader';
 import VerseItem from '@/components/quran/VerseItem';
-import Bismillah from '@/components/quran/Bismillah';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'wouter';
@@ -51,8 +50,7 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
       return;
     }
     
-    // Use the new playSurah function to play the entire surah from CDN
-    const { playSurah } = useAudioPlayer();
+    // Use the playSurah function from the top-level hook
     playSurah(surah.number, surah.name_tajik);
     
     toast({
@@ -117,8 +115,7 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
             />
           )}
           
-          {/* Bismillah displayed in Arabic only (no translation) for all surahs except Surah 1 (Al-Fatiha) and Surah 9 (At-Tawbah) */}
-          {surah && <Bismillah surahNumber={surah.number} showTranslation={false} />}
+          {/* Bismillah is now handled directly in SurahHeader component */}
           
           <div className="space-y-6 mb-8">
             {isVersesLoading && (
