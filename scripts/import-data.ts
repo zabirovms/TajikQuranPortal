@@ -263,8 +263,9 @@ async function setupDatabase() {
     console.log('Importing verses...');
     let currentSura = 1;
     const totalVerses = arabicVerses.size;
+    console.log(`Total verses to import: ${totalVerses}`);
     let processedVerses = 0;
-    const batchSize = 50;
+    const batchSize = 100; // Increased batch size
     let batch = [];
 
     for (const [key, arabicText] of arabicVerses.entries()) {
@@ -308,11 +309,8 @@ async function setupDatabase() {
       // Process batch when it reaches the batch size
       if (batch.length >= batchSize) {
         try {
-          // Use a transaction for better performance and reliability
-          await sql.begin(async (sqlTx) => {
-            const tx = drizzle(sqlTx);
-            await tx.insert(verses).values(batch).onConflictDoNothing();
-          });
+          // Just use regular insert without transaction
+          await db.insert(verses).values(batch).onConflictDoNothing();
           processedVerses += batch.length;
           console.log(`Imported ${processedVerses}/${totalVerses} verses`);
         } catch (error) {
@@ -325,11 +323,8 @@ async function setupDatabase() {
     // Process remaining verses
     if (batch.length > 0) {
       try {
-        // Use a transaction for better performance and reliability
-        await sql.begin(async (sqlTx) => {
-          const tx = drizzle(sqlTx);
-          await tx.insert(verses).values(batch).onConflictDoNothing();
-        });
+        // Just use regular insert without transaction
+        await db.insert(verses).values(batch).onConflictDoNothing();
         processedVerses += batch.length;
         console.log(`Imported final ${batch.length} verses`);
       } catch (error) {
