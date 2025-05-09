@@ -217,11 +217,12 @@ export function useAudioPlayer() {
       });
   }, [audioState.isPlaying, getAudioUrl, toast]);
   
-  // Toggle play/pause
+  // Toggle play/pause for current audio
   const togglePlayPause = useCallback(() => {
     if (!audioRef.current || !audioRef.current.src) return;
     
     if (audioState.isPlaying) {
+      // Pause the currently playing audio
       audioRef.current.pause();
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -229,6 +230,7 @@ export function useAudioPlayer() {
       }
       setAudioState(prev => ({ ...prev, isPlaying: false }));
     } else {
+      // Resume playback
       audioRef.current.play().then(() => {
         setAudioState(prev => ({ ...prev, isPlaying: true }));
         

@@ -2,7 +2,7 @@ import { useAudioPlayer, availableReciters } from '@/hooks/useAudio';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Repeat } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Repeat, StopCircle, Square } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 // Format time in MM:SS format
@@ -13,7 +13,7 @@ function formatTime(seconds: number): string {
 }
 
 export default function AudioPlayer() {
-  const { audioState, togglePlayPause, seekTo, setReciter } = useAudioPlayer();
+  const { audioState, togglePlayPause, seekTo, setReciter, stopAudio } = useAudioPlayer();
   const [progressPercentage, setProgressPercentage] = useState(0);
 
   // Update the progress bar as audio plays
@@ -78,14 +78,28 @@ export default function AudioPlayer() {
               )}
             </Button>
             
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-accent"
-              disabled={true} // Disabled for now, can be implemented later
-            >
-              <SkipForward className="h-4 w-4" />
-            </Button>
+            {/* Show different controls based on what's playing */}
+            {audioState.playingEntireSurah ? (
+              // Stop button for surah playback
+              <Button
+                className="w-8 h-8 rounded-full bg-red-500 text-white hover:bg-red-600 flex items-center justify-center"
+                onClick={stopAudio}
+                disabled={audioState.loading}
+                title="Stop playback"
+              >
+                <Square className="h-3.5 w-3.5" />
+              </Button>
+            ) : (
+              // Regular forward button (disabled for now)
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-accent"
+                disabled={true}
+              >
+                <SkipForward className="h-4 w-4" />
+              </Button>
+            )}
             
             <div className="hidden sm:flex flex-1 items-center space-x-2">
               <span className="text-xs text-gray-500 dark:text-gray-400">
