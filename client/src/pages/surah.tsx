@@ -114,14 +114,8 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
             />
           )}
           
-          {/* Bismillah is displayed in Arabic only for all surahs except:
-              - Surah 1 (Al-Fatiha): Bismillah is already verse 1
-              - Surah 9 (At-Tawbah): No Bismillah per Islamic tradition
-              - All first verses with Bismillah: Skip to avoid duplicate Bismillah in display
-          */}
-          {surah && verses && verses.length > 0 && 
-           !verses.some(v => v.verse_number === 1 && v.arabic_text.includes('بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ')) && 
-           <Bismillah surahNumber={surah.number} showTranslation={false} />}
+          {/* Bismillah displayed in Arabic only (no translation) for all surahs except Surah 1 (Al-Fatiha) and Surah 9 (At-Tawbah) */}
+          {surah && <Bismillah surahNumber={surah.number} showTranslation={false} />}
           
           <div className="space-y-6 mb-8">
             {isVersesLoading && (

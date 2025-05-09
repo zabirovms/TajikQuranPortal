@@ -153,14 +153,13 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                 <ImageIcon className="h-4 w-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[800px]">
-              <div className="pt-2 px-2">
-                <div className="bg-white rounded-lg p-2 flex justify-center items-center">
+            <DialogContent className="sm:max-w-[700px]">
+              <div className="pt-4 px-4">
+                <AspectRatio ratio={16/9} className="bg-white rounded-lg p-6">
                   <img 
                     src={getVerseImageUrl(true)} 
                     alt={`Quran verse ${verse.unique_key}`}
-                    className="max-w-full max-h-[80vh]"
-                    style={{ minHeight: '250px' }}
+                    className="object-contain h-full w-full"
                     onError={(e) => {
                       // If high-res image fails, try standard resolution
                       const target = e.target as HTMLImageElement;
@@ -169,7 +168,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                       }
                     }}
                   />
-                </div>
+                </AspectRatio>
                 <div className="mt-4 text-center text-sm text-muted-foreground">
                   Verse {verse.unique_key}
                 </div>
