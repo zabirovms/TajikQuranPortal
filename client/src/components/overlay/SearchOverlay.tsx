@@ -43,7 +43,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   } = useSearchVerses(
     searchActive ? query : '', 
     language,
-    selectedSurah ? parseInt(selectedSurah) : undefined
+    selectedSurah && selectedSurah !== 'all' ? parseInt(selectedSurah) : undefined
   );
   
   // Handle search errors
@@ -143,8 +143,8 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     <SelectValue placeholder="Ҳамаи сураҳо" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Ҳамаи сураҳо</SelectItem>
-                    {surahs?.map(surah => (
+                    <SelectItem value="all">Ҳамаи сураҳо</SelectItem>
+                    {Array.isArray(surahs) && surahs.map((surah) => (
                       <SelectItem key={surah.id} value={surah.number.toString()}>
                         {surah.number}. {surah.name_tajik}
                       </SelectItem>
