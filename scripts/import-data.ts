@@ -267,14 +267,26 @@ async function setupDatabase() {
     
     // Insert verses (batch processing to avoid memory issues)
     console.log('Importing verses...');
+    
+    // Check existing verses
+    console.log('Checking existing verses...');
+    const existingVerses = await db.select({ key: verses.unique_key }).from(verses);
+    const existingKeys = new Set(existingVerses.map(v => v.key));
+    console.log(`Found ${existingKeys.size} existing verses in database`);
+    
     let currentSura = 1;
     const totalVerses = arabicVerses.size;
     console.log(`Total verses to import: ${totalVerses}`);
     let processedVerses = 0;
-    const batchSize = 100; // Increased batch size
+    const batchSize = 200; // Increased batch size for faster import
     let batch = [];
 
     for (const [key, arabicText] of arabicVerses.entries()) {
+      // Skip verses that are already in the database
+      if (existingKeys.has(key)) {
+        continue;
+      }
+      
       const [suraStr, ayaStr] = key.split(':');
       const sura = parseInt(suraStr);
       const aya = parseInt(ayaStr);
