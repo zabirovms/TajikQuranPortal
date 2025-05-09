@@ -238,7 +238,8 @@ async function setupDatabase() {
     // Extract Arabic verses
     console.log('Extracting Arabic verses...');
     const arabicVerses = new Map();
-    const arabicRegex = /INSERT INTO `quran_text` \(`index`, `sura`, `aya`, `text`\) VALUES\s*\((\d+), (\d+), (\d+), '(.+?)'\)/g;
+    // This regex matches individual rows, not the entire INSERT statement
+    const arabicRegex = /\((\d+), (\d+), (\d+), '([^']+)'\)/g;
     
     let arabicMatch;
     while ((arabicMatch = arabicRegex.exec(arabicData))) {
@@ -247,10 +248,13 @@ async function setupDatabase() {
       arabicVerses.set(key, text);
     }
     
+    console.log(`Extracted ${arabicVerses.size} Arabic verses`);
+    
     // Extract Tajik verses
     console.log('Extracting Tajik verses...');
     const tajikVerses = new Map();
-    const tajikRegex = /INSERT INTO `tg_ayati` \(`index`, `sura`, `aya`, `text`\) VALUES\s*\((\d+), (\d+), (\d+), '(.+?)'\)/g;
+    // This regex matches individual rows, not the entire INSERT statement
+    const tajikRegex = /\((\d+), (\d+), (\d+), '([^']+)'\)/g;
     
     let tajikMatch;
     while ((tajikMatch = tajikRegex.exec(tajikData))) {
@@ -258,6 +262,8 @@ async function setupDatabase() {
       const key = `${sura}:${aya}`;
       tajikVerses.set(key, text);
     }
+    
+    console.log(`Extracted ${tajikVerses.size} Tajik verses`);
     
     // Insert verses (batch processing to avoid memory issues)
     console.log('Importing verses...');
