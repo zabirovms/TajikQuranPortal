@@ -123,89 +123,183 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
       className={`mb-6 overflow-hidden ${isBookmarked ? 'ring-2 ring-accent' : ''}`}
       data-verse={verse.unique_key}
     >
-      <div className="border-b border-gray-100 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-700 flex justify-between items-center">
-        <div className="flex items-center">
-          <span className="ayah-number bg-primary dark:bg-accent text-white text-sm">
-            {formatArabicNumber(verse.verse_number)}
-          </span>
-          <span className="text-sm text-gray-500 dark:text-gray-400">{verse.unique_key}</span>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-gray-400 hover:text-primary dark:hover:text-accent"
-            onClick={handlePlayAudio}
-            title="Play Audio"
-          >
-            <Play className="h-4 w-4" />
-          </Button>
+      <div className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+        {/* Mobile header - stacked */}
+        <div className="md:hidden">
+          <div className="p-3 flex justify-between items-center">
+            <div className="flex items-center">
+              <span className="ayah-number bg-primary dark:bg-accent text-white text-sm">
+                {formatArabicNumber(verse.verse_number)}
+              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{verse.unique_key}</span>
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className={isBookmarked ? "text-accent" : "text-gray-400 hover:text-accent"}
+              onClick={toggleBookmark}
+              disabled={isBookmarkPending || isBookmarkLoading}
+              title={isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
+            >
+              <BookmarkIcon className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
+            </Button>
+          </div>
           
-          <Dialog>
-            <DialogTrigger asChild>
+          <div className="px-3 pb-3 flex justify-between items-center">
+            <div className="flex items-center space-x-1">
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-gray-400 hover:text-primary dark:hover:text-accent"
-                title="View Verse Image"
+                className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
+                onClick={handlePlayAudio}
+                title="Play Audio"
               >
-                <ImageIcon className="h-4 w-4" />
+                <Play className="h-4 w-4" />
               </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[700px]">
-              <div className="pt-4 px-4">
-                <AspectRatio ratio={16/9} className="bg-white rounded-lg p-6">
-                  <img 
-                    src={getVerseImageUrl(true)} 
-                    alt={`Quran verse ${verse.unique_key}`}
-                    className="object-contain h-full w-full"
-                    onError={(e) => {
-                      // If high-res image fails, try standard resolution
-                      const target = e.target as HTMLImageElement;
-                      if (target.src.includes('high-resolution')) {
-                        target.src = getVerseImageUrl(false);
-                      }
-                    }}
-                  />
-                </AspectRatio>
-                <div className="mt-4 text-center text-sm text-muted-foreground">
-                  Verse {verse.unique_key}
+              
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
+                    title="View Verse Image"
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-[90vw] sm:max-w-[700px]">
+                  <div className="pt-4 px-4">
+                    <AspectRatio ratio={16/9} className="bg-white rounded-lg p-6">
+                      <img 
+                        src={getVerseImageUrl(true)} 
+                        alt={`Quran verse ${verse.unique_key}`}
+                        className="object-contain h-full w-full"
+                        onError={(e) => {
+                          // If high-res image fails, try standard resolution
+                          const target = e.target as HTMLImageElement;
+                          if (target.src.includes('high-resolution')) {
+                            target.src = getVerseImageUrl(false);
+                          }
+                        }}
+                      />
+                    </AspectRatio>
+                    <div className="mt-4 text-center text-sm text-muted-foreground">
+                      Verse {verse.unique_key}
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
+                onClick={handleCopyVerse}
+                title="Copy Verse"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
+                onClick={handleShareVerse}
+                title="Share Verse"
+              >
+                <Share className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Desktop header - one row */}
+        <div className="hidden md:flex md:justify-between md:items-center md:p-3">
+          <div className="flex items-center">
+            <span className="ayah-number bg-primary dark:bg-accent text-white text-sm">
+              {formatArabicNumber(verse.verse_number)}
+            </span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">{verse.unique_key}</span>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-400 hover:text-primary dark:hover:text-accent"
+              onClick={handlePlayAudio}
+              title="Play Audio"
+            >
+              <Play className="h-4 w-4" />
+            </Button>
+            
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-400 hover:text-primary dark:hover:text-accent"
+                  title="View Verse Image"
+                >
+                  <ImageIcon className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[700px]">
+                <div className="pt-4 px-4">
+                  <AspectRatio ratio={16/9} className="bg-white rounded-lg p-6">
+                    <img 
+                      src={getVerseImageUrl(true)} 
+                      alt={`Quran verse ${verse.unique_key}`}
+                      className="object-contain h-full w-full"
+                      onError={(e) => {
+                        // If high-res image fails, try standard resolution
+                        const target = e.target as HTMLImageElement;
+                        if (target.src.includes('high-resolution')) {
+                          target.src = getVerseImageUrl(false);
+                        }
+                      }}
+                    />
+                  </AspectRatio>
+                  <div className="mt-4 text-center text-sm text-muted-foreground">
+                    Verse {verse.unique_key}
+                  </div>
                 </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-gray-400 hover:text-primary dark:hover:text-accent"
-            onClick={handleCopyVerse}
-            title="Copy Verse"
-          >
-            <Copy className="h-4 w-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-gray-400 hover:text-primary dark:hover:text-accent"
-            onClick={handleShareVerse}
-            title="Share Verse"
-          >
-            <Share className="h-4 w-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            className={isBookmarked ? "text-accent" : "text-gray-400 hover:text-accent"}
-            onClick={toggleBookmark}
-            disabled={isBookmarkPending || isBookmarkLoading}
-            title={isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
-          >
-            <BookmarkIcon className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
-          </Button>
+              </DialogContent>
+            </Dialog>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-400 hover:text-primary dark:hover:text-accent"
+              onClick={handleCopyVerse}
+              title="Copy Verse"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-400 hover:text-primary dark:hover:text-accent"
+              onClick={handleShareVerse}
+              title="Share Verse"
+            >
+              <Share className="h-4 w-4" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className={isBookmarked ? "text-accent" : "text-gray-400 hover:text-accent"}
+              onClick={toggleBookmark}
+              disabled={isBookmarkPending || isBookmarkLoading}
+              title={isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
+            >
+              <BookmarkIcon className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
+            </Button>
+          </div>
         </div>
       </div>
       

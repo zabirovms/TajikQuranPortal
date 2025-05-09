@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { GlobalOverlayType } from '@/App';
 import { Surah } from '@shared/schema';
 import { Link, useLocation } from 'wouter';
-import { Sun, Moon, Search, BookmarkIcon, Menu, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sun, Moon, Search, BookmarkIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface HeaderProps {
   surahs?: Surah[];
@@ -23,12 +23,7 @@ export default function Header({
   isLoading = false 
 }: HeaderProps) {
   const { theme, setTheme } = useTheme();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [location, navigate] = useLocation();
-  
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
 
   // Navigate to the previous/next surah if available
   const goToPreviousSurah = () => {
@@ -62,15 +57,7 @@ export default function Header({
   return (
     <header className="sticky top-0 z-30 bg-white dark:bg-gray-900 shadow-md">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="md:hidden" 
-            onClick={toggleMobileMenu}
-          >
-            <Menu className="h-5 w-5 text-primary dark:text-accent" />
-          </Button>
+        <div className="flex items-center">
           <Link href="/">
             <h1 className="text-xl font-bold text-primary dark:text-accent cursor-pointer">
               Қуръон <span className="text-secondary dark:text-white text-sm">бо тарҷумаи тоҷикӣ</span>
@@ -114,26 +101,50 @@ export default function Header({
       
       {currentSurah && (
         <div className="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
-          <div className="container mx-auto px-4 py-2 flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Сура:</span>
-                <Select 
-                  value={currentSurah.number.toString()} 
-                  onValueChange={handleSurahChange}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger className="w-[180px] h-8">
-                    <SelectValue placeholder="Select Surah" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {surahs.map(surah => (
-                      <SelectItem key={surah.id} value={surah.number.toString()}>
-                        {surah.number}. {surah.name_tajik}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          <div className="container mx-auto px-4 py-2">
+            {/* Mobile layout - stacked */}
+            <div className="md:hidden space-y-3">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2 w-3/4">
+                  <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Сура:</span>
+                  <Select 
+                    value={currentSurah.number.toString()} 
+                    onValueChange={handleSurahChange}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger className="h-8">
+                      <SelectValue placeholder="Select Surah" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {surahs.map(surah => (
+                        <SelectItem key={surah.id} value={surah.number.toString()}>
+                          {surah.number}. {surah.name_tajik}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex items-center space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={goToPreviousSurah}
+                    disabled={!currentSurah || currentSurah.number <= 1}
+                    className="h-8 w-8"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={goToNextSurah}
+                    disabled={!currentSurah || currentSurah.number >= 114}
+                    className="h-8 w-8"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               
               <div className="flex items-center space-x-2">
@@ -156,23 +167,67 @@ export default function Header({
               </div>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToPreviousSurah}
-                disabled={!currentSurah || currentSurah.number <= 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToNextSurah}
-                disabled={!currentSurah || currentSurah.number >= 114}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+            {/* Desktop layout - side by side */}
+            <div className="hidden md:flex md:items-center md:justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Сура:</span>
+                  <Select 
+                    value={currentSurah.number.toString()} 
+                    onValueChange={handleSurahChange}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger className="w-[180px] h-8">
+                      <SelectValue placeholder="Select Surah" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {surahs.map(surah => (
+                        <SelectItem key={surah.id} value={surah.number.toString()}>
+                          {surah.number}. {surah.name_tajik}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Оят:</span>
+                  <Select 
+                    onValueChange={handleVerseChange}
+                    disabled={isLoading || !versesCount}
+                  >
+                    <SelectTrigger className="w-[80px] h-8">
+                      <SelectValue placeholder="#" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: versesCount }, (_, i) => (
+                        <SelectItem key={i + 1} value={(i + 1).toString()}>
+                          {i + 1}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={goToPreviousSurah}
+                  disabled={!currentSurah || currentSurah.number <= 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={goToNextSurah}
+                  disabled={!currentSurah || currentSurah.number >= 114}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
