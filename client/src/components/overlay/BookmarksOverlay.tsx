@@ -51,7 +51,7 @@ export default function BookmarksOverlay({ isOpen, onClose }: BookmarksOverlayPr
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-2xl" onInteractOutside={onClose}>
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-          <h3 className="text-lg font-bold text-gray-800 dark:text-white">Хатчӯбҳои шумо</h3>
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white">Захираҳои шумо</h3>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4 text-gray-600 dark:text-gray-400" />
           </Button>
@@ -66,8 +66,8 @@ export default function BookmarksOverlay({ isOpen, onClose }: BookmarksOverlayPr
           ) : !bookmarks || bookmarks.length === 0 ? (
             <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <BookmarkIcon className="h-8 w-8 mx-auto mb-2" />
-              <p>Шумо ҳоло ягон хатчӯб надоред</p>
-              <p className="text-sm mt-2">Барои илова кардани хатчӯб, дар вақти хондани Қуръон тугмаи хатчӯбро пахш кунед</p>
+              <p>Шумо ҳоло ягон захира надоред</p>
+              <p className="text-sm mt-2">Барои илова кардани захира, дар вақти хондани Қуръон тугмаи захираро пахш кунед</p>
             </div>
           ) : (
             <ScrollArea className="max-h-96 overflow-y-auto custom-scrollbar pr-2">
@@ -84,7 +84,7 @@ export default function BookmarksOverlay({ isOpen, onClose }: BookmarksOverlayPr
                           {verse.unique_key.split(':')[0]}
                         </span>
                         <span className="text-sm font-medium">
-                          Сураи {verse.unique_key.split(':')[0]}, Ояти {verse.verse_number}
+                          Сураи {verse.unique_key.split(':')[0]}, ояти {verse.verse_number}
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -109,7 +109,7 @@ export default function BookmarksOverlay({ isOpen, onClose }: BookmarksOverlayPr
                       variant="link" 
                       className="text-primary dark:text-accent text-sm p-0 h-auto"
                     >
-                      Ба оят гузаред
+                      Гузаштан ба оят
                     </Button>
                   </div>
                 </div>

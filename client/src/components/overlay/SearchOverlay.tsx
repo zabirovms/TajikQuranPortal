@@ -50,9 +50,9 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   useEffect(() => {
     if (searchError) {
       console.error("Search error:", searchError);
-      setError("Хатогии ҷустуҷӯ. Лутфан дубора кӯшиш кунед.");
+      setError("Хатогӣ дар ҷустуҷӯ. Лутфан дубора кӯшиш кунед.");
       toast({
-        title: "Хатогии ҷустуҷӯ",
+        title: "Хатогӣ дар ҷустуҷӯ",
         description: "Ҳангоми ҷустуҷӯ хатогӣ рӯй дод. Лутфан дубора кӯшиш кунед.",
         variant: "destructive"
       });
@@ -87,7 +87,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-2xl" onInteractOutside={onClose}>
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-          <h3 className="text-lg font-bold text-gray-800 dark:text-white">Ҷустуҷӯи Қуръон</h3>
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white">Ҷустуҷӯ дар Қуръон</h3>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4 text-gray-600 dark:text-gray-400" />
           </Button>

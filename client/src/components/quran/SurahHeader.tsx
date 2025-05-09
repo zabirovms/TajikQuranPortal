@@ -36,7 +36,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
         {surah.name_arabic}
       </div>
       <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
-        {surah.name_english} • {surah.verses_count} Оятҳо • 
+        {surah.name_english} • {surah.verses_count} оят • 
         {surah.revelation_type === "Meccan" ? " Нозилшуда дар Макка" : " Нозилшуда дар Мадина"}
       </p>
       
@@ -45,13 +45,16 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           onClick={onPlaySurah}
           className="flex items-center justify-center bg-primary dark:bg-accent text-white rounded-full px-4 py-1 text-sm hover:bg-primary/90 dark:hover:bg-accent/90"
         >
-          <Play className="mr-2 h-4 w-4" /> Пахши сура
+          <Play className="mr-2 h-4 w-4" /> Тиловати сура
         </Button>
       </div>
       
-      <div className={`${getArabicFontClass('lg')} text-gray-800 dark:text-gray-200 p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50`}>
-        بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-      </div>
+      {/* Only show Bismillah for surahs other than Al-Fatiha (1) and At-Tawbah (9) */}
+      {surah.number !== 1 && surah.number !== 9 && (
+        <div className={`${getArabicFontClass('lg')} text-gray-800 dark:text-gray-200 p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50`}>
+          بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+        </div>
+      )}
     </div>
   );
 }

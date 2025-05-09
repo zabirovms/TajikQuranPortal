@@ -73,7 +73,7 @@ export default function Home({ onOpenOverlay }: HomeProps) {
               <div>
                 <h3 className="font-medium">{surah.name_tajik}</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {surah.name_english} • {surah.verses_count} Оятҳо
+                  {surah.name_english} • {surah.verses_count} оят
                 </p>
               </div>
             </div>
@@ -116,7 +116,7 @@ export default function Home({ onOpenOverlay }: HomeProps) {
               Қуръон бо тарҷумаи тоҷикӣ
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Матни Қуръон ба забони арабӣ бо тарҷума ба забони тоҷикӣ
+              Қуръони шариф бо тарҷума ва тафсири тоҷикӣ
             </p>
           </div>
           
@@ -125,10 +125,10 @@ export default function Home({ onOpenOverlay }: HomeProps) {
               <CardHeader>
                 <CardTitle className="text-primary dark:text-accent flex items-center gap-2">
                   <BookOpen className="h-5 w-5" />
-                  Вазъияти охирини хондашуда
+                  Саҳифаи охирон хондашуда
                 </CardTitle>
                 <CardDescription>
-                  Идома додани хондан аз ҷое, ки шумо қатъ кардед
+                  Аз ҳамон ҷое, ки қатъ карда будед хонданро идома диҳед.
                 </CardDescription>
               </CardHeader>
               <CardContent>

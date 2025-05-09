@@ -155,7 +155,7 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
               <Link href={`/surah/${previousSurah}`}>
                 <Button variant="link" className="flex items-center space-x-2 text-primary dark:text-accent">
                   <ChevronLeft className="h-4 w-4" />
-                  <span>Сураи пешина</span>
+                  <span>Сураи қаблӣ</span>
                 </Button>
               </Link>
             ) : (
@@ -171,7 +171,7 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
             {nextSurah ? (
               <Link href={`/surah/${nextSurah}`}>
                 <Button variant="link" className="flex items-center space-x-2 text-primary dark:text-accent">
-                  <span>Сураи оянда</span>
+                  <span>Сураи баъдӣ</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </Link>
