@@ -67,7 +67,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           </Button>
         </div>
         
-        <div className={`${getArabicFontClass('md')} text-gray-800 dark:text-gray-200 p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50`}>
+        <div className={`${getArabicFontClass('md')} bismillah text-gray-800 dark:text-gray-200`}>
           بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
         </div>
       </div>
@@ -94,7 +94,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           </Button>
         </div>
         
-        <div className={`${getArabicFontClass('lg')} text-gray-800 dark:text-gray-200 p-2 rounded-lg bg-gray-50 dark:bg-gray-700/50`}>
+        <div className={`${getArabicFontClass('lg')} bismillah text-gray-800 dark:text-gray-200`}>
           بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
         </div>
       </div>

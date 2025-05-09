@@ -7,7 +7,7 @@ import { useAudioPlayer } from '@/hooks/useAudio';
 import { useToast } from '@/hooks/use-toast';
 import { useIsVerseBookmarked, useAddBookmark, useRemoveBookmark } from '@/hooks/useBookmarks';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '@/components/ui/dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 interface VerseItemProps {
@@ -170,6 +170,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-[90vw] sm:max-w-[700px]">
+                  <DialogTitle className="text-center">Quran Verse {verse.unique_key}</DialogTitle>
                   <div className="pt-4 px-4">
                     <AspectRatio ratio={16/9} className="bg-white rounded-lg p-6">
                       <img 
@@ -186,7 +187,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                       />
                     </AspectRatio>
                     <div className="mt-4 text-center text-sm text-muted-foreground">
-                      Verse {verse.unique_key}
+                      Surah {surahName}, Verse {verse.verse_number}
                     </div>
                   </div>
                 </DialogContent>
@@ -247,6 +248,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[700px]">
+                <DialogTitle className="text-center">Quran Verse {verse.unique_key}</DialogTitle>
                 <div className="pt-4 px-4">
                   <AspectRatio ratio={16/9} className="bg-white rounded-lg p-6">
                     <img 
@@ -263,7 +265,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                     />
                   </AspectRatio>
                   <div className="mt-4 text-center text-sm text-muted-foreground">
-                    Verse {verse.unique_key}
+                    Surah {surahName}, Verse {verse.verse_number}
                   </div>
                 </div>
               </DialogContent>

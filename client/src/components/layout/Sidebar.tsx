@@ -240,9 +240,10 @@ export default function Sidebar({ surahs, isLoading, currentSurahNumber }: Sideb
             <Button 
               variant="ghost" 
               size="icon" 
-              className="fixed bottom-5 left-5 z-30 rounded-full bg-primary dark:bg-accent text-white shadow-lg"
+              className="fixed bottom-5 left-5 z-30 rounded-full bg-primary dark:bg-accent text-white shadow-lg w-12 h-12 flex items-center justify-center"
             >
               <Menu className="h-5 w-5" />
+              <span className="sr-only">Open navigation menu</span>
             </Button>
           </DrawerTrigger>
           <DrawerContent className="h-[85vh] px-0 pt-0 pb-0 bg-white dark:bg-gray-800">
