@@ -119,13 +119,32 @@ export function useAudioPlayer() {
     }
   }, []);
   
-  // Get audio URL from AlQuran Cloud API
+  // Get audio URL - Try direct URL first, then fallback to API
   const getAudioUrl = useCallback(async (verseKey: string): Promise<string> => {
     try {
-      // We need to fetch the actual audio URL from the API since verse numbers
-      // in the AlQuran Cloud API are continuous throughout the Quran
-      const response = await fetch(`https://api.alquran.cloud/v1/ayah/${verseKey}/${audioState.reciterId}`);
-      const data = await response.json();
+      // Direct URL approach - format the verse key from "1:1" to "1_1" for the URL
+      const formattedKey = verseKey.replace(':', '_');
+      
+      // Audio URL format: https://cdn.islamic.network/quran/audio/128/ar.alafasy/1_1.mp3
+      const directUrl = `https://cdn.islamic.network/quran/audio/128/${audioState.reciterId}/${formattedKey}.mp3`;
+      
+      console.log('Trying direct URL:', directUrl);
+      
+      // Try a HEAD request first to verify the file exists
+      try {
+        const response = await fetch(directUrl, { method: 'HEAD' });
+        
+        if (response.ok) {
+          return directUrl;
+        }
+      } catch (e) {
+        console.warn('HEAD request failed, will try API fallback', e);
+      }
+      
+      // Fallback to API method if direct URL fails
+      console.log('Using API fallback for audio URL');
+      const apiResponse = await fetch(`https://api.alquran.cloud/v1/ayah/${verseKey}/${audioState.reciterId}`);
+      const data = await apiResponse.json();
       
       if (data.code === 200 && data.data && data.data.audio) {
         return data.data.audio;
@@ -186,11 +205,28 @@ export function useAudioPlayer() {
       })
       .catch(err => {
         console.error('Error playing audio:', err);
+        
+        // Show more detailed error message
+        let errorMessage = "Could not play audio. ";
+        
+        if (err instanceof DOMException && err.name === 'NotSupportedError') {
+          errorMessage += "Audio format not supported.";
+        } else if (err instanceof DOMException && err.name === 'NotAllowedError') {
+          errorMessage += "Autoplay blocked by browser.";
+        } else if (err instanceof DOMException && err.name === 'AbortError') {
+          errorMessage += "Playback was aborted.";
+        } else if (err.message) {
+          errorMessage += err.message;
+        } else {
+          errorMessage += "Try again or select another reciter.";
+        }
+        
         toast({
           title: "Playback Error",
-          description: "Could not play audio. Please try again or select another reciter.",
+          description: errorMessage,
           variant: "destructive"
         });
+        
         setAudioState(prev => ({ ...prev, loading: false, isPlaying: false }));
       });
   }, [audioState.isPlaying, getAudioUrl, toast]);
@@ -219,10 +255,24 @@ export function useAudioPlayer() {
           }
         }, 1000);
       }).catch(err => {
-        console.error('Error playing audio:', err);
+        console.error('Error resuming audio playback:', err);
+        
+        // Show more detailed error message for resume playback
+        let errorMessage = "Could not resume audio playback. ";
+        
+        if (err instanceof DOMException && err.name === 'NotSupportedError') {
+          errorMessage += "Audio format not supported.";
+        } else if (err instanceof DOMException && err.name === 'NotAllowedError') {
+          errorMessage += "Autoplay blocked by browser.";
+        } else if (err instanceof DOMException && err.name === 'AbortError') {
+          errorMessage += "Playback was aborted.";
+        } else if (err.message) {
+          errorMessage += err.message;
+        }
+        
         toast({
           title: "Playback Error",
-          description: "Could not resume audio playback.",
+          description: errorMessage,
           variant: "destructive"
         });
       });
@@ -261,6 +311,8 @@ export function useAudioPlayer() {
     // Format: https://cdn.islamic.network/quran/audio-surah/128/{edition}/{number}.mp3
     const surahAudioUrl = `https://cdn.islamic.network/quran/audio-surah/128/${audioState.reciterId}/${surahNumber}.mp3`;
     
+    console.log('Trying to play surah audio from:', surahAudioUrl);
+    
     try {
       if (!audioRef.current) return;
       
@@ -293,11 +345,28 @@ export function useAudioPlayer() {
         })
         .catch(err => {
           console.error('Error playing surah audio:', err);
+          
+          // Show more detailed error message
+          let errorMessage = "Could not play surah audio. ";
+          
+          if (err instanceof DOMException && err.name === 'NotSupportedError') {
+            errorMessage += "Audio format not supported.";
+          } else if (err instanceof DOMException && err.name === 'NotAllowedError') {
+            errorMessage += "Autoplay blocked by browser.";
+          } else if (err instanceof DOMException && err.name === 'AbortError') {
+            errorMessage += "Playback was aborted.";
+          } else if (err.message) {
+            errorMessage += err.message;
+          } else {
+            errorMessage += "Try again or select another reciter.";
+          }
+          
           toast({
             title: "Playback Error",
-            description: "Could not play surah audio. Please try again or select another reciter.",
+            description: errorMessage,
             variant: "destructive"
           });
+          
           setAudioState(prev => ({ 
             ...prev, 
             loading: false, 
