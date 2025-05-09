@@ -4,7 +4,14 @@
  */
 
 // Tajweed types and their CSS classes and descriptions
-const tajweedTypes = {
+interface TajweedTypeInfo {
+  cssClass: string;
+  type: string;
+  description: string;
+}
+
+// Define the type of the tajweedTypes object
+const tajweedTypes: Record<string, TajweedTypeInfo> = {
   'h': { cssClass: 'ham_wasl', type: 'hamza-wasl', description: 'Hamzat ul Wasl' },
   's': { cssClass: 'slnt', type: 'silent', description: 'Silent' },
   'l': { cssClass: 'slnt', type: 'laam-shamsiyah', description: 'Lam Shamsiyyah' },
@@ -39,12 +46,13 @@ export function parseTajweed(text: string): string {
 
   // Replace each occurrence with HTML markup
   return text.replace(regex, (match, type, tajweedId, content) => {
-    if (!tajweedTypes[type]) {
-      console.warn(`Unknown tajweed type: ${type}`);
+    const typeKey = type as string;
+    if (!tajweedTypes[typeKey]) {
+      console.warn(`Unknown tajweed type: ${typeKey}`);
       return content;
     }
 
-    const { cssClass, type: tajweedType, description } = tajweedTypes[type];
+    const { cssClass, type: tajweedType, description } = tajweedTypes[typeKey];
     
     // Create a tajweed element with appropriate class and data attributes
     return `<tajweed class="${cssClass}" data-type="${tajweedType}" data-description="${description}" data-tajweed="${tajweedId ? ':' + tajweedId : ''}">${content}</tajweed>`;

@@ -11,6 +11,7 @@ import {
   Search, BookOpen, ChevronRight, ArrowUp, ArrowDown
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Surah } from '@shared/schema';
 
 interface LastReadSection {
   surahNumber: number;
@@ -40,7 +41,7 @@ const popularSurahs: PopularSurah[] = [
 
 export default function Home({ onOpenOverlay }: HomeProps) {
   const { data: surahs = [], isLoading } = useSurahs();
-  const [filteredSurahs, setFilteredSurahs] = useState<typeof surahs>(surahs);
+  const [filteredSurahs, setFilteredSurahs] = useState<Surah[]>(surahs);
   const [searchTerm, setSearchTerm] = useState('');
   const [lastRead, setLastRead] = useState<LastReadSection | null>(null);
   const [scrollDirection, setScrollDirection] = useState<'top' | 'bottom'>('top');

@@ -1,77 +1,119 @@
-/* Tajweed CSS styles based on https://github.com/meezaan/alquran-tools/tree/master/examples/css/tajweed.css */
+/**
+ * Tajweed CSS Styles
+ * Based on AlQuran Cloud Tajweed coloring guide
+ * https://alquran.cloud/tajweed-guide
+ */
 
-/* Silent letters */
-tajweed.ham_wasl,
-tajweed.slnt {
-  color: #AAAAAA;
+/* Base tajweed element styling */
+tajweed {
+  position: relative;
+  display: inline;
 }
 
-/* Normal prolongation */
-tajweed.madda_normal {
-  color: #537FFF;
+/* Hamzat al-Wasl - pink */
+tajweed.ham_wasl {
+  color: #E400F5;
 }
 
-/* Permissible prolongation */
-tajweed.madda_permissible {
-  color: #4050FF;
+/* Idgham - green */
+tajweed.idgh_ghn,
+tajweed.idgh_w_ghn,
+tajweed.idgh_mus,
+tajweed.idgh_mut {
+  color: #169200;
 }
 
-/* Necessary prolongation */
-tajweed.madda_necessary {
-  color: #000EBC;
+/* Idgham - without ghunnah - light green */
+tajweed.idgh_w_ghn {
+  color: #35ba00;
 }
 
-/* Qalqalah */
-tajweed.qlq {
-  color: #DD0008;
-}
-
-/* Obligatory prolongation */
-tajweed.madda_obligatory {
-  color: #2144C1;
-}
-
-/* Ikhafa Shafawi - With Meem */
-tajweed.ikhf_shfw {
-  color: #D500B7;
-}
-
-/* Ikhafa */
+/* Ikhfa - blue */
 tajweed.ikhf {
-  color: #9400A8;
+  color: #1041FF;
 }
 
-/* Idgham Shafawi - With Meem */
-tajweed.idghm_shfw {
-  color: #58B800;
+/* Ikhfa Shafawi - blue */
+tajweed.ikhf_shfw {
+  color: #5568f9;
 }
 
-/* Iqlab */
+/* Iqlab - blue-green */
 tajweed.iqlb {
   color: #26BFFD;
 }
 
-/* Idgham - With Ghunnah */
-tajweed.idgh_ghn {
-  color: #169777;
+/* Qalqalah - purple */
+tajweed.qlq {
+  color: #DD0008;
 }
 
-/* Idgham - Without Ghunnah */
-tajweed.idgh_w_ghn {
-  color: #169200;
-}
-
-/* Idgham - Mutajanisayn */
-tajweed.idgh_mus {
-  color: #A1A1A1;
-}
-
-/* Idgham - Mutaqaribayn */
-tajweed.idgh_mut {
-  color: #A1A1A1;
-}
-
-/* Ghunnah: 2 Vowels */
+/* Ghunnah - dark orange */
 tajweed.ghn {
   color: #FF7E1E;
+}
+
+/* Idgham Shafawi - brown */
+tajweed.idghm_shfw {
+  color: #9B5DB0;
+}
+
+/* Silent letter - gray */
+tajweed.slnt {
+  color: #AAAAAA;
+}
+
+/* Madd letters - red */
+tajweed.madda_normal {
+  color: #DD0008;
+}
+
+/* Madda Obligatory - black with red waves underneath */
+tajweed.madda_obligatory {
+  position: relative;
+  color: #000000;
+  background: linear-gradient(to top, rgba(255, 0, 0, 0.3) 15%, transparent 15%);
+  background-size: 100% 4px;
+  background-position: bottom;
+  background-repeat: repeat-x;
+}
+
+/* Madda Permissible - light red */
+tajweed.madda_permissible {
+  color: #FF7E1E;
+}
+
+/* Madda Necessary - dark red */
+tajweed.madda_necessary {
+  color: #DD0008;
+  font-weight: bold;
+}
+
+/* Tooltip styling (to be used if tooltips are added) */
+.tajweed-tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+/* Show tooltip on hover */
+tajweed:hover .tajweed-tooltip {
+  opacity: 1;
+}
+
+/* Dark mode adjustments */
+.dark tajweed.madda_obligatory {
+  color: #ffffff;
+  background: linear-gradient(to top, rgba(255, 0, 0, 0.5) 15%, transparent 15%);
 }
