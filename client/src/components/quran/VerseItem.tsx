@@ -24,19 +24,11 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
   
   // Handle playing audio for this verse
   const handlePlayAudio = () => {
-    if (verse.audio_url) {
-      playAudio(verse.audio_url, {
-        key: verse.unique_key,
-        surahName: surahName,
-        verseNumber: verse.verse_number
-      });
-    } else {
-      toast({
-        title: "Audio not available",
-        description: "Audio for this verse is not available.",
-        variant: "destructive"
-      });
-    }
+    // Use verse key directly with AlQuran Cloud API
+    playAudio(verse.unique_key, {
+      surahName: surahName,
+      verseNumber: verse.verse_number
+    });
   };
   
   // Handle copying verse text

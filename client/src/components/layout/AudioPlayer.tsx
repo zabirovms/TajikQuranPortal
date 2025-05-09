@@ -1,4 +1,4 @@
-import { useAudioPlayer } from '@/hooks/useAudio';
+import { useAudioPlayer, availableReciters } from '@/hooks/useAudio';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,12 +12,8 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-interface AudioPlayerProps {
-  reciterOptions?: string[];
-}
-
-export default function AudioPlayer({ reciterOptions = [] }: AudioPlayerProps) {
-  const { audioState, togglePlayPause, seekTo } = useAudioPlayer();
+export default function AudioPlayer() {
+  const { audioState, togglePlayPause, seekTo, setReciter } = useAudioPlayer();
   const [progressPercentage, setProgressPercentage] = useState(0);
 
   // Update the progress bar as audio plays
@@ -28,6 +24,11 @@ export default function AudioPlayer({ reciterOptions = [] }: AudioPlayerProps) {
       setProgressPercentage(0);
     }
   }, [audioState.currentTime, audioState.duration]);
+
+  // Handler for reciter change
+  const handleReciterChange = (value: string) => {
+    setReciter(value);
+  };
 
   // If there's no current verse, don't render the player
   if (!audioState.currentVerse) {
@@ -48,7 +49,7 @@ export default function AudioPlayer({ reciterOptions = [] }: AudioPlayerProps) {
               variant="ghost" 
               size="icon" 
               className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-accent"
-              disabled={!audioState.currentVerse}
+              disabled={true} // Disabled for now, can be implemented later
             >
               <SkipBack className="h-4 w-4" />
             </Button>
@@ -58,7 +59,9 @@ export default function AudioPlayer({ reciterOptions = [] }: AudioPlayerProps) {
               onClick={togglePlayPause}
               disabled={audioState.loading}
             >
-              {audioState.isPlaying ? (
+              {audioState.loading ? (
+                <span className="h-5 w-5 animate-pulse">...</span>
+              ) : audioState.isPlaying ? (
                 <Pause className="h-5 w-5" />
               ) : (
                 <Play className="h-5 w-5" />
@@ -69,7 +72,7 @@ export default function AudioPlayer({ reciterOptions = [] }: AudioPlayerProps) {
               variant="ghost" 
               size="icon" 
               className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-accent"
-              disabled={!audioState.currentVerse}
+              disabled={true} // Disabled for now, can be implemented later
             >
               <SkipForward className="h-4 w-4" />
             </Button>
@@ -100,6 +103,7 @@ export default function AudioPlayer({ reciterOptions = [] }: AudioPlayerProps) {
               variant="ghost" 
               size="icon"
               className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-accent"
+              disabled={true} // Volume control to be implemented later
             >
               <Volume2 className="h-4 w-4" />
             </Button>
@@ -108,28 +112,24 @@ export default function AudioPlayer({ reciterOptions = [] }: AudioPlayerProps) {
               variant="ghost" 
               size="icon"
               className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-accent"
+              disabled={true} // Repeat to be implemented later
             >
               <Repeat className="h-4 w-4" />
             </Button>
             
-            <Select defaultValue="abdullah-basfar">
+            <Select 
+              value={audioState.reciterId} 
+              onValueChange={handleReciterChange}
+            >
               <SelectTrigger className="bg-gray-100 dark:bg-gray-700 border-none text-sm h-8 w-40">
                 <SelectValue placeholder="Select reciter" />
               </SelectTrigger>
               <SelectContent>
-                {reciterOptions.length > 0 ? (
-                  reciterOptions.map(reciter => (
-                    <SelectItem key={reciter} value={reciter.toLowerCase().replace(/\s+/g, '-')}>
-                      {reciter}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <>
-                    <SelectItem value="abdullah-basfar">Abdullah Basfar</SelectItem>
-                    <SelectItem value="mishary-rashid-alafasy">Mishary Rashid Alafasy</SelectItem>
-                    <SelectItem value="abdul-rahman-al-sudais">Abdul Rahman Al-Sudais</SelectItem>
-                  </>
-                )}
+                {availableReciters.map(reciter => (
+                  <SelectItem key={reciter.id} value={reciter.id}>
+                    {reciter.englishName}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

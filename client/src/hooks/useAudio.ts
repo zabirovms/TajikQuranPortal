@@ -122,7 +122,7 @@ export function useAudioPlayer() {
   }, [audioState.reciterId]);
   
   // Play audio function
-  const playAudio = useCallback((verseKey: string, verseInfo?: Omit<AudioPlayerState['currentVerse'], 'key'>) => {
+  const playAudio = useCallback((verseKey: string, verseInfo?: { surahName: string; verseNumber: number }) => {
     if (!audioRef.current) return;
     
     // Stop current audio if playing
@@ -234,6 +234,8 @@ export function useAudioPlayer() {
     playAudio,
     togglePlayPause,
     seekTo,
-    stopAudio
+    stopAudio,
+    setReciter,
+    availableReciters
   };
 }

@@ -50,18 +50,8 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
       return;
     }
     
-    if (!verses[0].audio_url) {
-      toast({
-        title: "Audio unavailable",
-        description: "Audio for this surah is not available",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Play the first verse
-    playAudio(verses[0].audio_url, {
-      key: verses[0].unique_key,
+    // Play the first verse using AlQuran Cloud API
+    playAudio(verses[0].unique_key, {
       surahName: surah?.name_tajik || "",
       verseNumber: verses[0].verse_number
     });
@@ -189,11 +179,7 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
       </div>
       
       {/* Audio player */}
-      <AudioPlayer reciterOptions={[
-        "Abdullah Basfar",
-        "Mishary Rashid Alafasy",
-        "Abdul Rahman Al-Sudais"
-      ]} />
+      <AudioPlayer />
     </div>
   );
 }
