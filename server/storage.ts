@@ -338,30 +338,30 @@ export class PostgresStorage implements IStorage {
     
     console.log(`Executing search for '${query}' in ${language} languages${surahId ? ` for surah ${surahId}` : ''}`);
     
+    // First, try to use advanced search function if available
     try {
-      // Attempt to use Supabase advanced search if available
-      const checkQuery = await db.execute(sql`
-        SELECT COUNT(*) as count FROM pg_proc WHERE proname = 'search_verses'
+      // Check if the search_verses function exists in Supabase
+      const checkResult = await db.execute(sql`
+        SELECT EXISTS (
+          SELECT 1 FROM pg_proc WHERE proname = 'search_verses'
+        ) AS function_exists
       `);
       
-      // Get the count value from the result, safely
-      const count = checkQuery[0] ? (checkQuery[0] as any).count : '0';
-      const functionExists = parseInt(count) > 0;
+      // Extract boolean value from result
+      const functionExists = (checkResult[0] as any)?.function_exists === true;
       
       if (functionExists) {
-        // The search_verses function exists, use it
         console.log("Using advanced search function");
         
-        // Execute the function with a raw SQL query
-        const searchResultsRaw = await db.execute(sql`
+        // Execute advanced search using the SQL function
+        const advancedResults = await db.execute(sql`
           SELECT * FROM search_verses(${query}, ${language}, ${surahId || null})
         `);
         
-        // Process the raw results into Verse objects - using any to avoid TypeScript errors
-        const searchResults: Verse[] = [];
-        
-        for (const row of searchResultsRaw) {
-          searchResults.push({
+        // Convert raw results to Verse objects
+        const results: Verse[] = [];
+        for (const row of advancedResults) {
+          const verse: Verse = {
             id: (row as any).id,
             surah_id: (row as any).surah_id,
             verse_number: (row as any).verse_number,
@@ -371,33 +371,33 @@ export class PostgresStorage implements IStorage {
             juz: (row as any).juz,
             audio_url: (row as any).audio_url,
             unique_key: (row as any).unique_key
-          });
+          };
+          results.push(verse);
         }
         
-        console.log(`Found ${searchResults.length} results using advanced search`);
-        return searchResults;
+        console.log(`Found ${results.length} results using advanced search`);
+        return results;
       }
     } catch (error) {
-      console.warn("Advanced search unavailable, falling back to basic search:", error);
-      // Function doesn't exist, fall back to basic search
+      console.warn("Advanced search function not available or failed:", error);
+      // Continue with basic search
     }
     
-    // Fallback to basic search if the function doesn't exist
+    // Fallback to basic search
     console.log("Using basic search");
     
-    // Build array of search conditions
+    // Build search conditions based on language preference
     const searchConditions = [];
     
-    // Add language-specific search conditions with some enhancements
     if (language === 'arabic' || language === 'both') {
       searchConditions.push(like(verses.arabic_text, `%${query}%`));
     }
     
     if (language === 'tajik' || language === 'both') {
-      // Try multiple patterns for Tajik text to improve match rate
+      // Basic search
       searchConditions.push(like(verses.tajik_text, `%${query}%`));
       
-      // Add word boundary search if query is a whole word
+      // Add word boundary search for whole words
       if (/^\w+$/.test(query)) {
         searchConditions.push(like(verses.tajik_text, `% ${query} %`));
         searchConditions.push(like(verses.tajik_text, `% ${query}.`));
