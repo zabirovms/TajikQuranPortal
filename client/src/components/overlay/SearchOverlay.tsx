@@ -13,9 +13,9 @@ import {
 } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getArabicFontClass } from '@/lib/fonts';
-import { useSurahs } from '@/hooks/useQuran';
-import { useSearchVerses } from '@/hooks/useQuran';
-import { Search, X, AlertCircle } from 'lucide-react';
+import { useSurahs, useSearchVerses } from '@/hooks/useQuran';
+import { useToast } from '@/hooks/use-toast';
+import { Search, X, AlertCircle, BookText } from 'lucide-react';
 import { useLocation } from 'wouter';
 
 interface SearchOverlayProps {
@@ -28,17 +28,38 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const [language, setLanguage] = useState<'arabic' | 'tajik' | 'both'>('both');
   const [selectedSurah, setSelectedSurah] = useState<string | undefined>(undefined);
   const [searchActive, setSearchActive] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [, navigate] = useLocation();
+  const { toast } = useToast();
   
   // Get list of surahs for the dropdown
   const { data: surahs, isLoading: isSurahsLoading } = useSurahs();
   
   // Only search when user has typed something and pressed Enter or clicked Search
-  const { data: searchResults, isLoading: isSearching } = useSearchVerses(
+  const { 
+    data: searchResults, 
+    isLoading: isSearching,
+    error: searchError
+  } = useSearchVerses(
     searchActive ? query : '', 
     language,
     selectedSurah ? parseInt(selectedSurah) : undefined
   );
+  
+  // Handle search errors
+  useEffect(() => {
+    if (searchError) {
+      console.error("Search error:", searchError);
+      setError("Хатогии ҷустуҷӯ. Лутфан дубора кӯшиш кунед.");
+      toast({
+        title: "Хатогии ҷустуҷӯ",
+        description: "Ҳангоми ҷустуҷӯ хатогӣ рӯй дод. Лутфан дубора кӯшиш кунед.",
+        variant: "destructive"
+      });
+    } else {
+      setError(null);
+    }
+  }, [searchError, toast]);
   
   // Reset search state when closing the overlay
   useEffect(() => {

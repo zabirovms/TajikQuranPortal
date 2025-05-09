@@ -330,31 +330,47 @@ export class PostgresStorage implements IStorage {
   }
 
   async searchVerses(query: string, language: 'arabic' | 'tajik' | 'both' = 'both', surahId?: number): Promise<Verse[]> {
-    let whereClause: any = {};
-
-    // Build search condition based on language preference
+    // Check if the query is a verse reference (e.g., "2:255")
+    if (/^\d+:\d+$/.test(query)) {
+      const result = await db.select().from(verses).where(eq(verses.unique_key, query)).limit(1);
+      return result.length > 0 ? result : [];
+    }
+    
+    // Build array of search conditions
+    const searchConditions = [];
+    
+    // Add language-specific search conditions
     if (language === 'arabic' || language === 'both') {
-      whereClause = or(
-        whereClause,
-        like(verses.arabic_text, `%${query}%`)
-      );
+      searchConditions.push(like(verses.arabic_text, `%${query}%`));
     }
+    
     if (language === 'tajik' || language === 'both') {
-      whereClause = or(
-        whereClause,
-        like(verses.tajik_text, `%${query}%`)
-      );
+      searchConditions.push(like(verses.tajik_text, `%${query}%`));
     }
-
+    
+    if (searchConditions.length === 0) {
+      return [];
+    }
+    
+    // Combine conditions with OR
+    let whereClause = searchConditions.length === 1 
+      ? searchConditions[0] 
+      : or(...searchConditions);
+    
     // Add surah filter if provided
     if (surahId) {
-      whereClause = and(
-        whereClause,
-        eq(verses.surah_id, surahId)
-      );
+      whereClause = and(whereClause, eq(verses.surah_id, surahId));
     }
-
-    return await db.select().from(verses).where(whereClause).limit(100);
+    
+    try {
+      console.log(`Executing search for '${query}' in ${language} languages${surahId ? ` for surah ${surahId}` : ''}`);
+      const results = await db.select().from(verses).where(whereClause).limit(100);
+      console.log(`Found ${results.length} results`);
+      return results;
+    } catch (error) {
+      console.error("Error executing search query:", error);
+      return [];
+    }
   }
 
   async getBookmarksByUser(userId: number): Promise<{bookmark: Bookmark, verse: Verse}[]> {

@@ -1,7 +1,8 @@
-import express, { type Express, Request, Response } from "express";
+import express, { type Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertBookmarkSchema } from "@shared/schema";
+import { log } from "./vite";
+import { insertBookmarkSchema, insertSearchHistorySchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -86,24 +87,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/search", async (req: Request, res: Response) => {
     try {
       const query = req.query.q as string;
-      const language = req.query.language as 'arabic' | 'tajik' | 'both';
+      const language = req.query.language as 'arabic' | 'tajik' | 'both' || 'both';
       const surahId = req.query.surah ? parseInt(req.query.surah as string) : undefined;
       
+      log(`Received search request: q=${query}, language=${language}, surahId=${surahId}`, "search");
+      
       if (!query) {
-        return res.status(400).json({ message: "Search query is required" });
+        log("Search rejected: empty query", "search");
+        return res.status(400).json({ 
+          message: "Search query is required",
+          success: false
+        });
       }
       
       const results = await storage.searchVerses(query, language, surahId);
+      log(`Search completed: found ${results.length} results`, "search");
       
       // If a user is logged in, save the search query to history
       if (req.query.userId) {
         const userId = parseInt(req.query.userId as string);
         await storage.addSearchHistory({ user_id: userId, query });
+        log(`Search history saved for user ${userId}`, "search");
       }
       
       res.json(results);
-    } catch (error) {
-      res.status(500).json({ message: "Error searching verses" });
+    } catch (error: any) {
+      const errorMessage = error?.message || "Unknown error";
+      log(`Search error: ${errorMessage}`, "search", "error");
+      console.error("Search error:", error);
+      
+      res.status(500).json({ 
+        message: "Error searching verses", 
+        error: errorMessage,
+        success: false
+      });
     }
   });
 
