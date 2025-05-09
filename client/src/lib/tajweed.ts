@@ -60,11 +60,12 @@ export function parseTajweed(text: string): string {
 }
 
 /**
- * Fetches ayah with Tajweed from Al Quran Cloud API
+ * Fetches ayah with Tajweed from Al Quran Cloud API (through our proxy)
  */
 export async function fetchTajweedAyah(surahNumber: number, ayahNumber: number): Promise<string> {
   try {
-    const response = await fetch(`https://api.alquran.cloud/ayah/${surahNumber}:${ayahNumber}/quran-tajweed`);
+    // Use our proxy endpoint instead of calling the API directly
+    const response = await fetch(`/api/tajweed/ayah/${surahNumber}:${ayahNumber}`);
     const data = await response.json();
     
     if (data.code === 200 && data.data && data.data.text) {
@@ -80,11 +81,12 @@ export async function fetchTajweedAyah(surahNumber: number, ayahNumber: number):
 }
 
 /**
- * Fetches an entire surah with Tajweed from Al Quran Cloud API
+ * Fetches an entire surah with Tajweed from Al Quran Cloud API (through our proxy)
  */
 export async function fetchTajweedSurah(surahNumber: number): Promise<string[]> {
   try {
-    const response = await fetch(`https://api.alquran.cloud/surah/${surahNumber}/quran-tajweed`);
+    // Use our proxy endpoint instead of calling the API directly
+    const response = await fetch(`/api/tajweed/surah/${surahNumber}`);
     const data = await response.json();
     
     if (data.code === 200 && data.data && data.data.ayahs) {

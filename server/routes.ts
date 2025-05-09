@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { log } from "./vite";
 import { insertBookmarkSchema, insertSearchHistorySchema } from "@shared/schema";
 import { z } from "zod";
+import fetch from "node-fetch";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes - prefix all routes with /api
@@ -188,6 +189,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(history);
     } catch (error) {
       res.status(500).json({ message: "Error fetching search history" });
+    }
+  });
+
+  // Proxy for Tajweed API to avoid CORS issues
+  apiRouter.get("/tajweed/ayah/:reference", async (req: Request, res: Response) => {
+    try {
+      const reference = req.params.reference;
+      const url = `https://api.alquran.cloud/ayah/${reference}/quran-tajweed`;
+      
+      log(`Fetching Tajweed ayah: ${reference}`, "tajweed");
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      res.json(data);
+    } catch (error) {
+      log(`Error fetching Tajweed ayah: ${error}`, "tajweed");
+      res.status(500).json({ message: "Error fetching Tajweed ayah", error: String(error) });
+    }
+  });
+
+  // Proxy for Tajweed Surah API
+  apiRouter.get("/tajweed/surah/:number", async (req: Request, res: Response) => {
+    try {
+      const surahNumber = req.params.number;
+      const url = `https://api.alquran.cloud/surah/${surahNumber}/quran-tajweed`;
+      
+      log(`Fetching Tajweed surah: ${surahNumber}`, "tajweed");
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      res.json(data);
+    } catch (error) {
+      log(`Error fetching Tajweed surah: ${error}`, "tajweed");
+      res.status(500).json({ message: "Error fetching Tajweed surah", error: String(error) });
     }
   });
 
