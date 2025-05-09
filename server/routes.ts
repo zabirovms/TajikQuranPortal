@@ -113,7 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(results);
     } catch (error: any) {
       const errorMessage = error?.message || "Unknown error";
-      log(`Search error: ${errorMessage}`, "search", "error");
+      log(`Search error: ${errorMessage}`, "search");
       console.error("Search error:", error);
       
       res.status(500).json({ 

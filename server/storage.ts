@@ -6,7 +6,7 @@ import {
   searchHistory, type SearchHistory, type InsertSearchHistory
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, like, and, or, desc } from "drizzle-orm";
+import { eq, like, and, or, desc, sql } from "drizzle-orm";
 
 // Interface for all storage operations
 export interface IStorage {
@@ -336,16 +336,57 @@ export class PostgresStorage implements IStorage {
       return result.length > 0 ? result : [];
     }
     
+    console.log(`Executing search for '${query}' in ${language} languages${surahId ? ` for surah ${surahId}` : ''}`);
+    
+    try {
+      // Try to use the advanced search function if it exists in Supabase
+      interface ExistsResult { exists: boolean }
+      
+      const funcExists = await db.execute<ExistsResult>(sql`
+        SELECT EXISTS (
+          SELECT 1 FROM pg_proc WHERE proname = 'search_verses'
+        ) as exists
+      `);
+      
+      if (funcExists.length > 0 && funcExists[0].exists) {
+        // The search_verses function exists, use it
+        console.log("Using advanced search function");
+        
+        const searchResults = await db.execute<Verse>(sql`
+          SELECT * FROM search_verses(${query}, ${language}, ${surahId || null})
+        `);
+        
+        console.log(`Found ${searchResults.length} results using advanced search`);
+        return searchResults;
+      }
+    } catch (error) {
+      console.warn("Advanced search unavailable, falling back to basic search:", error);
+      // Function doesn't exist, fall back to basic search
+    }
+    
+    // Fallback to basic search if the function doesn't exist
+    console.log("Using basic search");
+    
     // Build array of search conditions
     const searchConditions = [];
     
-    // Add language-specific search conditions
+    // Add language-specific search conditions with some enhancements
     if (language === 'arabic' || language === 'both') {
       searchConditions.push(like(verses.arabic_text, `%${query}%`));
     }
     
     if (language === 'tajik' || language === 'both') {
+      // Try multiple patterns for Tajik text to improve match rate
       searchConditions.push(like(verses.tajik_text, `%${query}%`));
+      
+      // Add word boundary search if query is a whole word
+      if (/^\w+$/.test(query)) {
+        searchConditions.push(like(verses.tajik_text, `% ${query} %`));
+        searchConditions.push(like(verses.tajik_text, `% ${query}.`));
+        searchConditions.push(like(verses.tajik_text, `% ${query},`));
+        searchConditions.push(like(verses.tajik_text, `% ${query}!`));
+        searchConditions.push(like(verses.tajik_text, `% ${query}?`));
+      }
     }
     
     if (searchConditions.length === 0) {
@@ -363,9 +404,8 @@ export class PostgresStorage implements IStorage {
     }
     
     try {
-      console.log(`Executing search for '${query}' in ${language} languages${surahId ? ` for surah ${surahId}` : ''}`);
       const results = await db.select().from(verses).where(whereClause).limit(100);
-      console.log(`Found ${results.length} results`);
+      console.log(`Found ${results.length} results using basic search`);
       return results;
     } catch (error) {
       console.error("Error executing search query:", error);
