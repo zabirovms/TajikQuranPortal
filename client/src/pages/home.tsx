@@ -86,7 +86,7 @@ export default function Home({ onOpenOverlay }: HomeProps) {
   }, []);
   
   // Render surah list item
-  const renderSurahItem = (surah: typeof surahs[0]) => (
+  const renderSurahItem = (surah: Surah) => (
     <Link 
       key={surah.id} 
       href={`/surah/${surah.number}`}

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Surah, Verse } from '@shared/schema';
 
 export function useSurahs() {
-  return useQuery({
+  return useQuery<Surah[]>({
     queryKey: ['/api/surahs'],
     staleTime: Infinity, // This data doesn't change often
   });
