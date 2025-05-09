@@ -5,6 +5,8 @@ import {
   bookmarks, type Bookmark, type InsertBookmark,
   searchHistory, type SearchHistory, type InsertSearchHistory
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, like, and, or, desc } from "drizzle-orm";
 
 // Interface for all storage operations
 export interface IStorage {
@@ -285,4 +287,114 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Create a PostgreSQL storage implementation
+export class PostgresStorage implements IStorage {
+  constructor() {}
+
+  async getUser(id: number): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+    return result[0];
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const result = await db.insert(users).values(user).returning();
+    return result[0];
+  }
+
+  async getAllSurahs(): Promise<Surah[]> {
+    return await db.select().from(surahs).orderBy(surahs.number);
+  }
+
+  async getSurah(id: number): Promise<Surah | undefined> {
+    const result = await db.select().from(surahs).where(eq(surahs.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getSurahByNumber(number: number): Promise<Surah | undefined> {
+    const result = await db.select().from(surahs).where(eq(surahs.number, number)).limit(1);
+    return result[0];
+  }
+
+  async getVersesBySurah(surahId: number): Promise<Verse[]> {
+    return await db.select().from(verses).where(eq(verses.surah_id, surahId)).orderBy(verses.verse_number);
+  }
+
+  async getVerseByKey(key: string): Promise<Verse | undefined> {
+    const result = await db.select().from(verses).where(eq(verses.unique_key, key)).limit(1);
+    return result[0];
+  }
+
+  async searchVerses(query: string, language: 'arabic' | 'tajik' | 'both' = 'both', surahId?: number): Promise<Verse[]> {
+    let whereClause: any = {};
+
+    // Build search condition based on language preference
+    if (language === 'arabic' || language === 'both') {
+      whereClause = or(
+        whereClause,
+        like(verses.arabic_text, `%${query}%`)
+      );
+    }
+    if (language === 'tajik' || language === 'both') {
+      whereClause = or(
+        whereClause,
+        like(verses.tajik_text, `%${query}%`)
+      );
+    }
+
+    // Add surah filter if provided
+    if (surahId) {
+      whereClause = and(
+        whereClause,
+        eq(verses.surah_id, surahId)
+      );
+    }
+
+    return await db.select().from(verses).where(whereClause).limit(100);
+  }
+
+  async getBookmarksByUser(userId: number): Promise<{bookmark: Bookmark, verse: Verse}[]> {
+    const result = await db
+      .select({
+        bookmark: bookmarks,
+        verse: verses
+      })
+      .from(bookmarks)
+      .innerJoin(verses, eq(bookmarks.verse_id, verses.id))
+      .where(eq(bookmarks.user_id, userId))
+      .orderBy(desc(bookmarks.created_at));
+    
+    return result;
+  }
+
+  async createBookmark(bookmark: InsertBookmark): Promise<Bookmark> {
+    const result = await db.insert(bookmarks).values(bookmark).returning();
+    return result[0];
+  }
+
+  async deleteBookmark(id: number): Promise<boolean> {
+    const result = await db.delete(bookmarks).where(eq(bookmarks.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async addSearchHistory(searchQuery: InsertSearchHistory): Promise<SearchHistory> {
+    const result = await db.insert(searchHistory).values(searchQuery).returning();
+    return result[0];
+  }
+
+  async getSearchHistoryByUser(userId: number): Promise<SearchHistory[]> {
+    return await db
+      .select()
+      .from(searchHistory)
+      .where(eq(searchHistory.user_id, userId))
+      .orderBy(desc(searchHistory.created_at))
+      .limit(10);
+  }
+}
+
+// Use PostgreSQL storage implementation
+export const storage = new PostgresStorage();
