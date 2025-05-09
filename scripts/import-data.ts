@@ -192,20 +192,24 @@ async function setupDatabase() {
     
     console.log('Database schema created successfully');
 
-    // Insert surahs
+    // Insert surahs in batches
     console.log('Importing surahs metadata...');
-    for (const surahData of surahsMetadata) {
+    const surahBatchSize = 20;
+    for (let i = 0; i < surahsMetadata.length; i += surahBatchSize) {
+      const batch = surahsMetadata.slice(i, i + surahBatchSize).map(surahData => ({
+        number: surahData.number,
+        name_arabic: surahData.name_arabic,
+        name_tajik: surahData.name_tajik,
+        name_english: surahData.name_english,
+        revelation_type: surahData.revelation_type,
+        verses_count: surahData.verses_count
+      }));
+      
       try {
-        await db.insert(surahs).values({
-          number: surahData.number,
-          name_arabic: surahData.name_arabic,
-          name_tajik: surahData.name_tajik,
-          name_english: surahData.name_english,
-          revelation_type: surahData.revelation_type,
-          verses_count: surahData.verses_count
-        }).onConflictDoNothing();
+        await db.insert(surahs).values(batch).onConflictDoNothing();
+        console.log(`Imported surahs ${i+1} to ${Math.min(i + surahBatchSize, surahsMetadata.length)}`);
       } catch (error) {
-        console.error(`Error inserting surah ${surahData.number}:`, error);
+        console.error(`Error inserting batch of surahs:`, error);
       }
     }
     
@@ -304,7 +308,11 @@ async function setupDatabase() {
       // Process batch when it reaches the batch size
       if (batch.length >= batchSize) {
         try {
-          await db.insert(verses).values(batch).onConflictDoNothing();
+          // Use a transaction for better performance and reliability
+          await sql.begin(async (sqlTx) => {
+            const tx = drizzle(sqlTx);
+            await tx.insert(verses).values(batch).onConflictDoNothing();
+          });
           processedVerses += batch.length;
           console.log(`Imported ${processedVerses}/${totalVerses} verses`);
         } catch (error) {
@@ -317,8 +325,13 @@ async function setupDatabase() {
     // Process remaining verses
     if (batch.length > 0) {
       try {
-        await db.insert(verses).values(batch).onConflictDoNothing();
+        // Use a transaction for better performance and reliability
+        await sql.begin(async (sqlTx) => {
+          const tx = drizzle(sqlTx);
+          await tx.insert(verses).values(batch).onConflictDoNothing();
+        });
         processedVerses += batch.length;
+        console.log(`Imported final ${batch.length} verses`);
       } catch (error) {
         console.error(`Error inserting batch of verses:`, error);
       }
