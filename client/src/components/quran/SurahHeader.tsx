@@ -99,6 +99,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
         )}
         
         <div className="flex justify-center space-x-2 mb-4">
+          {/* Main play/pause button */}
           <Button 
             onClick={handlePlayButton}
             className="flex items-center justify-center bg-primary dark:bg-accent text-white rounded-full px-4 py-1 text-sm hover:bg-primary/90 dark:hover:bg-accent/90"
@@ -114,30 +115,28 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
             )}
           </Button>
           
-          {isPlaying && (
-            <>
-              <Button 
-                onClick={stopAudio}
-                variant="outline"
-                className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                title="Хомӯш кардан"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-              
-              <Button 
-                onClick={() => {
-                  stopAudio();
-                  setTimeout(onPlaySurah, 300);
-                }}
-                variant="outline"
-                className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-                title="Аз аввал"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-            </>
-          )}
+          {/* Stop button - always visible */}
+          <Button 
+            onClick={stopAudio}
+            variant="outline"
+            className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+            title="Хомӯш кардан"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          
+          {/* Restart button - always visible */}
+          <Button 
+            onClick={() => {
+              stopAudio();
+              setTimeout(onPlaySurah, 300);
+            }}
+            variant="outline"
+            className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+            title="Аз аввал"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
         </div>
         
         {shouldShowBismillah && (
@@ -161,6 +160,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
         </p>
         
         <div className="flex justify-center space-x-3 mb-4">
+          {/* Main play/pause button */}
           <Button 
             onClick={handlePlayButton}
             className="flex items-center justify-center bg-primary dark:bg-accent text-white rounded-full px-6 py-2 hover:bg-primary/90 dark:hover:bg-accent/90"
@@ -176,30 +176,28 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
             )}
           </Button>
           
-          {isPlaying && (
-            <>
-              <Button 
-                onClick={stopAudio}
-                variant="outline"
-                className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-4"
-                title="Хомӯш кардан"
-              >
-                <X className="mr-1 h-5 w-5" /> Хомӯш
-              </Button>
-              
-              <Button 
-                onClick={() => {
-                  stopAudio();
-                  setTimeout(onPlaySurah, 300);
-                }}
-                variant="outline"
-                className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-4"
-                title="Аз аввал"
-              >
-                <RotateCcw className="mr-1 h-5 w-5" /> Аз аввал
-              </Button>
-            </>
-          )}
+          {/* Stop button - always visible */}
+          <Button 
+            onClick={stopAudio}
+            variant="outline"
+            className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-4"
+            title="Хомӯш кардан"
+          >
+            <X className="mr-1 h-5 w-5" /> Хомӯш
+          </Button>
+          
+          {/* Restart button - always visible */}
+          <Button 
+            onClick={() => {
+              stopAudio();
+              setTimeout(onPlaySurah, 300);
+            }}
+            variant="outline"
+            className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-4"
+            title="Аз аввал"
+          >
+            <RotateCcw className="mr-1 h-5 w-5" /> Аз аввал
+          </Button>
         </div>
         
         {shouldShowBismillah && (
