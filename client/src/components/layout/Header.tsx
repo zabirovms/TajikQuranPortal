@@ -72,9 +72,7 @@ export default function Header({
     }
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+  // Toggle theme function removed - now handled in SettingsMenu
 
   return (
     <header className="sticky top-0 z-30 bg-white dark:bg-gray-900 shadow-md">

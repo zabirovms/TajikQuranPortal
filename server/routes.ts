@@ -256,7 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         throw new Error(`Failed to obtain token: ${response.status} ${response.statusText}`);
       }
       
-      const tokenData = await response.json();
+      const tokenData = await response.json() as { access_token: string };
       log(`Successfully obtained Quran Foundation token`, "quranFoundation");
       
       // Return token data with both the token and client ID for headers
