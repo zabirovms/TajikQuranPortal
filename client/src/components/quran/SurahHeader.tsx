@@ -18,23 +18,36 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
   const { audioState, togglePlayPause, stopAudio } = useAudioPlayer();
   const { toast } = useToast();
   
-  // Derived state based on audioState
-  const isCurrentSurah = audioState.playingEntireSurah?.surahNumber === surah.number;
-  const isPlaying = isCurrentSurah && audioState.isPlaying;
-  const isPaused = isCurrentSurah && !audioState.isPlaying && audioState.currentTime > 0;
+  // Local audio state
+  const [localIsPlaying, setLocalIsPlaying] = useState(false);
+  const [localIsPaused, setLocalIsPaused] = useState(false);
   
-  // For debugging purposes, log the audio state
+  // Update local state based on audio state changes
   useEffect(() => {
-    console.log("Audio state in SurahHeader:", {
-      isCurrentSurah,
+    // Get the audio element
+    const audio = document.querySelector('audio');
+    const isCurrentSurah = audioState.playingEntireSurah?.surahNumber === surah.number;
+    
+    console.log("Audio state update:", {
       surahNumber: surah.number,
-      playingSurahNumber: audioState.playingEntireSurah?.surahNumber,
-      isPlayingInState: audioState.isPlaying,
+      playingSurah: audioState.playingEntireSurah?.surahNumber,
+      isPlaying: audioState.isPlaying,
       currentTime: audioState.currentTime,
-      isPlaying,
-      isPaused
+      audioSrc: audio?.src || 'none'
     });
-  }, [audioState, isCurrentSurah, isPlaying, isPaused, surah.number]);
+    
+    // Determine local state
+    if (isCurrentSurah && audioState.isPlaying) {
+      setLocalIsPlaying(true);
+      setLocalIsPaused(false);
+    } else if (isCurrentSurah && !audioState.isPlaying && audioState.currentTime > 0) {
+      setLocalIsPlaying(false);
+      setLocalIsPaused(true);
+    } else if (!isCurrentSurah) {
+      setLocalIsPlaying(false);
+      setLocalIsPaused(false);
+    }
+  }, [audioState, surah.number]);
   
   // Show Bismillah except for Surah 9 (Tawbah) or Surah 1 (Fatiha)
   const shouldShowBismillah = surah.number !== 9 && surah.number !== 1;
@@ -128,14 +141,14 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
         )}
         
         <div className="flex flex-wrap justify-center gap-2 mb-4">
-          {/* Debug info (will be removed in final version) */}
+          {/* Debug info */}
           <div className="w-full text-xs text-red-500 mb-2">
-            Debug: isPlaying={isPlaying.toString()}, isPaused={isPaused.toString()}, 
-            surah={surah.number}, playing={audioState.playingEntireSurah?.surahNumber}
+            Debug: isPlaying={String(localIsPlaying)}, isPaused={String(localIsPaused)}, 
+            surah={surah.number}, playing={audioState.playingEntireSurah?.surahNumber || "none"}
           </div>
         
           {/* Play button */}
-          {!isPlaying && !isPaused && (
+          {!localIsPlaying && !localIsPaused && (
             <Button 
               onClick={handlePlay}
               className="flex items-center justify-center bg-primary dark:bg-accent text-white rounded-full px-4 py-1 text-sm hover:bg-primary/90 dark:hover:bg-accent/90"
@@ -146,7 +159,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           )}
           
           {/* Pause button */}
-          {isPlaying && (
+          {localIsPlaying && (
             <Button 
               onClick={handlePause}
               className="flex items-center justify-center bg-amber-500 text-white rounded-full px-4 py-1 text-sm hover:bg-amber-600"
@@ -157,7 +170,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           )}
           
           {/* Resume button */}
-          {isPaused && (
+          {localIsPaused && (
             <Button 
               onClick={handleResume}
               className="flex items-center justify-center bg-green-500 text-white rounded-full px-4 py-1 text-sm hover:bg-green-600"
@@ -168,7 +181,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           )}
           
           {/* Stop button */}
-          {(isPlaying || isPaused) && (
+          {(localIsPlaying || localIsPaused) && (
             <Button 
               onClick={handleStop}
               variant="outline"
@@ -180,7 +193,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           )}
           
           {/* Restart button */}
-          {(isPlaying || isPaused) && (
+          {(localIsPlaying || localIsPaused) && (
             <Button 
               onClick={handleRestart}
               variant="outline"
@@ -213,14 +226,14 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
         </p>
         
         <div className="flex flex-wrap justify-center gap-3 mb-4">
-          {/* Debug info (will be removed in final version) */}
+          {/* Debug info */}
           <div className="w-full text-xs text-red-500 mb-2">
-            Debug: isPlaying={isPlaying.toString()}, isPaused={isPaused.toString()}, 
-            surah={surah.number}, playing={audioState.playingEntireSurah?.surahNumber}
+            Debug: isPlaying={String(localIsPlaying)}, isPaused={String(localIsPaused)}, 
+            surah={surah.number}, playing={audioState.playingEntireSurah?.surahNumber || "none"}
           </div>
         
           {/* Play button */}
-          {!isPlaying && !isPaused && (
+          {!localIsPlaying && !localIsPaused && (
             <Button 
               onClick={handlePlay}
               className="flex items-center justify-center bg-primary dark:bg-accent text-white rounded-full px-6 py-2 hover:bg-primary/90 dark:hover:bg-accent/90"
@@ -231,7 +244,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           )}
           
           {/* Pause button */}
-          {isPlaying && (
+          {localIsPlaying && (
             <Button 
               onClick={handlePause}
               className="flex items-center justify-center bg-amber-500 text-white rounded-full px-6 py-2 hover:bg-amber-600"
@@ -242,7 +255,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           )}
           
           {/* Resume button */}
-          {isPaused && (
+          {localIsPaused && (
             <Button 
               onClick={handleResume}
               className="flex items-center justify-center bg-green-500 text-white rounded-full px-6 py-2 hover:bg-green-600"
@@ -253,7 +266,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           )}
           
           {/* Stop button */}
-          {(isPlaying || isPaused) && (
+          {(localIsPlaying || localIsPaused) && (
             <Button 
               onClick={handleStop}
               variant="outline"
@@ -265,7 +278,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           )}
           
           {/* Restart button */}
-          {(isPlaying || isPaused) && (
+          {(localIsPlaying || localIsPaused) && (
             <Button 
               onClick={handleRestart}
               variant="outline"
