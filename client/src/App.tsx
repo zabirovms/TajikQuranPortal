@@ -9,6 +9,7 @@ import SearchOverlay from "./components/overlay/SearchOverlay";
 import BookmarksOverlay from "./components/overlay/BookmarksOverlay";
 import { TajweedProvider } from "./hooks/useTajweedMode";
 import { ThemeProvider } from "./hooks/useTheme";
+import { TranslationProvider } from "./hooks/useTranslation";
 
 // Global context for overlays
 export type GlobalOverlayType = 'search' | 'bookmarks' | null;
@@ -45,11 +46,13 @@ function Router() {
 function App() {
   return (
     <ThemeProvider>
-      <TajweedProvider>
-        <TooltipProvider>
-          <Router />
-        </TooltipProvider>
-      </TajweedProvider>
+      <TranslationProvider>
+        <TajweedProvider>
+          <TooltipProvider>
+            <Router />
+          </TooltipProvider>
+        </TajweedProvider>
+      </TranslationProvider>
     </ThemeProvider>
   );
 }

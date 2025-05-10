@@ -3,7 +3,9 @@ import {
   surahs, type Surah, type InsertSurah,
   verses, type Verse, type InsertVerse,
   bookmarks, type Bookmark, type InsertBookmark,
-  searchHistory, type SearchHistory, type InsertSearchHistory
+  searchHistory, type SearchHistory, type InsertSearchHistory,
+  translations, type Translation, type InsertTranslation,
+  translationContents, type TranslationContent, type InsertTranslationContent
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, and, or, desc, sql } from "drizzle-orm";

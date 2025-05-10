@@ -35,18 +35,51 @@ export const insertSurahSchema = createInsertSchema(surahs).omit({
 export type InsertSurah = z.infer<typeof insertSurahSchema>;
 export type Surah = typeof surahs.$inferSelect;
 
+// Translations table (metadata about available translations)
+export const translations = pgTable("translations", {
+  id: serial("id").primaryKey(),
+  translator_id: text("translator_id").notNull().unique(), // unique identifier for the translator
+  name: text("name").notNull(),
+  description: text("description"),
+  language: text("language").notNull(),
+  source: text("source").notNull(), // e.g., 'default', 'quran_foundation'
+});
+
+export const insertTranslationSchema = createInsertSchema(translations).omit({
+  id: true,
+});
+
+export type InsertTranslation = z.infer<typeof insertTranslationSchema>;
+export type Translation = typeof translations.$inferSelect;
+
 // Verses table (ayahs of the Quran)
 export const verses = pgTable("verses", {
   id: serial("id").primaryKey(),
   surah_id: integer("surah_id").notNull(),
   verse_number: integer("verse_number").notNull(),
   arabic_text: text("arabic_text").notNull(),
-  tajik_text: text("tajik_text").notNull(),
+  tajik_text: text("tajik_text").notNull(), // Default Tajik translation
   page: integer("page"),
   juz: integer("juz"),
   audio_url: text("audio_url"),
   unique_key: text("unique_key").notNull().unique(), // Format: surah:verse (e.g., "2:255")
 });
+
+// Translation content table (to store different translations for verses)
+export const translationContents = pgTable("translation_contents", {
+  id: serial("id").primaryKey(),
+  verse_id: integer("verse_id").notNull(),
+  translation_id: integer("translation_id").notNull(),
+  text: text("text").notNull(),
+  // A unique constraint on verse_id + translation_id would be added in migration
+});
+
+export const insertTranslationContentSchema = createInsertSchema(translationContents).omit({
+  id: true,
+});
+
+export type InsertTranslationContent = z.infer<typeof insertTranslationContentSchema>;
+export type TranslationContent = typeof translationContents.$inferSelect;
 
 export const insertVerseSchema = createInsertSchema(verses).omit({
   id: true,
