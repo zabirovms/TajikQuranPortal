@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '@/components/ui/dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import TajweedText from './TajweedText';
+import TajikTranslation from './TajikTranslation';
 
 interface VerseItemProps {
   verse: Verse;
@@ -325,12 +326,13 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
             <p className="text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
             <p className="text-xs text-gray-400 dark:text-gray-500">{currentTranslator.name}</p>
           </div>
-          <p>{
-            // For now, always show the default translation until API integration is complete
-            translatorId === 'default' 
-              ? verse.tajik_text
-              : verse.tajik_text // This will be replaced with API-sourced translations
-          }</p>
+          <TajikTranslation 
+            verseKey={verse.unique_key}
+            surahNumber={parseInt(verse.unique_key.split(':')[0])}
+            verseNumber={verse.verse_number}
+            defaultText={verse.tajik_text}
+            translatorId={translatorId}
+          />
         </div>
       </CardContent>
     </Card>
