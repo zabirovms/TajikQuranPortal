@@ -51,6 +51,7 @@ export default function Header({
   const { translatorId, setTranslatorId, currentTranslator } = useTranslation();
   const [location, navigate] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Navigate to the previous/next surah if available
   const goToPreviousSurah = () => {
@@ -150,7 +151,7 @@ export default function Header({
             <Search className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </Button>
           
-          <DropdownMenu>
+          <DropdownMenu open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
@@ -165,14 +166,20 @@ export default function Header({
               <DropdownMenuSeparator />
               
               <DropdownMenuItem 
-                onClick={() => onOpenOverlay('bookmarks')}
+                onClick={() => {
+                  onOpenOverlay('bookmarks');
+                  setIsSettingsOpen(false);
+                }}
                 className="flex items-center cursor-pointer"
               >
                 <BookmarkIcon className="h-4 w-4 mr-2" />
                 <span>Хатчӯбҳо</span>
               </DropdownMenuItem>
               
-              <DropdownMenuItem className="flex justify-between items-center cursor-pointer">
+              <DropdownMenuItem 
+                className="flex justify-between items-center cursor-pointer"
+                onSelect={(e) => e.preventDefault()} // Prevent auto-closing
+              >
                 <div className="flex items-center">
                   <Book className="h-4 w-4 mr-2" />
                   <span>Таҷвид</span>
@@ -195,7 +202,10 @@ export default function Header({
                 <DropdownMenuItem 
                   key={translator.id}
                   className="flex justify-between items-center cursor-pointer pl-6"
-                  onClick={() => setTranslatorId(translator.id)}
+                  onClick={() => {
+                    setTranslatorId(translator.id);
+                    setIsSettingsOpen(false);
+                  }}
                 >
                   <div className="flex items-center">
                     <span>{translator.name}</span>
@@ -208,7 +218,13 @@ export default function Header({
               
               <DropdownMenuSeparator />
               
-              <DropdownMenuItem className="flex justify-between items-center cursor-pointer" onClick={toggleTheme}>
+              <DropdownMenuItem 
+                className="flex justify-between items-center cursor-pointer" 
+                onClick={() => {
+                  toggleTheme();
+                  setIsSettingsOpen(false);
+                }}
+              >
                 <div className="flex items-center">
                   {theme === 'dark' ? (
                     <Sun className="h-4 w-4 mr-2 text-yellow-300" />

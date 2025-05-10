@@ -313,6 +313,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
       <CardContent className="p-4 md:p-6">
         {/* Arabic Text with Tajweed support */}
         <TajweedText 
+          verseKey={verse.unique_key}
           surahNumber={parseInt(verse.unique_key.split(':')[0])}
           verseNumber={verse.verse_number}
           plainText={verse.arabic_text}
