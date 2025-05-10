@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 // Define available translators
 export interface Translator {
@@ -54,16 +54,27 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
     return 'default';
   });
 
-  // Find the current translator object
-  const currentTranslator = availableTranslators.find(t => t.id === translatorId) || availableTranslators[0];
-
-  // Update localStorage when preference changes
-  useEffect(() => {
-    localStorage.setItem('translator-preference', translatorId);
+  // Find the current translator object and memoize it
+  const currentTranslator = React.useMemo(() => {
+    return availableTranslators.find(t => t.id === translatorId) || availableTranslators[0];
   }, [translatorId]);
 
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = React.useMemo(() => {
+    return { 
+      translatorId, 
+      setTranslatorId: (id: string) => {
+        setTranslatorId(id);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('translator-preference', id);
+        }
+      }, 
+      currentTranslator 
+    };
+  }, [translatorId, currentTranslator]);
+
   return (
-    <TranslationContext.Provider value={{ translatorId, setTranslatorId, currentTranslator }}>
+    <TranslationContext.Provider value={contextValue}>
       {children}
     </TranslationContext.Provider>
   );

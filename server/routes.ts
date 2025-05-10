@@ -228,6 +228,165 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Quran Foundation API proxy endpoints
+  // Function to get an OAuth token from Quran Foundation
+  const getQuranFoundationToken = async () => {
+    const clientId = process.env.QURAN_FOUNDATION_CLIENT_ID || "3f8f68d0-98b9-4c1a-925e-6cecc3f049c2";
+    const clientSecret = process.env.QURAN_FOUNDATION_CLIENT_SECRET || "cuV-Lo9D0hqQdpWHCHQwoku1PI";
+    
+    try {
+      // Try production endpoint first
+      const data = new URLSearchParams();
+      data.append('grant_type', 'client_credentials');
+      data.append('client_id', clientId);
+      data.append('client_secret', clientSecret);
+      
+      log(`Attempting to get Quran Foundation token from production`, "quranFoundation");
+      
+      const response = await fetch('https://oauth2.quran.foundation/oauth/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: data.toString(),
+      });
+      
+      if (response.ok) {
+        const tokenData = await response.json();
+        return tokenData.access_token;
+      }
+      
+      // Try pre-production endpoint as fallback
+      const preData = new URLSearchParams();
+      preData.append('grant_type', 'client_credentials');
+      preData.append('client_id', '1399dcc4-be59-4bca-a70a-b2ff9153ed9f');
+      preData.append('client_secret', 'EVqvZgkwt1ATR.1HSe9LX1QQv7');
+      
+      log(`Attempting to get Quran Foundation token from pre-production`, "quranFoundation");
+      
+      const preResponse = await fetch('https://prelive-oauth2.quran.foundation/oauth/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: preData.toString(),
+      });
+      
+      if (preResponse.ok) {
+        const preTokenData = await preResponse.json();
+        return preTokenData.access_token;
+      }
+      
+      throw new Error('Failed to obtain token from both production and pre-production endpoints');
+    } catch (error) {
+      log(`Error getting Quran Foundation token: ${error}`, "quranFoundation");
+      throw error;
+    }
+  };
+
+  // Endpoint to get available Tajik translations
+  apiRouter.get("/quran-foundation/translations", async (_req: Request, res: Response) => {
+    try {
+      const token = await getQuranFoundationToken();
+      
+      log(`Fetching Quran Foundation Tajik translations`, "quranFoundation");
+      
+      const response = await fetch(
+        'https://apis.quran.foundation/content/api/v4/resources/translations?language=tg',
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        // Try pre-production endpoint as fallback
+        log(`Trying pre-production API for translations`, "quranFoundation");
+        
+        const preResponse = await fetch(
+          'https://apis-prelive.quran.foundation/content/api/v4/resources/translations?language=tg',
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json',
+            },
+          }
+        );
+        
+        if (!preResponse.ok) {
+          throw new Error(`Failed to fetch translations: ${preResponse.status}`);
+        }
+        
+        const data = await preResponse.json();
+        res.json(data);
+        return;
+      }
+      
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      log(`Error fetching Quran Foundation translations: ${error}`, "quranFoundation");
+      res.status(500).json({ error: "Failed to fetch translations" });
+    }
+  });
+
+  // Endpoint to get verses by surah with specific translation
+  apiRouter.get("/quran-foundation/surahs/:number/verses", async (req: Request, res: Response) => {
+    try {
+      const surahNumber = req.params.number;
+      const translationId = req.query.translation_id as string;
+      
+      if (!translationId) {
+        return res.status(400).json({ error: "Missing translation_id parameter" });
+      }
+      
+      log(`Fetching Quran Foundation verses for surah ${surahNumber} with translation ${translationId}`, "quranFoundation");
+      
+      const token = await getQuranFoundationToken();
+      
+      const response = await fetch(
+        `https://apis.quran.foundation/content/api/v4/verses/by_chapter/${surahNumber}?translations=${translationId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        // Try pre-production endpoint as fallback
+        log(`Trying pre-production API for verses`, "quranFoundation");
+        
+        const preResponse = await fetch(
+          `https://apis-prelive.quran.foundation/content/api/v4/verses/by_chapter/${surahNumber}?translations=${translationId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json',
+            },
+          }
+        );
+        
+        if (!preResponse.ok) {
+          throw new Error(`Failed to fetch verses: ${preResponse.status}`);
+        }
+        
+        const data = await preResponse.json();
+        res.json(data);
+        return;
+      }
+      
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      log(`Error fetching Quran Foundation verses: ${error}`, "quranFoundation");
+      res.status(500).json({ error: "Failed to fetch verses" });
+    }
+  });
+
   app.use("/api", apiRouter);
 
   const httpServer = createServer(app);
