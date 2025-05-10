@@ -41,7 +41,7 @@ function MobileSidebar({ isOpen, onClose, surahs, currentSurahNumber, isLoading 
           <div>
             <span className="font-medium">{surah.number}. {surah.name_tajik}</span>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              {surah.name_english} • {surah.verses_count} оят
+              {surah.name_english} • {surah.verses_count} Оятҳо
             </p>
           </div>
           <span className={getArabicFontClass('sm')}>{surah.name_arabic}</span>

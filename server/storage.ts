@@ -3,9 +3,7 @@ import {
   surahs, type Surah, type InsertSurah,
   verses, type Verse, type InsertVerse,
   bookmarks, type Bookmark, type InsertBookmark,
-  searchHistory, type SearchHistory, type InsertSearchHistory,
-  translations, type Translation, type InsertTranslation,
-  translationContents, type TranslationContent, type InsertTranslationContent
+  searchHistory, type SearchHistory, type InsertSearchHistory
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, and, or, desc, sql } from "drizzle-orm";
@@ -35,17 +33,6 @@ export interface IStorage {
   // Search history operations
   addSearchHistory(searchQuery: InsertSearchHistory): Promise<SearchHistory>;
   getSearchHistoryByUser(userId: number): Promise<SearchHistory[]>;
-
-  // Translation operations
-  getAllTranslations(): Promise<Translation[]>;
-  getTranslation(id: number): Promise<Translation | undefined>;
-  getTranslationByTranslatorId(translatorId: string): Promise<Translation | undefined>;
-  createTranslation(translation: InsertTranslation): Promise<Translation>;
-  
-  // Translation content operations
-  getTranslationForVerse(verseId: number, translationId: number): Promise<TranslationContent | undefined>;
-  createTranslationContent(content: InsertTranslationContent): Promise<TranslationContent>;
-  getVerseTranslation(verseKey: string, translatorId: string): Promise<string | undefined>;
 }
 
 // In-memory implementation of the storage interface
@@ -55,16 +42,12 @@ export class MemStorage implements IStorage {
   private verses: Map<number, Verse>;
   private bookmarks: Map<number, Bookmark>;
   private searchQueries: Map<number, SearchHistory>;
-  private translationsMeta: Map<number, Translation>;
-  private translationContents: Map<number, TranslationContent>;
 
   private currentUserId: number;
   private currentSurahId: number;
   private currentVerseId: number;
   private currentBookmarkId: number;
   private currentSearchId: number;
-  private currentTranslationId: number;
-  private currentTranslationContentId: number;
 
   constructor() {
     this.users = new Map();

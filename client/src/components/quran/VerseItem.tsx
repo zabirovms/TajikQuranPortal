@@ -8,12 +8,10 @@ import {
 import { useAudioPlayer } from '@/hooks/useAudio';
 import { useToast } from '@/hooks/use-toast';
 import { useIsVerseBookmarked, useAddBookmark, useRemoveBookmark } from '@/hooks/useBookmarks';
-import { useTranslation } from '@/hooks/useTranslation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '@/components/ui/dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import TajweedText from './TajweedText';
-import TajikTranslation from './TajikTranslation';
 
 interface VerseItemProps {
   verse: Verse;
@@ -24,7 +22,6 @@ interface VerseItemProps {
 export default function VerseItem({ verse, surahName, isLoading = false }: VerseItemProps) {
   const { playAudio } = useAudioPlayer();
   const { toast } = useToast();
-  const { translatorId, currentTranslator } = useTranslation();
   
   const { isBookmarked, bookmarkId, isLoading: isBookmarkLoading } = useIsVerseBookmarked(verse.id);
   const addBookmark = useAddBookmark();
@@ -314,7 +311,6 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
       <CardContent className="p-4 md:p-6">
         {/* Arabic Text with Tajweed support */}
         <TajweedText 
-          verseKey={verse.unique_key}
           surahNumber={parseInt(verse.unique_key.split(':')[0])}
           verseNumber={verse.verse_number}
           plainText={verse.arabic_text}
@@ -322,17 +318,8 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
         />
         
         <div className="border-t border-gray-100 dark:border-gray-700 pt-4 text-gray-800 dark:text-gray-200">
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500">{currentTranslator.name}</p>
-          </div>
-          <TajikTranslation 
-            verseKey={verse.unique_key}
-            surahNumber={parseInt(verse.unique_key.split(':')[0])}
-            verseNumber={verse.verse_number}
-            defaultText={verse.tajik_text}
-            translatorId={translatorId}
-          />
+          <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
+          <p>{verse.tajik_text}</p>
         </div>
       </CardContent>
     </Card>

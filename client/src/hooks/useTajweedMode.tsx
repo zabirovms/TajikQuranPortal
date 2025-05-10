@@ -1,38 +1,27 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
 interface TajweedContextType {
   tajweedMode: boolean;
   toggleTajweedMode: () => void;
 }
 
+// Create context with default values
 const TajweedContext = createContext<TajweedContextType>({
   tajweedMode: false,
-  toggleTajweedMode: () => {}
+  toggleTajweedMode: () => {},
 });
 
+// Provider component
 interface TajweedProviderProps {
   children: ReactNode;
 }
 
 export function TajweedProvider({ children }: TajweedProviderProps) {
-  // Get saved preference from localStorage or use default (false)
-  const [tajweedMode, setTajweedMode] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('tajweed-mode');
-      return saved ? saved === 'true' : false;
-    }
-    return false;
-  });
+  const [tajweedMode, setTajweedMode] = useState(false);
 
-  // Toggle tajweed mode
   const toggleTajweedMode = () => {
     setTajweedMode(prev => !prev);
   };
-
-  // Update localStorage when preference changes
-  useEffect(() => {
-    localStorage.setItem('tajweed-mode', tajweedMode.toString());
-  }, [tajweedMode]);
 
   return (
     <TajweedContext.Provider value={{ tajweedMode, toggleTajweedMode }}>
@@ -41,6 +30,11 @@ export function TajweedProvider({ children }: TajweedProviderProps) {
   );
 }
 
+// Hook to use the context
 export function useTajweedMode() {
-  return useContext(TajweedContext);
+  const context = useContext(TajweedContext);
+  if (context === undefined) {
+    throw new Error('useTajweedMode must be used within a TajweedProvider');
+  }
+  return context;
 }

@@ -1,3 +1,5 @@
+import { useTheme } from '@/hooks/useTheme';
+import { useTajweedMode } from '@/hooks/useTajweedMode';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState } from 'react';
@@ -5,10 +7,9 @@ import { GlobalOverlayType } from '@/App';
 import { Surah } from '@shared/schema';
 import { Link, useLocation } from 'wouter';
 import { 
-  Search, ChevronLeft, ChevronRight, 
-  Menu, Home, FolderKanban
+  Sun, Moon, Search, BookmarkIcon, ChevronLeft, ChevronRight, 
+  Menu, Home, FolderKanban, Settings, Book
 } from 'lucide-react';
-import SettingsMenu from './SettingsMenu';
 import { 
   Sheet, 
   SheetContent, 
@@ -44,6 +45,8 @@ export default function Header({
   onOpenOverlay,
   isLoading = false 
 }: HeaderProps) {
+  const { theme, setTheme } = useTheme();
+  const { tajweedMode, toggleTajweedMode } = useTajweedMode();
   const [location, navigate] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -72,7 +75,9 @@ export default function Header({
     }
   };
 
-  // Toggle theme function removed - now handled in SettingsMenu
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
 
   return (
     <header className="sticky top-0 z-30 bg-white dark:bg-gray-900 shadow-md">
@@ -143,7 +148,52 @@ export default function Header({
             <Search className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </Button>
           
-          <SettingsMenu onOpenOverlay={onOpenOverlay} />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Settings"
+              >
+                <Settings className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Танзимот</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem 
+                onClick={() => onOpenOverlay('bookmarks')}
+                className="flex items-center cursor-pointer"
+              >
+                <BookmarkIcon className="h-4 w-4 mr-2" />
+                <span>Хатчӯбҳо</span>
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem className="flex justify-between items-center cursor-pointer">
+                <div className="flex items-center">
+                  <Book className="h-4 w-4 mr-2" />
+                  <span>Таҷвид</span>
+                </div>
+                <Switch 
+                  checked={tajweedMode} 
+                  onCheckedChange={toggleTajweedMode}
+                  aria-label="Toggle Tajweed mode"
+                />
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem className="flex justify-between items-center cursor-pointer" onClick={toggleTheme}>
+                <div className="flex items-center">
+                  {theme === 'dark' ? (
+                    <Sun className="h-4 w-4 mr-2 text-yellow-300" />
+                  ) : (
+                    <Moon className="h-4 w-4 mr-2" />
+                  )}
+                  <span>{theme === 'dark' ? 'Равшан' : 'Торик'}</span>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
       
