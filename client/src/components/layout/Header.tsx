@@ -1,5 +1,6 @@
 import { useTheme } from '@/hooks/useTheme';
 import { useTajweedMode } from '@/hooks/useTajweedMode';
+import { useTranslation, availableTranslators } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState } from 'react';
@@ -8,7 +9,7 @@ import { Surah } from '@shared/schema';
 import { Link, useLocation } from 'wouter';
 import { 
   Sun, Moon, Search, BookmarkIcon, ChevronLeft, ChevronRight, 
-  Menu, Home, FolderKanban, Settings, Book
+  Menu, Home, FolderKanban, Settings, Book, Languages
 } from 'lucide-react';
 import { 
   Sheet, 
@@ -47,6 +48,7 @@ export default function Header({
 }: HeaderProps) {
   const { theme, setTheme } = useTheme();
   const { tajweedMode, toggleTajweedMode } = useTajweedMode();
+  const { translatorId, setTranslatorId, currentTranslator } = useTranslation();
   const [location, navigate] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -181,6 +183,30 @@ export default function Header({
                   aria-label="Toggle Tajweed mode"
                 />
               </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuLabel className="flex items-center">
+                <Languages className="h-4 w-4 mr-2" />
+                <span>Тарҷумаҳо</span>
+              </DropdownMenuLabel>
+              
+              {availableTranslators.map(translator => (
+                <DropdownMenuItem 
+                  key={translator.id}
+                  className="flex justify-between items-center cursor-pointer pl-6"
+                  onClick={() => setTranslatorId(translator.id)}
+                >
+                  <div className="flex items-center">
+                    <span>{translator.name}</span>
+                  </div>
+                  {translatorId === translator.id && (
+                    <div className="h-2 w-2 bg-primary rounded-full"></div>
+                  )}
+                </DropdownMenuItem>
+              ))}
+              
+              <DropdownMenuSeparator />
               
               <DropdownMenuItem className="flex justify-between items-center cursor-pointer" onClick={toggleTheme}>
                 <div className="flex items-center">
