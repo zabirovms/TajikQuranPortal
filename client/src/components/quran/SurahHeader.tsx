@@ -3,7 +3,7 @@ import { Surah } from '@shared/schema';
 import { getArabicFontClass } from '@/lib/fonts';
 import { Play, Pause, X, RotateCcw, Info } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudio';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,74 +16,25 @@ interface SurahHeaderProps {
 export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: SurahHeaderProps) {
   const [showDetails, setShowDetails] = useState(false);
   const { audioState, togglePlayPause, stopAudio } = useAudioPlayer();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
   const { toast } = useToast();
-  const audioElement = useRef<HTMLAudioElement | null>(null);
   
-  // Find the audio element in the document
-  useEffect(() => {
-    // We need to find the audio element created by the hook
-    audioElement.current = document.querySelector('audio');
-    
-    // Log for debugging
-    console.log("Audio element found:", !!audioElement.current);
-  }, []);
+  // Derived state based on audioState
+  const isCurrentSurah = audioState.playingEntireSurah?.surahNumber === surah.number;
+  const isPlaying = isCurrentSurah && audioState.isPlaying;
+  const isPaused = isCurrentSurah && !audioState.isPlaying && audioState.currentTime > 0;
   
-  // Set up state based on audio element events
+  // For debugging purposes, log the audio state
   useEffect(() => {
-    // Re-find the audio element on each render to ensure we have it
-    audioElement.current = document.querySelector('audio');
-    
-    if (!audioElement.current) {
-      console.log("No audio element found");
-      return;
-    }
-    
-    const audio = audioElement.current;
-    console.log("Audio element found and set up with listeners");
-    
-    // Event handlers to track audio state
-    const handlePlay = () => {
-      console.log("Audio play event fired");
-      setIsPlaying(true);
-      setIsPaused(false);
-    };
-    
-    const handlePause = () => {
-      console.log("Audio pause event fired");
-      setIsPlaying(false);
-      setIsPaused(audio.currentTime > 0);
-    };
-    
-    const handleEnded = () => {
-      console.log("Audio ended event fired");
-      setIsPlaying(false);
-      setIsPaused(false);
-    };
-    
-    // Add event listeners
-    audio.addEventListener('play', handlePlay);
-    audio.addEventListener('pause', handlePause);
-    audio.addEventListener('ended', handleEnded);
-    
-    // Check initial state
-    const playingNow = !audio.paused;
-    const pausedNow = audio.paused && audio.currentTime > 0;
-    console.log(`Initial audio state: playing=${playingNow}, paused=${pausedNow}, currentTime=${audio.currentTime}`);
-    
-    setIsPlaying(playingNow);
-    setIsPaused(pausedNow);
-    
-    return () => {
-      // Remove event listeners when component unmounts
-      if (audio) {
-        audio.removeEventListener('play', handlePlay);
-        audio.removeEventListener('pause', handlePause);
-        audio.removeEventListener('ended', handleEnded);
-      }
-    };
-  }, []);
+    console.log("Audio state in SurahHeader:", {
+      isCurrentSurah,
+      surahNumber: surah.number,
+      playingSurahNumber: audioState.playingEntireSurah?.surahNumber,
+      isPlayingInState: audioState.isPlaying,
+      currentTime: audioState.currentTime,
+      isPlaying,
+      isPaused
+    });
+  }, [audioState, isCurrentSurah, isPlaying, isPaused, surah.number]);
   
   // Show Bismillah except for Surah 9 (Tawbah) or Surah 1 (Fatiha)
   const shouldShowBismillah = surah.number !== 9 && surah.number !== 1;
@@ -95,54 +46,34 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
   
   // Pause currently playing audio
   const handlePause = () => {
-    if (audioElement.current && !audioElement.current.paused) {
-      audioElement.current.pause();
-      toast({
-        title: "Audio Paused",
-        description: `Paused Сураи ${surah.name_tajik}`,
-      });
-    }
+    togglePlayPause();
+    toast({
+      title: "Audio Paused",
+      description: `Paused Сураи ${surah.name_tajik}`,
+    });
   };
   
   // Resume paused audio
   const handleResume = () => {
-    if (audioElement.current && audioElement.current.paused && audioElement.current.currentTime > 0) {
-      audioElement.current.play()
-        .then(() => {
-          toast({
-            title: "Audio Resumed",
-            description: `Resumed playing Сураи ${surah.name_tajik}`,
-          });
-        })
-        .catch((err: Error) => {
-          console.error("Error resuming audio:", err);
-          toast({
-            title: "Resume Error",
-            description: "Could not resume audio playback",
-            variant: "destructive"
-          });
-        });
-    }
+    togglePlayPause();
+    toast({
+      title: "Audio Resumed",
+      description: `Resumed playing Сураи ${surah.name_tajik}`,
+    });
   };
   
   // Stop audio completely
   const handleStop = () => {
-    if (audioElement.current) {
-      audioElement.current.pause();
-      audioElement.current.currentTime = 0;
-      toast({
-        title: "Audio Stopped",
-        description: `Stopped playing Сураи ${surah.name_tajik}`,
-      });
-    }
+    stopAudio();
+    toast({
+      title: "Audio Stopped",
+      description: `Stopped playing Сураи ${surah.name_tajik}`,
+    });
   };
   
   // Restart audio from beginning
   const handleRestart = () => {
-    if (audioElement.current) {
-      audioElement.current.pause();
-      audioElement.current.currentTime = 0;
-    }
+    stopAudio();
     setTimeout(onPlaySurah, 300);
     toast({
       title: "Audio Restarted",
@@ -197,13 +128,14 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
         )}
         
         <div className="flex flex-wrap justify-center gap-2 mb-4">
-          {/* Debug state info */}
+          {/* Debug info (will be removed in final version) */}
           <div className="w-full text-xs text-red-500 mb-2">
-            Debug: isPlaying={isPlaying ? "true" : "false"}, isPaused={isPaused ? "true" : "false"}
+            Debug: isPlaying={isPlaying.toString()}, isPaused={isPaused.toString()}, 
+            surah={surah.number}, playing={audioState.playingEntireSurah?.surahNumber}
           </div>
         
           {/* Play button */}
-          {!isPlaying && (
+          {!isPlaying && !isPaused && (
             <Button 
               onClick={handlePlay}
               className="flex items-center justify-center bg-primary dark:bg-accent text-white rounded-full px-4 py-1 text-sm hover:bg-primary/90 dark:hover:bg-accent/90"
@@ -281,13 +213,14 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
         </p>
         
         <div className="flex flex-wrap justify-center gap-3 mb-4">
-          {/* Debug state info */}
+          {/* Debug info (will be removed in final version) */}
           <div className="w-full text-xs text-red-500 mb-2">
-            Debug: isPlaying={isPlaying ? "true" : "false"}, isPaused={isPaused ? "true" : "false"}
+            Debug: isPlaying={isPlaying.toString()}, isPaused={isPaused.toString()}, 
+            surah={surah.number}, playing={audioState.playingEntireSurah?.surahNumber}
           </div>
         
           {/* Play button */}
-          {!isPlaying && (
+          {!isPlaying && !isPaused && (
             <Button 
               onClick={handlePlay}
               className="flex items-center justify-center bg-primary dark:bg-accent text-white rounded-full px-6 py-2 hover:bg-primary/90 dark:hover:bg-accent/90"
