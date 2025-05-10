@@ -12,6 +12,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'wouter';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import SeoHead from '@/components/shared/SeoHead';
 
 interface SurahProps {
   surahNumber: number;
@@ -78,6 +79,29 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
   
   return (
     <div className="min-h-screen flex flex-col">
+      {surah && (
+        <SeoHead
+          title={`Сураи ${surah.name_tajik} (${surah.name_arabic})`}
+          description={`Хондани Сураи ${surah.name_tajik} бо тарҷумаи тоҷикӣ. ${surah.verses_count} оят, нозил шуда дар ${surah.revelation_type === 'Meccan' ? 'Макка' : 'Мадина'}.`}
+          structuredData={{
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": `Сураи ${surah.name_tajik} - Қуръон бо тарҷумаи тоҷикӣ`,
+            "name": surah.name_tajik,
+            "alternativeHeadline": surah.name_arabic,
+            "author": {
+              "@type": "Organization",
+              "name": "Қуръон Тоҷикӣ"
+            },
+            "inLanguage": "tg",
+            "isPartOf": {
+              "@type": "WebSite",
+              "name": "Қуръон Тоҷикӣ",
+              "url": window.location.origin
+            }
+          }}
+        />
+      )}
       <Header 
         surahs={surahs as any}
         currentSurah={surah} 

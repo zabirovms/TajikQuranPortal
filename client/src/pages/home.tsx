@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Surah } from '@shared/schema';
+import SeoHead from '@/components/shared/SeoHead';
 
 interface LastReadSection {
   surahNumber: number;
@@ -160,6 +161,22 @@ export default function Home({ onOpenOverlay }: HomeProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SeoHead
+        title="Қуръон бо тарҷумаи тоҷикӣ"
+        description="Қуръони карим бо тарҷума ва тафсири тоҷикӣ. Дастраси наворҳои овозӣ ва хондани оятҳои Қуръон бо забони тоҷикӣ."
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Қуръон Тоҷикӣ",
+          "description": "Қуръони карим бо тарҷума ва тафсири тоҷикӣ",
+          "url": window.location.origin,
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": `${window.location.origin}/?search={search_term_string}`,
+            "query-input": "required name=search_term_string"
+          }
+        }}
+      />
       <Header onOpenOverlay={onOpenOverlay} />
       
       {/* Scroll to top/bottom button */}
