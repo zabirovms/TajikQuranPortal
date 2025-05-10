@@ -162,13 +162,13 @@ export default function Home({ onOpenOverlay }: HomeProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <SeoHead
-        title="Қуръон бо тарҷумаи тоҷикӣ"
-        description="Қуръони карим бо тарҷума ва тафсири тоҷикӣ. Дастраси наворҳои овозӣ ва хондани оятҳои Қуръон бо забони тоҷикӣ."
+        title="Қуръон бо Тафсири Осонбаён"
+        description="Қуръони Карим бо тарҷумаи забони тоҷикӣ ва Тафсири Осонбаён."
         structuredData={{
           "@context": "https://schema.org",
           "@type": "WebSite",
-          "name": "Қуръон Тоҷикӣ",
-          "description": "Қуръони карим бо тарҷума ва тафсири тоҷикӣ",
+          "name": "Қуръони Карим",
+          "description": "Қуръони Карим бо тарҷума ва тафсири осонбаён бо забони тоҷикӣ",
           "url": window.location.origin,
           "potentialAction": {
             "@type": "SearchAction",
@@ -193,7 +193,7 @@ export default function Home({ onOpenOverlay }: HomeProps) {
         <div className="max-w-3xl mx-auto">
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-primary dark:text-accent mb-2">
-              Қуръон бо тарҷумаи тоҷикӣ
+              Қуръон бо Тафсири Осонбаён
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
               Қуръони шариф бо тарҷума ва тафсири тоҷикӣ
@@ -215,7 +215,7 @@ export default function Home({ onOpenOverlay }: HomeProps) {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="font-medium">Сураи {lastRead.surahName}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Ояти {lastRead.verseNumber}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">ояти {lastRead.verseNumber}</p>
                   </div>
                   <Link href={`/surah/${lastRead.surahNumber}#verse-${lastRead.verseKey.replace(':', '-')}`}>
                     <Button>
@@ -359,7 +359,7 @@ export default function Home({ onOpenOverlay }: HomeProps) {
           </div>
           
           <div className="text-center text-sm text-gray-600 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <p>Қуръон бо тарҷумаи тоҷикӣ &copy; {new Date().getFullYear()}</p>
+            <p>Қуръон бо Тафсири Осонбаён &copy; {new Date().getFullYear()}</p>
           </div>
         </div>
       </footer>

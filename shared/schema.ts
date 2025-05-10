@@ -26,6 +26,7 @@ export const surahs = pgTable("surahs", {
   name_english: text("name_english").notNull(),
   revelation_type: text("revelation_type").notNull(), // 'Meccan' or 'Medinan'
   verses_count: integer("verses_count").notNull(),
+  description: text("description"), // Information about the surah
 });
 
 export const insertSurahSchema = createInsertSchema(surahs).omit({

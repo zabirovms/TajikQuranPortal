@@ -50,8 +50,9 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
     const textToCopy = `${verse.arabic_text}\n\n${verse.tajik_text}\n\n(${verse.unique_key})`;
     navigator.clipboard.writeText(textToCopy).then(() => {
       toast({
-        title: "Copied to clipboard",
-        description: "Verse text copied to clipboard.",
+        title: "Нусхабардорӣ шуд",
+        description: "Матни оят ба ҳофизаи муваққатӣ нусхабардорӣ шуд.",
+        duration: 2000 // 2 seconds duration
       });
     });
   };
@@ -78,14 +79,16 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
     if (isBookmarked && bookmarkId) {
       removeBookmark.mutate(bookmarkId);
       toast({
-        title: "Bookmark removed",
-        description: "Verse removed from bookmarks."
+        title: "Ҳазф шуд",
+        description: "Оят аз захирагоҳ ҳазф шуд.",
+        duration: 2000 // 2 seconds duration
       });
     } else {
       addBookmark.mutate(verse.id);
       toast({
-        title: "Bookmark added", 
-        description: "Verse added to bookmarks."
+        title: "Захира шуд", 
+        description: "Оят ба захирагоҳ илова шуд.",
+        duration: 2000 // 2 seconds duration
       });
     }
   };

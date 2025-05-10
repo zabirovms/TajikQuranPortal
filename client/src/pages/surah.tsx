@@ -86,17 +86,17 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
           structuredData={{
             "@context": "https://schema.org",
             "@type": "Article",
-            "headline": `Сураи ${surah.name_tajik} - Қуръон бо тарҷумаи тоҷикӣ`,
+            "headline": `Сураи ${surah.name_tajik} - Қуръон бо тарҷумаи тоҷикӣ. Тафсири Осонбаён`,
             "name": surah.name_tajik,
             "alternativeHeadline": surah.name_arabic,
             "author": {
               "@type": "Organization",
-              "name": "Қуръон Тоҷикӣ"
+              "name": "Қуръони Тоҷикӣ"
             },
             "inLanguage": "tg",
             "isPartOf": {
               "@type": "WebSite",
-              "name": "Қуръон Тоҷикӣ",
+              "name": "Қуръони Тоҷикӣ",
               "url": window.location.origin
             }
           }}

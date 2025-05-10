@@ -110,11 +110,6 @@ export default function Header({
                     <span>Лоиҳаҳои мо</span>
                   </Link>
                 </div>
-                <SheetFooter>
-                  <SheetClose asChild>
-                    <Button variant="outline" className="w-full">Пӯшидан</Button>
-                  </SheetClose>
-                </SheetFooter>
               </SheetContent>
             </Sheet>
           ) : (
@@ -133,7 +128,7 @@ export default function Header({
           
           <Link href="/">
             <h1 className="text-xl font-bold text-primary dark:text-accent cursor-pointer">
-              Қуръон <span className="text-secondary dark:text-white text-sm">бо тарҷумаи тоҷикӣ</span>
+              Қуръон <span className="text-secondary dark:text-white text-sm">бо Тафсири Осонбаён</span>
             </h1>
           </Link>
         </div>
@@ -167,7 +162,7 @@ export default function Header({
                 className="flex items-center cursor-pointer"
               >
                 <BookmarkIcon className="h-4 w-4 mr-2" />
-                <span>Хатчӯбҳо</span>
+                <span>Захирагоҳ</span>
               </DropdownMenuItem>
               
               <DropdownMenuItem className="flex justify-between items-center cursor-pointer">

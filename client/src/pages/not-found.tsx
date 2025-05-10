@@ -15,13 +15,13 @@ export default function NotFound() {
         <h1 className="text-6xl font-bold text-primary dark:text-accent mb-4">404</h1>
         <h2 className="text-2xl font-semibold mb-6">Саҳифа ёфт нашуд</h2>
         <p className="text-gray-600 dark:text-gray-400 mb-8">
-          Саҳифаи дархост кардаатон ёфт нашуд ё ҳазф шуда аст.
+          Саҳифаи дархост кардаатон ёфт нашуд ё ҳазф шудааст.
         </p>
         
         <Link href="/">
           <Button className="flex items-center gap-2">
             <Home className="h-4 w-4" />
-            <span>Баргашт ба саҳифаи асосӣ</span>
+            <span>Ба саҳифаи асосӣ</span>
           </Button>
         </Link>
       </div>

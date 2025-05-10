@@ -15,7 +15,7 @@ interface SurahHeaderProps {
 
 export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: SurahHeaderProps) {
   // SEO optimization - Hidden div with semantic content for search engines
-  const seoDescription = `Сураи ${surah.name_tajik} (${surah.name_english}) - Сураи ${surah.number} аз Қуръони Карим бо ${surah.verses_count} оят. ${surah.revelation_type === "Meccan" ? "Нозилшуда дар Макка" : "Нозилшуда дар Мадина"}.`;
+  const seoDescription = `Сураи ${surah.name_tajik} ояти ${surah.verses_count} — Тафсири Осонбаён — Қуръон. Сураи ${surah.revelation_type === "Meccan" ? "Маккӣ" : "Маданӣ"}.`;
   const [showDetails, setShowDetails] = useState(false);
   const { audioState, togglePlayPause, stopAudio } = useAudioPlayer();
   const { toast } = useToast();
@@ -118,7 +118,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
       {/* Hidden SEO content */}
       <div className="sr-only">
         <h1>{seoDescription}</h1>
-        <p>Қуръони Карим бо забони тоҷикӣ. Сураи {surah.number}: {surah.name_tajik}. {surah.verses_count} оят.</p>
+        <p>Тарчумаи Куръони Карим — Тафсири Осонбаён. Сураи {surah.name_tajik} ({surah.number}), ояти {surah.verses_count}.</p>
       </div>
       {/* Mobile view */}
       <div className="md:hidden">
