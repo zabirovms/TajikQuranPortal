@@ -6,6 +6,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudio';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogClose,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/dialog';
 
 interface SurahHeaderProps {
   surah: Surah;
@@ -96,6 +106,40 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
     });
   };
   
+  // Render the information button and dialog if a description is available
+  const renderInfoButton = () => {
+    if (!surah.description) return null;
+    
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button 
+            variant="outline"
+            className="flex items-center justify-center rounded-full px-4 py-2"
+            title="Дар бораи сура"
+          >
+            <Info className="mr-2 h-5 w-5" /> Дар бораи сура
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-primary dark:text-accent">
+              Дар бораи сураи {surah.name_tajik}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 text-gray-800 dark:text-gray-200 whitespace-pre-line">
+            {surah.description}
+          </div>
+          <DialogFooter className="mt-6">
+            <DialogClose asChild>
+              <Button type="button">Бастан</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+  
   if (isLoading) {
     return (
       <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6 text-center">
@@ -135,7 +179,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           {surah.revelation_type === "Meccan" ? " Нозилшуда дар Макка" : " Нозилшуда дар Мадина"}
         </p>
         
-        <div className="flex flex-wrap justify-center mb-4">
+        <div className="flex flex-wrap justify-center gap-3 mb-4">
           {/* Main button - Play/Pause toggle */}
           <Button 
             onClick={localIsPlaying ? handlePause : handlePlay}
@@ -148,6 +192,9 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
               <><Play className="mr-2 h-5 w-5" /> Тиловати сура</>
             )}
           </Button>
+          
+          {/* Info button for mobile */}
+          {renderInfoButton()}
         </div>
         
         {shouldShowBismillah && (
@@ -170,7 +217,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           {surah.revelation_type === "Meccan" ? " Нозилшуда дар Макка" : " Нозилшуда дар Мадина"}
         </p>
         
-        <div className="flex flex-wrap justify-center mb-4">
+        <div className="flex flex-wrap justify-center gap-3 mb-4">
           {/* Main button - Play/Pause toggle */}
           <Button 
             onClick={localIsPlaying ? handlePause : handlePlay}
@@ -183,6 +230,9 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
               <><Play className="mr-2 h-5 w-5" /> Тиловати сура</>
             )}
           </Button>
+          
+          {/* Info button for desktop */}
+          {renderInfoButton()}
         </div>
         
         {shouldShowBismillah && (
