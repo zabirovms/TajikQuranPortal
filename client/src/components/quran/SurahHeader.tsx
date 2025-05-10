@@ -3,7 +3,7 @@ import { Surah } from '@shared/schema';
 import { getArabicFontClass } from '@/lib/fonts';
 import { Play, Pause, X, RotateCcw, Info } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudio';
 import { useToast } from '@/hooks/use-toast';
 
@@ -19,34 +19,71 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const { toast } = useToast();
+  const audioElement = useRef<HTMLAudioElement | null>(null);
   
-  // Check if this surah is currently playing
-  const isSurahPlaying = useCallback(() => {
-    return audioState.playingEntireSurah?.surahNumber === surah.number && audioState.isPlaying;
-  }, [audioState, surah.number]);
-  
-  // Update audio state when audioState changes
+  // Find the audio element in the document
   useEffect(() => {
-    // Force the initial state to show all buttons for testing
-    // This temporary change will help us see if UI is working
-    // Remove this after testing
-    setIsPlaying(true); 
+    // We need to find the audio element created by the hook
+    audioElement.current = document.querySelector('audio');
     
-    // Log all relevant state for debugging
-    console.log("Audio state debug:");
-    console.log("- Current surah:", surah.number);
-    console.log("- Playing surah:", audioState.playingEntireSurah?.surahNumber);
-    console.log("- Is playing:", audioState.isPlaying);
-    console.log("- Current time:", audioState.currentTime);
-    console.log("- State vars:", { isPlaying, isPaused });
+    // Log for debugging
+    console.log("Audio element found:", !!audioElement.current);
+  }, []);
+  
+  // Set up state based on audio element events
+  useEffect(() => {
+    // Re-find the audio element on each render to ensure we have it
+    audioElement.current = document.querySelector('audio');
     
-    // This is the original logic that should work
-    /*
-    const isCurrentSurah = audioState.playingEntireSurah?.surahNumber === surah.number;
-    setIsPlaying(isCurrentSurah && audioState.isPlaying);
-    setIsPaused(isCurrentSurah && !audioState.isPlaying && audioState.currentTime > 0);
-    */
-  }, [audioState, surah.number, isPlaying, isPaused]);
+    if (!audioElement.current) {
+      console.log("No audio element found");
+      return;
+    }
+    
+    const audio = audioElement.current;
+    console.log("Audio element found and set up with listeners");
+    
+    // Event handlers to track audio state
+    const handlePlay = () => {
+      console.log("Audio play event fired");
+      setIsPlaying(true);
+      setIsPaused(false);
+    };
+    
+    const handlePause = () => {
+      console.log("Audio pause event fired");
+      setIsPlaying(false);
+      setIsPaused(audio.currentTime > 0);
+    };
+    
+    const handleEnded = () => {
+      console.log("Audio ended event fired");
+      setIsPlaying(false);
+      setIsPaused(false);
+    };
+    
+    // Add event listeners
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('ended', handleEnded);
+    
+    // Check initial state
+    const playingNow = !audio.paused;
+    const pausedNow = audio.paused && audio.currentTime > 0;
+    console.log(`Initial audio state: playing=${playingNow}, paused=${pausedNow}, currentTime=${audio.currentTime}`);
+    
+    setIsPlaying(playingNow);
+    setIsPaused(pausedNow);
+    
+    return () => {
+      // Remove event listeners when component unmounts
+      if (audio) {
+        audio.removeEventListener('play', handlePlay);
+        audio.removeEventListener('pause', handlePause);
+        audio.removeEventListener('ended', handleEnded);
+      }
+    };
+  }, []);
   
   // Show Bismillah except for Surah 9 (Tawbah) or Surah 1 (Fatiha)
   const shouldShowBismillah = surah.number !== 9 && surah.number !== 1;
@@ -58,8 +95,8 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
   
   // Pause currently playing audio
   const handlePause = () => {
-    if (isPlaying) {
-      togglePlayPause();
+    if (audioElement.current && !audioElement.current.paused) {
+      audioElement.current.pause();
       toast({
         title: "Audio Paused",
         description: `Paused Сураи ${surah.name_tajik}`,
@@ -69,27 +106,43 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
   
   // Resume paused audio
   const handleResume = () => {
-    if (isPaused) {
-      togglePlayPause();
-      toast({
-        title: "Audio Resumed",
-        description: `Resumed playing Сураи ${surah.name_tajik}`,
-      });
+    if (audioElement.current && audioElement.current.paused && audioElement.current.currentTime > 0) {
+      audioElement.current.play()
+        .then(() => {
+          toast({
+            title: "Audio Resumed",
+            description: `Resumed playing Сураи ${surah.name_tajik}`,
+          });
+        })
+        .catch((err: Error) => {
+          console.error("Error resuming audio:", err);
+          toast({
+            title: "Resume Error",
+            description: "Could not resume audio playback",
+            variant: "destructive"
+          });
+        });
     }
   };
   
   // Stop audio completely
   const handleStop = () => {
-    stopAudio();
-    toast({
-      title: "Audio Stopped",
-      description: `Stopped playing Сураи ${surah.name_tajik}`,
-    });
+    if (audioElement.current) {
+      audioElement.current.pause();
+      audioElement.current.currentTime = 0;
+      toast({
+        title: "Audio Stopped",
+        description: `Stopped playing Сураи ${surah.name_tajik}`,
+      });
+    }
   };
   
   // Restart audio from beginning
   const handleRestart = () => {
-    stopAudio();
+    if (audioElement.current) {
+      audioElement.current.pause();
+      audioElement.current.currentTime = 0;
+    }
     setTimeout(onPlaySurah, 300);
     toast({
       title: "Audio Restarted",
@@ -144,57 +197,67 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
         )}
         
         <div className="flex flex-wrap justify-center gap-2 mb-4">
-          {/* TEMPORARY: Add debug info */}
+          {/* Debug state info */}
           <div className="w-full text-xs text-red-500 mb-2">
             Debug: isPlaying={isPlaying ? "true" : "false"}, isPaused={isPaused ? "true" : "false"}
           </div>
         
-          {/* Play button - ALWAYS SHOW FOR NOW */}
-          <Button 
-            onClick={handlePlay}
-            className="flex items-center justify-center bg-primary dark:bg-accent text-white rounded-full px-4 py-1 text-sm hover:bg-primary/90 dark:hover:bg-accent/90"
-            title="Тиловати сура"
-          >
-            <Play className="mr-2 h-4 w-4" /> Тиловати сура
-          </Button>
+          {/* Play button */}
+          {!isPlaying && (
+            <Button 
+              onClick={handlePlay}
+              className="flex items-center justify-center bg-primary dark:bg-accent text-white rounded-full px-4 py-1 text-sm hover:bg-primary/90 dark:hover:bg-accent/90"
+              title="Тиловати сура"
+            >
+              <Play className="mr-2 h-4 w-4" /> Тиловати сура
+            </Button>
+          )}
           
           {/* Pause button */}
-          <Button 
-            onClick={handlePause}
-            className="flex items-center justify-center bg-amber-500 text-white rounded-full px-4 py-1 text-sm hover:bg-amber-600"
-            title="Таваққуф"
-          >
-            <Pause className="mr-2 h-4 w-4" /> Таваққуф
-          </Button>
+          {isPlaying && (
+            <Button 
+              onClick={handlePause}
+              className="flex items-center justify-center bg-amber-500 text-white rounded-full px-4 py-1 text-sm hover:bg-amber-600"
+              title="Таваққуф"
+            >
+              <Pause className="mr-2 h-4 w-4" /> Таваққуф
+            </Button>
+          )}
           
           {/* Resume button */}
-          <Button 
-            onClick={handleResume}
-            className="flex items-center justify-center bg-green-500 text-white rounded-full px-4 py-1 text-sm hover:bg-green-600"
-            title="Идома додан"
-          >
-            <Play className="mr-2 h-4 w-4" /> Идома додан
-          </Button>
+          {isPaused && (
+            <Button 
+              onClick={handleResume}
+              className="flex items-center justify-center bg-green-500 text-white rounded-full px-4 py-1 text-sm hover:bg-green-600"
+              title="Идома додан"
+            >
+              <Play className="mr-2 h-4 w-4" /> Идома додан
+            </Button>
+          )}
           
           {/* Stop button */}
-          <Button 
-            onClick={handleStop}
-            variant="outline"
-            className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-            title="Хомӯш кардан"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          {(isPlaying || isPaused) && (
+            <Button 
+              onClick={handleStop}
+              variant="outline"
+              className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+              title="Хомӯш кардан"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
           
           {/* Restart button */}
-          <Button 
-            onClick={handleRestart}
-            variant="outline"
-            className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-            title="Аз аввал"
-          >
-            <RotateCcw className="h-4 w-4" />
-          </Button>
+          {(isPlaying || isPaused) && (
+            <Button 
+              onClick={handleRestart}
+              variant="outline"
+              className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-3 py-1 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+              title="Аз аввал"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          )}
         </div>
         
         {shouldShowBismillah && (
@@ -218,57 +281,67 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
         </p>
         
         <div className="flex flex-wrap justify-center gap-3 mb-4">
-          {/* TEMPORARY: Add debug info */}
+          {/* Debug state info */}
           <div className="w-full text-xs text-red-500 mb-2">
             Debug: isPlaying={isPlaying ? "true" : "false"}, isPaused={isPaused ? "true" : "false"}
           </div>
         
-          {/* Play button - ALWAYS SHOW FOR NOW */}
-          <Button 
-            onClick={handlePlay}
-            className="flex items-center justify-center bg-primary dark:bg-accent text-white rounded-full px-6 py-2 hover:bg-primary/90 dark:hover:bg-accent/90"
-            title="Тиловати сура"
-          >
-            <Play className="mr-2 h-5 w-5" /> Тиловати сура
-          </Button>
+          {/* Play button */}
+          {!isPlaying && (
+            <Button 
+              onClick={handlePlay}
+              className="flex items-center justify-center bg-primary dark:bg-accent text-white rounded-full px-6 py-2 hover:bg-primary/90 dark:hover:bg-accent/90"
+              title="Тиловати сура"
+            >
+              <Play className="mr-2 h-5 w-5" /> Тиловати сура
+            </Button>
+          )}
           
           {/* Pause button */}
-          <Button 
-            onClick={handlePause}
-            className="flex items-center justify-center bg-amber-500 text-white rounded-full px-6 py-2 hover:bg-amber-600"
-            title="Таваққуф"
-          >
-            <Pause className="mr-2 h-5 w-5" /> Таваққуф
-          </Button>
+          {isPlaying && (
+            <Button 
+              onClick={handlePause}
+              className="flex items-center justify-center bg-amber-500 text-white rounded-full px-6 py-2 hover:bg-amber-600"
+              title="Таваққуф"
+            >
+              <Pause className="mr-2 h-5 w-5" /> Таваққуф
+            </Button>
+          )}
           
           {/* Resume button */}
-          <Button 
-            onClick={handleResume}
-            className="flex items-center justify-center bg-green-500 text-white rounded-full px-6 py-2 hover:bg-green-600"
-            title="Идома додан"
-          >
-            <Play className="mr-2 h-5 w-5" /> Идома додан
-          </Button>
+          {isPaused && (
+            <Button 
+              onClick={handleResume}
+              className="flex items-center justify-center bg-green-500 text-white rounded-full px-6 py-2 hover:bg-green-600"
+              title="Идома додан"
+            >
+              <Play className="mr-2 h-5 w-5" /> Идома додан
+            </Button>
+          )}
           
           {/* Stop button */}
-          <Button 
-            onClick={handleStop}
-            variant="outline"
-            className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-4"
-            title="Хомӯш кардан"
-          >
-            <X className="mr-1 h-5 w-5" /> Хомӯш
-          </Button>
+          {(isPlaying || isPaused) && (
+            <Button 
+              onClick={handleStop}
+              variant="outline"
+              className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-4"
+              title="Хомӯш кардан"
+            >
+              <X className="mr-1 h-5 w-5" /> Хомӯш
+            </Button>
+          )}
           
           {/* Restart button */}
-          <Button 
-            onClick={handleRestart}
-            variant="outline"
-            className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-4"
-            title="Аз аввал"
-          >
-            <RotateCcw className="mr-1 h-5 w-5" /> Аз аввал
-          </Button>
+          {(isPlaying || isPaused) && (
+            <Button 
+              onClick={handleRestart}
+              variant="outline"
+              className="flex items-center justify-center text-gray-600 dark:text-gray-300 rounded-full px-4"
+              title="Аз аввал"
+            >
+              <RotateCcw className="mr-1 h-5 w-5" /> Аз аввал
+            </Button>
+          )}
         </div>
         
         {shouldShowBismillah && (
