@@ -1,89 +1,74 @@
 import { useEffect, useState } from 'react';
-import { parseTajweed, fetchTajweedAyah } from '@/lib/tajweed';
-import { getArabicFontClass } from '@/lib/fonts';
 import { useTajweedMode } from '@/hooks/useTajweedMode';
-import '@/styles/tajweed.css';
+import { fetchTajweedAyah, parseTajweed } from '@/lib/tajweed';
+import { cn } from '@/lib/utils';
+import { getArabicFontClass } from '@/lib/fonts';
 
 interface TajweedTextProps {
+  verseKey: string;
   surahNumber: number;
   verseNumber: number;
-  plainText?: string;  // Plain Arabic text to use as fallback
+  plainText: string;
   className?: string;
-  showLoader?: boolean;
 }
 
 export default function TajweedText({ 
+  verseKey, 
   surahNumber, 
   verseNumber, 
-  plainText = "",
-  className = "", 
-  showLoader = true 
+  plainText, 
+  className 
 }: TajweedTextProps) {
   const { tajweedMode } = useTajweedMode();
-  const [text, setText] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(tajweedMode);
+  const [tajweedHtml, setTajweedHtml] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only fetch the Tajweed text if Tajweed mode is enabled
-    if (tajweedMode) {
-      const loadTajweedText = async () => {
-        try {
-          setIsLoading(true);
-          setError(null);
-          
-          const tajweedText = await fetchTajweedAyah(surahNumber, verseNumber);
-          setText(tajweedText);
-        } catch (error) {
-          console.error('Error loading tajweed text:', error);
-          setError('Could not load tajweed text');
-        } finally {
-          setIsLoading(false);
-        }
-      };
+    async function loadTajweedText() {
+      if (!tajweedMode) {
+        setTajweedHtml('');
+        return;
+      }
 
-      loadTajweedText();
-    } else {
-      // If Tajweed mode is not enabled, clear any previously loaded Tajweed text
-      setText('');
-      setIsLoading(false);
-      setError(null);
+      try {
+        setIsLoading(true);
+        setError(null);
+        const tajweedText = await fetchTajweedAyah(surahNumber, verseNumber);
+        const parsedHtml = parseTajweed(tajweedText);
+        setTajweedHtml(parsedHtml);
+      } catch (err) {
+        console.error('Error loading tajweed text:', err);
+        setError('Хатои боркунии матни таҷвид');
+        setTajweedHtml('');
+      } finally {
+        setIsLoading(false);
+      }
     }
+
+    loadTajweedText();
   }, [surahNumber, verseNumber, tajweedMode]);
 
-  if (isLoading && showLoader) {
+  if (error) {
     return (
-      <div className={`${getArabicFontClass('md')} animate-pulse flex justify-center p-4 ${className}`}>
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-      </div>
-    );
-  }
-
-  // If tajweed mode is not enabled, simply display the plain text
-  if (!tajweedMode) {
-    return (
-      <div className={`${getArabicFontClass('md')} leading-loose ${className}`}>
+      <div className={cn("tajweed-text", getArabicFontClass('lg'), className)}>
         {plainText}
       </div>
     );
   }
 
-  // If there's an error loading tajweed and tajweed mode is enabled
-  if (error) {
+  if (!tajweedMode || isLoading || !tajweedHtml) {
     return (
-      <div className={`${getArabicFontClass('md')} leading-loose ${className}`}>
-        {plainText || `﴾الآية ${verseNumber} من سورة ${surahNumber}﴿`}
+      <div className={cn("text-arabic", getArabicFontClass('lg'), className)}>
+        {plainText}
       </div>
     );
   }
 
-  // Parse the tajweed text to convert it to HTML 
-  const parsedText = parseTajweed(text);
-
   return (
     <div 
-      className={`${getArabicFontClass('md')} leading-loose ${className}`}
-      dangerouslySetInnerHTML={{ __html: parsedText }}
+      className={cn("tajweed-text", getArabicFontClass('lg'), className)}
+      dangerouslySetInnerHTML={{ __html: tajweedHtml }}
     />
   );
 }

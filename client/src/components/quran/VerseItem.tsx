@@ -23,6 +23,7 @@ interface VerseItemProps {
 export default function VerseItem({ verse, surahName, isLoading = false }: VerseItemProps) {
   const { playAudio } = useAudioPlayer();
   const { toast } = useToast();
+  const { translatorId, currentTranslator } = useTranslation();
   
   const { isBookmarked, bookmarkId, isLoading: isBookmarkLoading } = useIsVerseBookmarked(verse.id);
   const addBookmark = useAddBookmark();
@@ -319,8 +320,16 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
         />
         
         <div className="border-t border-gray-100 dark:border-gray-700 pt-4 text-gray-800 dark:text-gray-200">
-          <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
-          <p>{verse.tajik_text}</p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">{currentTranslator.name}</p>
+          </div>
+          <p>{
+            // For now, always show the default translation until API integration is complete
+            translatorId === 'default' 
+              ? verse.tajik_text
+              : verse.tajik_text // This will be replaced with API-sourced translations
+          }</p>
         </div>
       </CardContent>
     </Card>

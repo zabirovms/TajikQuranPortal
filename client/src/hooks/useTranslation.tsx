@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
-// Define the available translators
+// Define available translators
 export interface Translator {
   id: string;
   name: string;
@@ -10,15 +10,19 @@ export interface Translator {
 export const availableTranslators: Translator[] = [
   {
     id: 'default',
-    name: 'Тарҷумаи Тоҷикӣ',
-    description: 'Тарҷумаи асосии Қуръон ба забони тоҷикӣ'
+    name: 'Ҳидоят',
+    description: 'Тарҷумаи расмии Раёсати Мусалмонони Тоҷикистон'
   },
   {
-    id: 'quran_foundation',
-    name: 'Quran Foundation',
-    description: 'Тарҷумаи Quran Foundation ба забони тоҷикӣ'
+    id: 'mubin',
+    name: 'Мубин',
+    description: 'Тарҷумаи муассисаи Мубин'
   },
-  // Add more translators as they become available
+  {
+    id: 'sadoi_islom',
+    name: 'Садои Ислом',
+    description: 'Тарҷумаи нашрияи Садои Ислом'
+  }
 ];
 
 // Context type
@@ -35,7 +39,7 @@ const TranslationContext = createContext<TranslationContextType>({
   currentTranslator: availableTranslators[0]
 });
 
-// Provider component
+// Context provider props
 interface TranslationProviderProps {
   children: ReactNode;
 }
@@ -44,20 +48,18 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
   // Get saved preference from localStorage or use default
   const [translatorId, setTranslatorId] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('preferred_translator');
-      return saved || 'default';
+      const saved = localStorage.getItem('translator-preference');
+      return saved ? saved : 'default';
     }
     return 'default';
   });
 
-  // Get the current translator object
+  // Find the current translator object
   const currentTranslator = availableTranslators.find(t => t.id === translatorId) || availableTranslators[0];
 
-  // Save preference to localStorage when it changes
+  // Update localStorage when preference changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('preferred_translator', translatorId);
-    }
+    localStorage.setItem('translator-preference', translatorId);
   }, [translatorId]);
 
   return (
@@ -67,11 +69,7 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
   );
 }
 
-// Hook to use the context
+// Custom hook to use translation context
 export function useTranslation() {
-  const context = useContext(TranslationContext);
-  if (context === undefined) {
-    throw new Error('useTranslation must be used within a TranslationProvider');
-  }
-  return context;
+  return useContext(TranslationContext);
 }
