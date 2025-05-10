@@ -3,8 +3,9 @@ import { Surah } from '@shared/schema';
 import { getArabicFontClass } from '@/lib/fonts';
 import { Play, Pause, X, RotateCcw, Info } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudio';
+import { useToast } from '@/hooks/use-toast';
 
 interface SurahHeaderProps {
   surah: Surah;
@@ -16,15 +17,24 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
   const [showDetails, setShowDetails] = useState(false);
   const { audioState, togglePlayPause, stopAudio } = useAudioPlayer();
   const [isPlaying, setIsPlaying] = useState(false);
+  const { toast } = useToast();
   
-  // Track if this surah is currently playing
-  useEffect(() => {
-    if (audioState.playingEntireSurah && audioState.playingEntireSurah.surahNumber === surah.number) {
-      setIsPlaying(audioState.isPlaying);
-    } else {
-      setIsPlaying(false);
-    }
+  // Check if this surah is currently playing
+  const isSurahPlaying = useCallback(() => {
+    return audioState.playingEntireSurah?.surahNumber === surah.number && audioState.isPlaying;
   }, [audioState, surah.number]);
+  
+  // Update isPlaying state when audioState changes
+  useEffect(() => {
+    setIsPlaying(isSurahPlaying());
+    
+    // For debugging
+    if (audioState.playingEntireSurah) {
+      console.log("Current playing surah:", audioState.playingEntireSurah.surahNumber);
+      console.log("Current surah:", surah.number);
+      console.log("Is playing:", audioState.isPlaying);
+    }
+  }, [audioState, isSurahPlaying, surah.number]);
   
   // Show Bismillah except for Surah 9 (Tawbah) or Surah 1 (Fatiha)
   const shouldShowBismillah = surah.number !== 9 && surah.number !== 1;
@@ -33,6 +43,10 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
   const handlePlayButton = () => {
     if (isPlaying) {
       togglePlayPause();
+      toast({
+        title: "Audio Paused",
+        description: `Paused Сураи ${surah.name_tajik}`,
+      });
     } else {
       onPlaySurah();
     }

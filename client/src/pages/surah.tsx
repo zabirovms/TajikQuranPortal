@@ -53,6 +53,9 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
     // Use the playSurah function from the top-level hook
     playSurah(surah.number, surah.name_tajik);
     
+    // Log for debugging
+    console.log(`Playing surah ${surah.number}: ${surah.name_tajik}`);
+    
     toast({
       title: "Playing Surah",
       description: `Now playing Сураи ${surah.name_tajik}`,
