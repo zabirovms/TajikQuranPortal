@@ -46,32 +46,39 @@ interface TranslationProviderProps {
 
 export function TranslationProvider({ children }: TranslationProviderProps) {
   // Get saved preference from localStorage or use default
-  const [translatorId, setTranslatorId] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
+  const [translatorId, setTranslatorIdState] = useState<string>('default');
+
+  // Load from localStorage on initial mount only
+  useEffect(() => {
+    try {
       const saved = localStorage.getItem('translator-preference');
-      return saved ? saved : 'default';
+      if (saved) {
+        setTranslatorIdState(saved);
+      }
+    } catch (error) {
+      console.error('Error reading from localStorage:', error);
     }
-    return 'default';
-  });
+  }, []);
+
+  // Handler for updating the translator
+  const setTranslatorId = (id: string) => {
+    setTranslatorIdState(id);
+    try {
+      localStorage.setItem('translator-preference', id);
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  };
 
   // Find the current translator object and memoize it
-  const currentTranslator = React.useMemo(() => {
-    return availableTranslators.find(t => t.id === translatorId) || availableTranslators[0];
-  }, [translatorId]);
+  const currentTranslator = availableTranslators.find(t => t.id === translatorId) || availableTranslators[0];
 
-  // Memoize the context value to prevent unnecessary re-renders
-  const contextValue = React.useMemo(() => {
-    return { 
-      translatorId, 
-      setTranslatorId: (id: string) => {
-        setTranslatorId(id);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('translator-preference', id);
-        }
-      }, 
-      currentTranslator 
-    };
-  }, [translatorId, currentTranslator]);
+  // Create context value
+  const contextValue = {
+    translatorId,
+    setTranslatorId,
+    currentTranslator
+  };
 
   return (
     <TranslationContext.Provider value={contextValue}>

@@ -1,6 +1,3 @@
-import { useTheme } from '@/hooks/useTheme';
-import { useTajweedMode } from '@/hooks/useTajweedMode';
-import { useTranslation, availableTranslators } from '@/hooks/useTranslation';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState } from 'react';
@@ -8,9 +5,10 @@ import { GlobalOverlayType } from '@/App';
 import { Surah } from '@shared/schema';
 import { Link, useLocation } from 'wouter';
 import { 
-  Sun, Moon, Search, BookmarkIcon, ChevronLeft, ChevronRight, 
-  Menu, Home, FolderKanban, Settings, Book, Languages
+  Search, ChevronLeft, ChevronRight, 
+  Menu, Home, FolderKanban
 } from 'lucide-react';
+import SettingsMenu from './SettingsMenu';
 import { 
   Sheet, 
   SheetContent, 
@@ -46,12 +44,8 @@ export default function Header({
   onOpenOverlay,
   isLoading = false 
 }: HeaderProps) {
-  const { theme, setTheme } = useTheme();
-  const { tajweedMode, toggleTajweedMode } = useTajweedMode();
-  const { translatorId, setTranslatorId, currentTranslator } = useTranslation();
   const [location, navigate] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Navigate to the previous/next surah if available
   const goToPreviousSurah = () => {
@@ -151,91 +145,7 @@ export default function Header({
             <Search className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </Button>
           
-          <DropdownMenu open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Settings"
-              >
-                <Settings className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Танзимот</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              
-              <DropdownMenuItem 
-                onClick={() => {
-                  onOpenOverlay('bookmarks');
-                  setIsSettingsOpen(false);
-                }}
-                className="flex items-center cursor-pointer"
-              >
-                <BookmarkIcon className="h-4 w-4 mr-2" />
-                <span>Хатчӯбҳо</span>
-              </DropdownMenuItem>
-              
-              <DropdownMenuItem 
-                className="flex justify-between items-center cursor-pointer"
-                onSelect={(e) => e.preventDefault()} // Prevent auto-closing
-              >
-                <div className="flex items-center">
-                  <Book className="h-4 w-4 mr-2" />
-                  <span>Таҷвид</span>
-                </div>
-                <Switch 
-                  checked={tajweedMode} 
-                  onCheckedChange={toggleTajweedMode}
-                  aria-label="Toggle Tajweed mode"
-                />
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-              
-              <DropdownMenuLabel className="flex items-center">
-                <Languages className="h-4 w-4 mr-2" />
-                <span>Тарҷумаҳо</span>
-              </DropdownMenuLabel>
-              
-              {availableTranslators.map(translator => (
-                <DropdownMenuItem 
-                  key={translator.id}
-                  className="flex justify-between items-center cursor-pointer pl-6"
-                  onClick={() => {
-                    setTranslatorId(translator.id);
-                    setIsSettingsOpen(false);
-                  }}
-                >
-                  <div className="flex items-center">
-                    <span>{translator.name}</span>
-                  </div>
-                  {translatorId === translator.id && (
-                    <div className="h-2 w-2 bg-primary rounded-full"></div>
-                  )}
-                </DropdownMenuItem>
-              ))}
-              
-              <DropdownMenuSeparator />
-              
-              <DropdownMenuItem 
-                className="flex justify-between items-center cursor-pointer" 
-                onClick={() => {
-                  toggleTheme();
-                  setIsSettingsOpen(false);
-                }}
-              >
-                <div className="flex items-center">
-                  {theme === 'dark' ? (
-                    <Sun className="h-4 w-4 mr-2 text-yellow-300" />
-                  ) : (
-                    <Moon className="h-4 w-4 mr-2" />
-                  )}
-                  <span>{theme === 'dark' ? 'Равшан' : 'Торик'}</span>
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <SettingsMenu onOpenOverlay={onOpenOverlay} />
         </div>
       </div>
       
