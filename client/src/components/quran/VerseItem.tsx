@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Verse } from '@shared/schema';
 import { getArabicFontClass, formatArabicNumber } from '@/lib/fonts';
 import { 
-  Play, Copy, Share, BookmarkIcon, Image as ImageIcon
+  Play, Copy, Share, BookmarkIcon, Image as ImageIcon,
+  ChevronDown, ChevronUp, Book, MoreHorizontal
 } from 'lucide-react';
 import { useAudioPlayer } from '@/hooks/useAudio';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +13,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '@/components/ui/dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import TajweedText from './TajweedText';
+import { 
+  Tabs, TabsContent, TabsList, TabsTrigger 
+} from '@/components/ui/tabs';
+import { 
+  Collapsible, CollapsibleContent, CollapsibleTrigger 
+} from '@/components/ui/collapsible';
+import { useState } from 'react';
 
 interface VerseItemProps {
   verse: Verse;

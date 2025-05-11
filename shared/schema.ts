@@ -42,7 +42,10 @@ export const verses = pgTable("verses", {
   surah_id: integer("surah_id").notNull(),
   verse_number: integer("verse_number").notNull(),
   arabic_text: text("arabic_text").notNull(),
+  transliteration: text("transliteration"), // Cyrillic transliteration of Arabic text
   tajik_text: text("tajik_text").notNull(),
+  alternative_translation: text("alternative_translation"), // Second translation version
+  tafsir: text("tafsir"), // Tafsir/explanation of the verse
   page: integer("page"),
   juz: integer("juz"),
   audio_url: text("audio_url"),
