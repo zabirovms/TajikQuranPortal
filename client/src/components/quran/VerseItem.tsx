@@ -35,6 +35,9 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
   const addBookmark = useAddBookmark();
   const removeBookmark = useRemoveBookmark();
   
+  // State for additional content collapsible
+  const [isAdditionalContentOpen, setIsAdditionalContentOpen] = useState(false);
+  
   // Generate verse image URL from Islamic Network CDN
   const getVerseImageUrl = (highRes = false) => {
     // Extract surah number from the unique key (format: surah:verse)
@@ -53,9 +56,27 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
     });
   };
   
-  // Handle copying verse text
+  // Handle copying verse text with all available translations
   const handleCopyVerse = () => {
-    const textToCopy = `${verse.arabic_text}\n\n${verse.tajik_text}\n\n(${verse.unique_key})`;
+    // Build the text to copy with all available content
+    let textToCopy = `${verse.arabic_text}\n\n`;
+    
+    // Add transliteration if available
+    if (verse.transliteration) {
+      textToCopy += `${verse.transliteration}\n\n`;
+    }
+    
+    // Add primary translation
+    textToCopy += `${verse.tajik_text}\n\n`;
+    
+    // Add alternative translation if available
+    if (verse.alternative_translation) {
+      textToCopy += `Тарҷумаи дигар:\n${verse.alternative_translation}\n\n`;
+    }
+    
+    // Add verse reference
+    textToCopy += `(${verse.unique_key})`;
+    
     navigator.clipboard.writeText(textToCopy).then(() => {
       toast({
         title: "Нусхабардорӣ шуд",
@@ -65,12 +86,23 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
     });
   };
   
-  // Handle sharing verse
+  // Handle sharing verse with all available translations
   const handleShareVerse = () => {
+    // Build the sharing text with essential content
+    let shareText = `${verse.arabic_text}\n\n`;
+    
+    // Add transliteration if available (keep sharing text concise)
+    if (verse.transliteration) {
+      shareText += `${verse.transliteration}\n\n`;
+    }
+    
+    // Add primary translation
+    shareText += `${verse.tajik_text}`;
+    
     if (navigator.share) {
       navigator.share({
         title: `Quran - ${verse.unique_key}`,
-        text: `${verse.arabic_text}\n\n${verse.tajik_text}`,
+        text: shareText,
         url: `${window.location.href.split('#')[0]}#verse-${verse.unique_key.replace(':', '-')}`
       }).catch(() => {
         // Fallback if share fails
@@ -328,10 +360,68 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
           className="text-right mb-4"
         />
         
-        <div className="border-t border-gray-100 dark:border-gray-700 pt-4 text-gray-800 dark:text-gray-200">
+        {/* Transliteration - show if available */}
+        {verse.transliteration && (
+          <div className="border-t border-gray-100 dark:border-gray-700 pt-3 pb-4 text-gray-800 dark:text-gray-200">
+            <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Талаффуз:</p>
+            <p className="italic">{verse.transliteration}</p>
+          </div>
+        )}
+        
+        {/* Primary translation */}
+        <div className="border-t border-gray-100 dark:border-gray-700 pt-3 text-gray-800 dark:text-gray-200">
           <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
           <p>{verse.tajik_text}</p>
         </div>
+        
+        {/* Additional content section - only show if any additional content exists */}
+        {(verse.alternative_translation || verse.tafsir) && (
+          <Collapsible 
+            open={isAdditionalContentOpen} 
+            onOpenChange={setIsAdditionalContentOpen}
+            className="mt-4"
+          >
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-primary dark:text-accent font-medium">
+                Маълумоти иловагӣ
+              </p>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="p-0 h-7 w-7">
+                  {isAdditionalContentOpen ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+            
+            <CollapsibleContent className="mt-2">
+              <Tabs defaultValue="alternate" className="w-full">
+                <TabsList className="grid grid-cols-2 mb-2">
+                  {verse.alternative_translation && (
+                    <TabsTrigger value="alternate">Тарҷумаи дигар</TabsTrigger>
+                  )}
+                  {verse.tafsir && (
+                    <TabsTrigger value="tafsir">Тафсир</TabsTrigger>
+                  )}
+                </TabsList>
+                
+                {verse.alternative_translation && (
+                  <TabsContent value="alternate" className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
+                    <p>{verse.alternative_translation}</p>
+                  </TabsContent>
+                )}
+                
+                {verse.tafsir && (
+                  <TabsContent value="tafsir" className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
+                    <p>{verse.tafsir}</p>
+                  </TabsContent>
+                )}
+              </Tabs>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
       </CardContent>
     </Card>
   );
