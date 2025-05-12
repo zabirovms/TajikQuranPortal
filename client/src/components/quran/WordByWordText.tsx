@@ -35,6 +35,14 @@ export default function WordByWordText({
   plainText,
   className
 }: WordByWordTextProps) {
+  // Add a state for the active word (hovered or clicked) - MUST BE BEFORE ANY CONDITIONALS
+  const [activeWordPos, setActiveWordPos] = useState<number | null>(null);
+
+  // Function to handle word interaction
+  const handleWordInteraction = (position: number) => {
+    setActiveWordPos(position);
+  };
+  
   // Fetch word analysis data
   const { data: wordAnalysis, isLoading, error } = useQuery({
     queryKey: ['/api/word-analysis', surahNumber, verseNumber],
@@ -73,14 +81,6 @@ export default function WordByWordText({
       </div>
     );
   }
-  
-  // Add a state for the active word (hovered or clicked)
-  const [activeWordPos, setActiveWordPos] = useState<number | null>(null);
-
-  // Function to handle word interaction
-  const handleWordInteraction = (position: number) => {
-    setActiveWordPos(position);
-  };
 
   return (
     <div className={cn("text-right", className)}>
