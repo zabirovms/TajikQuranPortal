@@ -180,7 +180,8 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
                 name_tajik: "",
                 name_english: "",
                 revelation_type: "Meccan",
-                verses_count: 0
+                verses_count: 0,
+                description: null
               }} 
               onPlaySurah={() => {}}
               isLoading={true}
@@ -200,10 +201,13 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
                     surah_id: 0,
                     verse_number: 0,
                     arabic_text: "",
+                    transliteration: null,
                     tajik_text: "",
-                    page: 0,
-                    juz: 0,
-                    audio_url: "",
+                    alternative_translation: null,
+                    tafsir: null,
+                    page: null,
+                    juz: null,
+                    audio_url: null,
                     unique_key: ""
                   }}
                   surahName=""
