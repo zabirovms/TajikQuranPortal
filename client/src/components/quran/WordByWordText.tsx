@@ -3,7 +3,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Skeleton } from '@/components/ui/skeleton';
 import { getArabicFontClass } from '@/lib/fonts';
 import { useQuery } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+
 import { cn } from '@/lib/utils';
 
 
@@ -74,34 +74,58 @@ export default function WordByWordText({
     );
   }
   
+  // Add a state for the active word (hovered or clicked)
+  const [activeWordPos, setActiveWordPos] = useState<number | null>(null);
+
+  // Function to handle word interaction
+  const handleWordInteraction = (position: number) => {
+    setActiveWordPos(position);
+  };
+
   return (
     <div className={cn("text-right", className)}>
       <div className={arabicFontClass}>
-        <TooltipProvider>
+        <TooltipProvider delayDuration={100}>
           {Array.isArray(wordAnalysis) && wordAnalysis.map((word: any) => (
-            <span key={word.word_position} className="inline-block">
+            <span 
+              key={word.word_position} 
+              className="inline-block relative"
+              onMouseEnter={() => handleWordInteraction(word.word_position)}
+              onMouseLeave={() => setActiveWordPos(null)}
+            >
               {word.translation || word.transliteration ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="hover:text-primary dark:hover:text-accent cursor-pointer px-0.5">
+                    <span 
+                      className={cn(
+                        "px-0.5 cursor-pointer transition-colors duration-200",
+                        activeWordPos === word.word_position 
+                          ? "text-primary dark:text-accent bg-primary/5 dark:bg-accent/10 rounded" 
+                          : "hover:text-primary dark:hover:text-accent"
+                      )}
+                    >
                       {word.word_text}
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom" className="bg-white dark:bg-gray-800 z-50 max-w-xs">
-                    <div className="text-center">
+                  <TooltipContent 
+                    side="bottom" 
+                    align="center"
+                    className="bg-white dark:bg-gray-800 z-50 max-w-xs shadow-lg border border-gray-200 dark:border-gray-700"
+                  >
+                    <div className="text-center p-2">
                       {word.transliteration && (
-                        <div className="font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        <div className="font-medium mb-1 text-gray-800 dark:text-gray-200">
                           {word.transliteration}
                         </div>
                       )}
                       {word.translation && (
-                        <div className="text-sm">
+                        <div className="text-sm text-gray-700 dark:text-gray-300">
                           {word.translation}
                         </div>
                       )}
                       {word.root && (
-                        <div className="mt-1 text-xs text-muted-foreground">
-                          Корен: {word.root}
+                        <div className="mt-1 text-xs text-muted-foreground border-t border-gray-100 dark:border-gray-700 pt-1">
+                          Корен: <span className="font-medium">{word.root}</span>
                         </div>
                       )}
                     </div>

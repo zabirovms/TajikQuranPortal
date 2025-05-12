@@ -361,21 +361,23 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
           <div className="inline-flex rounded-md shadow-sm">
             <button
               onClick={() => setTextDisplayMode('regular')}
-              className={`px-3 py-1 text-xs rounded-l-md border ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-l-md border ${
                 textDisplayMode === 'regular' 
-                  ? 'bg-primary text-white dark:bg-accent' 
-                  : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                  ? 'bg-primary text-white dark:bg-accent border-primary dark:border-accent' 
+                  : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
+              title="Намоиши матни оддӣ"
             >
               Матни оддӣ
             </button>
             <button
               onClick={() => setTextDisplayMode('wordByWord')}
-              className={`px-3 py-1 text-xs rounded-r-md border ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-r-md border ${
                 textDisplayMode === 'wordByWord' 
-                  ? 'bg-primary text-white dark:bg-accent' 
-                  : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                  ? 'bg-primary text-white dark:bg-accent border-primary dark:border-accent' 
+                  : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
+              title="Намоиши калима ба калима бо тарҷумаи ҳар калима"
             >
               Калима ба калима
             </button>
@@ -391,12 +393,17 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
             className="text-right mb-4"
           />
         ) : (
-          <WordByWordText
-            surahNumber={parseInt(verse.unique_key.split(':')[0])}
-            verseNumber={verse.verse_number}
-            plainText={verse.arabic_text}
-            className="text-right mb-4"
-          />
+          <>
+            <WordByWordText
+              surahNumber={parseInt(verse.unique_key.split(':')[0])}
+              verseNumber={verse.verse_number}
+              plainText={verse.arabic_text}
+              className="text-right mb-1"
+            />
+            <p className="text-xs text-right text-gray-500 dark:text-gray-400 mb-4 italic">
+              Барои дидани тарҷумаи ҳар калима, нишонгари мушро болои калима нигоҳ доред
+            </p>
+          </>
         )}
         
         {/* Transliteration - show if available */}

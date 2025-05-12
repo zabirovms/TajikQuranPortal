@@ -74,10 +74,36 @@ export class WordService {
       }
       
       // If not in database, analyze using JQuranTree (not implemented yet)
-      // For now, we'll return a placeholder implementation
+      // For now, we'll generate and store a placeholder implementation
       const placeholderAnalysis = this.generatePlaceholderAnalysis(verse.id, verse.arabic_text);
       
-      return res.json(placeholderAnalysis);
+      try {
+        // Store the generated analysis in the database
+        for (const word of placeholderAnalysis) {
+          await db.insert(wordAnalysis).values({
+            verse_id: word.verse_id,
+            word_position: word.word_position,
+            word_text: word.word_text,
+            translation: word.translation,
+            transliteration: word.transliteration,
+            root: word.root,
+            part_of_speech: word.part_of_speech,
+            created_at: new Date()
+          });
+        }
+        
+        // Fetch the newly stored data from the database
+        const storedAnalysis = await db.select().from(wordAnalysis).where(eq(wordAnalysis.verse_id, verse.id));
+        
+        // Sort by word position
+        storedAnalysis.sort((a, b) => a.word_position - b.word_position);
+        
+        return res.json(storedAnalysis);
+      } catch (error) {
+        console.error("Error storing word analysis:", error);
+        // If storage fails, just return the generated data without storing
+        return res.json(placeholderAnalysis);
+      }
     } catch (error: any) {
       console.error("Error in word analysis:", error);
       return res.status(500).json({ 
@@ -96,17 +122,56 @@ export class WordService {
     // Simple word splitting (not accurate for Arabic)
     const words = arabicText.split(' ');
     
-    return words.map((word, index) => ({
-      id: 0, // Will be assigned by database
-      verse_id: verseId,
-      word_position: index + 1,
-      word_text: word,
-      translation: null,
-      transliteration: null,
-      root: null,
-      part_of_speech: null,
-      created_at: new Date()
-    }));
+    // Common Tajik translations for basic words in Al-Fatiha
+    const commonTranslations: Record<string, { translation: string; transliteration: string }> = {
+      'بِسْمِ': { translation: 'номи', transliteration: 'Bismi' },
+      'اللَّهِ': { translation: 'Аллоҳ', transliteration: 'Allahi' },
+      'الرَّحْمَٰنِ': { translation: 'Бахшоянда', transliteration: 'ar-Rahmani' },
+      'الرَّحِيمِ': { translation: 'Меҳрубон', transliteration: 'ar-Rahimi' },
+      'الْحَمْدُ': { translation: 'ситоиш', transliteration: 'al-Hamdu' },
+      'لِلَّهِ': { translation: 'барои Аллоҳ', transliteration: 'lillahi' },
+      'رَبِّ': { translation: 'Парвардигори', transliteration: 'Rabbi' },
+      'الْعَالَمِينَ': { translation: 'ҷаҳониён', transliteration: 'al-alamina' },
+      'مَالِكِ': { translation: 'Подшоҳи', transliteration: 'Maliki' },
+      'يَوْمِ': { translation: 'рӯзи', transliteration: 'yawmi' },
+      'الدِّينِ': { translation: 'қиёмат', transliteration: 'ad-dini' },
+      'إِيَّاكَ': { translation: 'Танҳо Туро', transliteration: 'iyyaka' },
+      'نَعْبُدُ': { translation: 'мепарастем', transliteration: 'na\'budu' },
+      'وَإِيَّاكَ': { translation: 'ва танҳо аз Ту', transliteration: 'wa iyyaka' },
+      'نَسْتَعِينُ': { translation: 'ёрӣ металабем', transliteration: 'nasta\'inu' },
+      'اهْدِنَا': { translation: 'моро ҳидоят кун', transliteration: 'ihdina' },
+      'الصِّرَاطَ': { translation: 'ба роҳи', transliteration: 'as-sirata' },
+      'الْمُسْتَقِيمَ': { translation: 'рост', transliteration: 'al-mustaqima' },
+      'صِرَاطَ': { translation: 'роҳи', transliteration: 'sirata' },
+      'الَّذِينَ': { translation: 'касоне ки', transliteration: 'alladhina' },
+      'أَنْعَمْتَ': { translation: 'неъмат додӣ', transliteration: 'an\'amta' },
+      'عَلَيْهِمْ': { translation: 'ба онҳо', transliteration: '\'alayhim' },
+      'غَيْرِ': { translation: 'ба ғайри', transliteration: 'ghayri' },
+      'الْمَغْضُوبِ': { translation: 'ғазаб кардагон', transliteration: 'al-maghdubi' },
+      'وَلَا': { translation: 'ва на', transliteration: 'wa la' },
+      'الضَّالِّينَ': { translation: 'гумроҳон', transliteration: 'ad-dallina' },
+    };
+    
+    return words.map((word, index) => {
+      // Try to match with common translations
+      const translation = commonTranslations[word] || {
+        // If no match found, generate a placeholder
+        translation: `калимаи ${index + 1}`,
+        transliteration: `Калимаи ${index + 1}`
+      };
+      
+      return {
+        id: 0, // Will be assigned by database
+        verse_id: verseId,
+        word_position: index + 1,
+        word_text: word,
+        translation: translation.translation,
+        transliteration: translation.transliteration,
+        root: null,
+        part_of_speech: null,
+        created_at: new Date()
+      };
+    });
   }
 }
 
