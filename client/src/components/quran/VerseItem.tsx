@@ -10,6 +10,7 @@ import {
 import { useAudioPlayer } from '@/hooks/useAudio';
 import { useToast } from '@/hooks/use-toast';
 import { useIsVerseBookmarked, useAddBookmark, useRemoveBookmark } from '@/hooks/useBookmarks';
+import { useDisplaySettings } from '@/hooks/useDisplaySettings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '@/components/ui/dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -31,13 +32,11 @@ interface VerseItemProps {
 export default function VerseItem({ verse, surahName, isLoading = false }: VerseItemProps) {
   const { playAudio } = useAudioPlayer();
   const { toast } = useToast();
+  const { wordByWordMode } = useDisplaySettings();
   
   const { isBookmarked, bookmarkId, isLoading: isBookmarkLoading } = useIsVerseBookmarked(verse.id);
   const addBookmark = useAddBookmark();
   const removeBookmark = useRemoveBookmark();
-  
-  // State for text display mode (regular text or word-by-word)
-  const [textDisplayMode, setTextDisplayMode] = useState<'regular' | 'wordByWord'>('regular');
   
   // State for additional content collapsible
   const [isAdditionalContentOpen, setIsAdditionalContentOpen] = useState(false);

@@ -1,40 +1,10 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { useDisplaySettings } from './useDisplaySettings';
 
-interface TajweedContextType {
-  tajweedMode: boolean;
-  toggleTajweedMode: () => void;
-}
-
-// Create context with default values
-const TajweedContext = createContext<TajweedContextType>({
-  tajweedMode: false,
-  toggleTajweedMode: () => {},
-});
-
-// Provider component
-interface TajweedProviderProps {
-  children: ReactNode;
-}
-
-export function TajweedProvider({ children }: TajweedProviderProps) {
-  const [tajweedMode, setTajweedMode] = useState(false);
-
-  const toggleTajweedMode = () => {
-    setTajweedMode(prev => !prev);
-  };
-
-  return (
-    <TajweedContext.Provider value={{ tajweedMode, toggleTajweedMode }}>
-      {children}
-    </TajweedContext.Provider>
-  );
-}
-
-// Hook to use the context
+// This is just a wrapper for backward compatibility
 export function useTajweedMode() {
-  const context = useContext(TajweedContext);
-  if (context === undefined) {
-    throw new Error('useTajweedMode must be used within a TajweedProvider');
-  }
-  return context;
+  const { tajweedMode, toggleTajweedMode } = useDisplaySettings();
+  return { tajweedMode, toggleTajweedMode };
 }
+
+// Re-export DisplayProvider as TajweedProvider for backward compatibility
+export { DisplayProvider as TajweedProvider } from './useDisplaySettings';
