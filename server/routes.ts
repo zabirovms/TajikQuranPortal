@@ -5,6 +5,7 @@ import { log } from "./vite";
 import { insertBookmarkSchema, insertSearchHistorySchema } from "@shared/schema";
 import { z } from "zod";
 import fetch from "node-fetch";
+import { registerWordServiceRoutes } from "./word-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes - prefix all routes with /api
@@ -229,6 +230,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.use("/api", apiRouter);
+  
+  // Register word analysis routes
+  registerWordServiceRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

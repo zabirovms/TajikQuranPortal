@@ -2,7 +2,8 @@ import { exec } from 'child_process';
 import { promises as fs } from 'fs';
 import { Request, Response } from 'express';
 import { db } from './db';
-import { wordAnalysis, verses, eq, and } from '@shared/schema';
+import { wordAnalysis, verses } from '@shared/schema';
+import { eq, and } from 'drizzle-orm';
 import path from 'path';
 
 /**
@@ -52,25 +53,23 @@ export class WordService {
       
       // Get verse ID from database
       const verseKey = `${surahNum}:${verseNum}`;
-      const verse = await db.query.verses.findFirst({
-        where: eq(verses.unique_key, verseKey)
-      });
+      const verseResults = await db.select().from(verses).where(eq(verses.unique_key, verseKey));
       
-      if (!verse) {
+      if (!verseResults || verseResults.length === 0) {
         return res.status(404).json({ 
           message: "Verse not found",
           success: false 
         });
       }
       
+      const verse = verseResults[0];
+      
       // Check if word analysis already exists in database
-      const existingAnalysis = await db.query.wordAnalysis.findMany({
-        where: eq(wordAnalysis.verse_id, verse.id)
-      });
+      const existingAnalysis = await db.select().from(wordAnalysis).where(eq(wordAnalysis.verse_id, verse.id));
       
       if (existingAnalysis && existingAnalysis.length > 0) {
         // Sort by word position
-        existingAnalysis.sort((a, b) => a.word_position - b.word_position);
+        existingAnalysis.sort((a: any, b: any) => a.word_position - b.word_position);
         return res.json(existingAnalysis);
       }
       
