@@ -116,17 +116,13 @@ export default function WordByWordText({
                       {word.word_text}
                     </div>
                     
-                    {word.transliteration && (
-                      <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                        <span className="italic">{word.transliteration}</span>
-                      </div>
-                    )}
+                    <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+                      <span className="italic">{word.transliteration || "талаффуз"}</span>
+                    </div>
                     
-                    {word.translation && (
-                      <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                        {word.translation}
-                      </div>
-                    )}
+                    <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+                      {word.translation || "тарҷума"}
+                    </div>
                     
                     <div className="text-xs text-muted-foreground mt-1 border-t border-gray-100 dark:border-gray-700 pt-1">
                       Калимаи {word.word_position}
