@@ -1,12 +1,8 @@
-import { exec } from 'child_process';
-import { promises as fs } from 'fs';
 import { Request, Response } from 'express';
 import { db } from './db';
 import { wordAnalysis, verses } from '@shared/schema';
-import { eq, and } from 'drizzle-orm';
-import path from 'path';
+import { eq } from 'drizzle-orm';
 import { log } from './vite';
-import { promisify } from 'util';
 
 /**
  * Service to handle word-by-word analysis of Quranic verses
