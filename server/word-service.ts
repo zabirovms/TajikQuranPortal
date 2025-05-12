@@ -123,35 +123,9 @@ export class WordService {
         return res.json(existingAnalysis);
       }
       
-      // Try to get analysis from JQuranTree
-      let words;
-      try {
-        const jqtResult = await this.runJQuranTreeAnalysis(surahNum, verseNum);
-        
-        if (jqtResult && jqtResult.words) {
-          log(`JQuranTree analysis successful for ${surahNum}:${verseNum}`, 'word-service');
-          
-          // Map JQuranTree results to our schema
-          words = jqtResult.words.map((word: any, index: number) => ({
-            verse_id: verse.id,
-            word_position: index + 1,
-            word_text: word.arabic || '',
-            translation: word.translation || `калимаи ${index + 1}`,
-            transliteration: word.transliteration || `Калимаи ${index + 1}`,
-            root: word.root || null,
-            part_of_speech: word.partOfSpeech || null,
-            created_at: new Date()
-          }));
-        } else {
-          // JQuranTree analysis failed or returned invalid data
-          log(`Using fallback analysis for ${surahNum}:${verseNum}`, 'word-service');
-          words = this.generatePlaceholderAnalysis(verse.id, verse.arabic_text);
-        }
-      } catch (error) {
-        // JQuranTree analysis failed, use fallback
-        log(`JQuranTree error, using fallback: ${error}`, 'word-service');
-        words = this.generatePlaceholderAnalysis(verse.id, verse.arabic_text);
-      }
+      // Extract words directly from the Arabic text
+      log(`Extracting words from Arabic text for verse ${surahNum}:${verseNum}`, 'word-service');
+      const words = this.extractWordsFromArabicText(verse.id, verse.arabic_text);
       
       try {
         // Store the generated analysis in the database
@@ -193,66 +167,22 @@ export class WordService {
   }
   
   /**
-   * Generate placeholder word analysis
-   * This is a temporary implementation until we fully integrate with JQuranTree
+   * Extract word analysis directly from Arabic text
+   * This version doesn't use translations - it just extracts the words
    */
-  private generatePlaceholderAnalysis(verseId: number, arabicText: string) {
-    // Simple word splitting (not accurate for Arabic)
-    const words = arabicText.split(' ');
+  private extractWordsFromArabicText(verseId: number, arabicText: string) {
+    // Split the Arabic text by spaces (this is a simple approach)
+    const words = arabicText.split(' ').filter(word => word.trim().length > 0);
     
-    // Common Tajik translations for basic words in Al-Fatiha
-    const commonTranslations: Record<string, { translation: string; transliteration: string }> = {
-      'بِسْمِ': { translation: 'номи', transliteration: 'Bismi' },
-      'اللَّهِ': { translation: 'Аллоҳ', transliteration: 'Allahi' },
-      'الرَّحْمَٰنِ': { translation: 'Бахшоянда', transliteration: 'ar-Rahmani' },
-      'الرَّحِيمِ': { translation: 'Меҳрубон', transliteration: 'ar-Rahimi' },
-      'الْحَمْدُ': { translation: 'ситоиш', transliteration: 'al-Hamdu' },
-      'لِلَّهِ': { translation: 'барои Аллоҳ', transliteration: 'lillahi' },
-      'رَبِّ': { translation: 'Парвардигори', transliteration: 'Rabbi' },
-      'الْعَالَمِينَ': { translation: 'ҷаҳониён', transliteration: 'al-alamina' },
-      'مَالِكِ': { translation: 'Подшоҳи', transliteration: 'Maliki' },
-      'يَوْمِ': { translation: 'рӯзи', transliteration: 'yawmi' },
-      'الدِّينِ': { translation: 'қиёмат', transliteration: 'ad-dini' },
-      'إِيَّاكَ': { translation: 'Танҳо Туро', transliteration: 'iyyaka' },
-      'نَعْبُدُ': { translation: 'мепарастем', transliteration: 'na\'budu' },
-      'وَإِيَّاكَ': { translation: 'ва танҳо аз Ту', transliteration: 'wa iyyaka' },
-      'نَسْتَعِينُ': { translation: 'ёрӣ металабем', transliteration: 'nasta\'inu' },
-      'اهْدِنَا': { translation: 'моро ҳидоят кун', transliteration: 'ihdina' },
-      'الصِّرَاطَ': { translation: 'ба роҳи', transliteration: 'as-sirata' },
-      'الْمُسْتَقِيمَ': { translation: 'рост', transliteration: 'al-mustaqima' },
-      'صِرَاطَ': { translation: 'роҳи', transliteration: 'sirata' },
-      'الَّذِينَ': { translation: 'касоне ки', transliteration: 'alladhina' },
-      'أَنْعَمْتَ': { translation: 'неъмат додӣ', transliteration: 'an\'amta' },
-      'عَلَيْهِمْ': { translation: 'ба онҳо', transliteration: '\'alayhim' },
-      'غَيْرِ': { translation: 'ба ғайри', transliteration: 'ghayri' },
-      'الْمَغْضُوبِ': { translation: 'ғазаб кардагон', transliteration: 'al-maghdubi' },
-      'وَلَا': { translation: 'ва на', transliteration: 'wa la' },
-      'الضَّالِّينَ': { translation: 'гумроҳон', transliteration: 'ad-dallina' },
-    };
-    
+    // Map each word to our data structure
     return words.map((word, index) => {
-      // Try to match with common translations
-      const translation = commonTranslations[word] || {
-        // If no match found, generate a placeholder
-        translation: `калимаи ${index + 1}`,
-        transliteration: `Калимаи ${index + 1}`
-      };
-      
-      // Make sure we have translations, even if null in the dictionary
-      if (translation.translation === null) {
-        translation.translation = `калимаи ${index + 1}`;
-      }
-      if (translation.transliteration === null) {
-        translation.transliteration = `Калимаи ${index + 1}`;
-      }
-      
       return {
         id: 0, // Will be assigned by database
         verse_id: verseId,
         word_position: index + 1,
         word_text: word,
-        translation: translation.translation,
-        transliteration: translation.transliteration,
+        translation: word, // No translation, just use the Arabic
+        transliteration: null,
         root: null,
         part_of_speech: null,
         created_at: new Date()
