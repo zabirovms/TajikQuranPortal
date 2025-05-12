@@ -115,7 +115,20 @@ export default function WordByWordText({
                     <div className="font-medium mb-1 text-gray-800 dark:text-gray-200">
                       {word.word_text}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1">
+                    
+                    {word.transliteration && (
+                      <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+                        <span className="italic">{word.transliteration}</span>
+                      </div>
+                    )}
+                    
+                    {word.translation && (
+                      <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+                        {word.translation}
+                      </div>
+                    )}
+                    
+                    <div className="text-xs text-muted-foreground mt-1 border-t border-gray-100 dark:border-gray-700 pt-1">
                       Калимаи {word.word_position}
                     </div>
                   </div>
