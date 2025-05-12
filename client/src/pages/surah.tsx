@@ -8,11 +8,12 @@ import AudioPlayer from '@/components/layout/AudioPlayer';
 import SurahHeader from '@/components/quran/SurahHeader';
 import VerseItem from '@/components/quran/VerseItem';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react';
 import { Link } from 'wouter';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import SeoHead from '@/components/shared/SeoHead';
+import { FloatingHeader } from '@/components/layout/FloatingHeader';
 
 interface SurahProps {
   surahNumber: number;

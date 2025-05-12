@@ -1,21 +1,16 @@
 import { Button } from '@/components/ui/button';
 import { Surah } from '@shared/schema';
 import { getArabicFontClass } from '@/lib/fonts';
-import { Play, Pause, X, RotateCcw, Info } from 'lucide-react';
+import { Play, Pause, X, RotateCcw, Info, ChevronUp, ChevronDown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudio';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger,
-  DialogClose,
-  DialogDescription,
-  DialogFooter
-} from '@/components/ui/dialog';
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger 
+} from '@/components/ui/collapsible';
 
 interface SurahHeaderProps {
   surah: Surah;
@@ -106,37 +101,41 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
     });
   };
   
-  // Render the information button and dialog if a description is available
-  const renderInfoButton = () => {
+  // Track collapsible state for surah info
+  const [isSurahInfoOpen, setIsSurahInfoOpen] = useState(false);
+  
+  // Render the information button and collapsible content if description is available
+  const renderSurahInfo = () => {
     if (!surah.description) return null;
     
     return (
-      <Dialog>
-        <DialogTrigger asChild>
+      <Collapsible 
+        open={isSurahInfoOpen} 
+        onOpenChange={setIsSurahInfoOpen}
+        className="w-full mt-4 border border-gray-100 dark:border-gray-700 rounded-lg overflow-hidden"
+      >
+        <CollapsibleTrigger asChild>
           <Button 
-            variant="outline"
-            className="flex items-center justify-center rounded-full px-4 py-2"
+            variant="ghost"
+            className="flex items-center justify-between w-full py-4 px-6"
             title="Дар бораи сура"
           >
-            <Info className="mr-2 h-5 w-5" /> Дар бораи сура
+            <div className="flex items-center">
+              <Info className="mr-2 h-5 w-5" /> 
+              <span className="font-medium">Дар бораи сураи {surah.name_tajik}</span>
+            </div>
+            {isSurahInfoOpen ? 
+              <ChevronUp className="h-5 w-5" /> : 
+              <ChevronDown className="h-5 w-5" />
+            }
           </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl text-primary dark:text-accent">
-              Дар бораи сураи {surah.name_tajik}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-4 text-gray-800 dark:text-gray-200 whitespace-pre-line">
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="p-6 pt-2 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-800 dark:text-gray-200 whitespace-pre-line">
             {surah.description}
           </div>
-          <DialogFooter className="mt-6">
-            <DialogClose asChild>
-              <Button type="button">Бастан</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </CollapsibleContent>
+      </Collapsible>
     );
   };
   
@@ -193,8 +192,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
             )}
           </Button>
           
-          {/* Info button for mobile */}
-          {renderInfoButton()}
+          {/* We'll add any mobile specific buttons here if needed */}
         </div>
         
         {shouldShowBismillah && (
@@ -231,8 +229,7 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
             )}
           </Button>
           
-          {/* Info button for desktop */}
-          {renderInfoButton()}
+          {/* We'll add any desktop specific buttons here if needed */}
         </div>
         
         {shouldShowBismillah && (
@@ -241,6 +238,9 @@ export default function SurahHeader({ surah, onPlaySurah, isLoading = false }: S
           </div>
         )}
       </div>
+      
+      {/* Render collapsible surah info section */}
+      {renderSurahInfo()}
     </div>
   );
 }
