@@ -5,7 +5,7 @@ import { getArabicFontClass } from '@/lib/fonts';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { cn } from '@/lib/utils';
-import { WordAnalysis } from '@shared/schema';
+
 
 // Types
 interface WordByWordTextProps {
@@ -38,7 +38,7 @@ export default function WordByWordText({
   // Fetch word analysis data
   const { data: wordAnalysis, isLoading, error } = useQuery({
     queryKey: ['/api/word-analysis', surahNumber, verseNumber],
-    queryFn: () => apiRequest<WordData[]>(`/api/word-analysis/${surahNumber}/${verseNumber}`),
+    queryFn: () => apiRequest(`/api/word-analysis/${surahNumber}/${verseNumber}`),
     enabled: !!surahNumber && !!verseNumber,
     staleTime: 5 * 60 * 1000 // 5 minutes
   });
@@ -72,7 +72,7 @@ export default function WordByWordText({
     <div className={cn("text-right", className)}>
       <div className={arabicFontClass}>
         <TooltipProvider>
-          {wordAnalysis.map((word) => (
+          {Array.isArray(wordAnalysis) && wordAnalysis.map((word: any) => (
             <span key={word.word_position} className="inline-block">
               {word.translation || word.transliteration ? (
                 <Tooltip>

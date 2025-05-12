@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Verse } from '@shared/schema';
@@ -13,13 +14,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '@/components/ui/dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import TajweedText from './TajweedText';
+import WordByWordText from './WordByWordText';
 import { 
   Tabs, TabsContent, TabsList, TabsTrigger 
 } from '@/components/ui/tabs';
 import { 
   Collapsible, CollapsibleContent, CollapsibleTrigger 
 } from '@/components/ui/collapsible';
-import { useState } from 'react';
 
 interface VerseItemProps {
   verse: Verse;
