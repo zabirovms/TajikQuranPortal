@@ -140,21 +140,13 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
     return (
       <Card className="mb-6 overflow-hidden">
         <div className="border-b border-gray-100 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-700 flex justify-between items-center">
-          <div className="flex items-center">
-            <Skeleton className="w-8 h-8 rounded-full mr-2" />
-            <Skeleton className="w-12 h-4" />
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Skeleton className="w-6 h-6 rounded-full" />
-            <Skeleton className="w-6 h-6 rounded-full" />
-            <Skeleton className="w-6 h-6 rounded-full" />
+          <Skeleton className="w-8 h-8 rounded-full mr-2" />
+          <div className="flex space-x-2">
             <Skeleton className="w-6 h-6 rounded-full" />
             <Skeleton className="w-6 h-6 rounded-full" />
           </div>
         </div>
-        
-        <CardContent className="p-4 md:p-6">
+        <CardContent className="p-4">
           <Skeleton className="w-full h-12 mb-4" />
           <Skeleton className="w-full h-4 mb-1" />
           <Skeleton className="w-3/4 h-4" />
@@ -172,115 +164,22 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
       className={`mb-6 overflow-hidden ${isBookmarked ? 'ring-2 ring-accent' : ''}`}
       data-verse={verse.unique_key}
     >
-      <div className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-        {/* Mobile header - stacked */}
-        <div className="md:hidden">
-          <div className="p-3 flex justify-between items-center">
-            <div className="flex items-center">
-              <span className="ayah-number bg-primary dark:bg-accent text-white text-sm">
-                {formatArabicNumber(verse.verse_number)}
-              </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">{verse.unique_key}</span>
-            </div>
-            
+      <div className="grid grid-cols-[auto,1fr]">
+        {/* Left column - Verse number and actions */}
+        <div className="bg-gray-50 dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700 p-4 flex flex-col items-center">
+          {/* Verse number */}
+          <div className="bg-primary dark:bg-accent text-white w-10 h-10 rounded-full flex items-center justify-center mb-4 text-lg font-bold">
+            {formatArabicNumber(verse.verse_number)}
+          </div>
+          
+          {/* Action buttons */}
+          <div className="flex flex-col space-y-3">
             <Button
               variant="ghost"
               size="icon"
-              className={isBookmarked ? "text-accent" : "text-gray-400 hover:text-accent"}
-              onClick={toggleBookmark}
-              disabled={isBookmarkPending || isBookmarkLoading}
-              title={isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
-            >
-              <BookmarkIcon className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
-            </Button>
-          </div>
-          
-          <div className="px-3 pb-3 flex justify-between items-center">
-            <div className="flex items-center space-x-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
-                onClick={handlePlayAudio}
-                title="Play Audio"
-              >
-                <Play className="h-4 w-4" />
-              </Button>
-              
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
-                    title="View Verse Image"
-                  >
-                    <ImageIcon className="h-4 w-4" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-[90vw] sm:max-w-[700px]">
-                  <DialogTitle className="text-center">Quran Verse {verse.unique_key}</DialogTitle>
-                  <div className="pt-4 px-4">
-                    <AspectRatio ratio={16/9} className="bg-white rounded-lg p-6">
-                      <img 
-                        src={getVerseImageUrl(true)} 
-                        alt={`Quran verse ${verse.unique_key}`}
-                        className="object-contain h-full w-full"
-                        onError={(e) => {
-                          // If high-res image fails, try standard resolution
-                          const target = e.target as HTMLImageElement;
-                          if (target.src.includes('high-resolution')) {
-                            target.src = getVerseImageUrl(false);
-                          }
-                        }}
-                      />
-                    </AspectRatio>
-                    <div className="mt-4 text-center text-sm text-muted-foreground">
-                      Surah {surahName}, Verse {verse.verse_number}
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
-                onClick={handleCopyVerse}
-                title="Copy Verse"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
-                onClick={handleShareVerse}
-                title="Share Verse"
-              >
-                <Share className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-        
-        {/* Desktop header - one row */}
-        <div className="hidden md:flex md:justify-between md:items-center md:p-3">
-          <div className="flex items-center">
-            <span className="ayah-number bg-primary dark:bg-accent text-white text-sm">
-              {formatArabicNumber(verse.verse_number)}
-            </span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">{verse.unique_key}</span>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-gray-400 hover:text-primary dark:hover:text-accent"
+              className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
               onClick={handlePlayAudio}
-              title="Play Audio"
+              title="Шунидани оят"
             >
               <Play className="h-4 w-4" />
             </Button>
@@ -290,13 +189,13 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-gray-400 hover:text-primary dark:hover:text-accent"
-                  title="View Verse Image"
+                  className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
+                  title="Дидани тасвири оят"
                 >
                   <ImageIcon className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[700px]">
+              <DialogContent className="max-w-[90vw] sm:max-w-[700px]">
                 <DialogTitle className="text-center">Quran Verse {verse.unique_key}</DialogTitle>
                 <div className="pt-4 px-4">
                   <AspectRatio ratio={16/9} className="bg-white rounded-lg p-6">
@@ -323,9 +222,9 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-400 hover:text-primary dark:hover:text-accent"
+              className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
               onClick={handleCopyVerse}
-              title="Copy Verse"
+              title="Нусхабардорӣ"
             >
               <Copy className="h-4 w-4" />
             </Button>
@@ -333,9 +232,9 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-400 hover:text-primary dark:hover:text-accent"
+              className="h-8 w-8 text-gray-400 hover:text-primary dark:hover:text-accent"
               onClick={handleShareVerse}
-              title="Share Verse"
+              title="Мубодила"
             >
               <Share className="h-4 w-4" />
             </Button>
@@ -346,100 +245,101 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
               className={isBookmarked ? "text-accent" : "text-gray-400 hover:text-accent"}
               onClick={toggleBookmark}
               disabled={isBookmarkPending || isBookmarkLoading}
-              title={isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
+              title={isBookmarked ? "Ҳазфи хатчӯб" : "Гузоштани хатчӯб"}
             >
               <BookmarkIcon className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
             </Button>
           </div>
-        </div>
-      </div>
-      
-      <CardContent className="p-4 md:p-6">
-        {/* Arabic Text with appropriate display mode */}
-        {!wordByWordMode ? (
-          <TajweedText 
-            surahNumber={parseInt(verse.unique_key.split(':')[0])}
-            verseNumber={verse.verse_number}
-            plainText={verse.arabic_text}
-            className="text-right mb-4"
-          />
-        ) : (
-          <>
-            <WordByWordText
-              surahNumber={parseInt(verse.unique_key.split(':')[0])}
-              verseNumber={verse.verse_number}
-              plainText={verse.arabic_text}
-              className="text-right mb-1"
-            />
-            <p className="text-xs text-right text-gray-500 dark:text-gray-400 mb-4 italic">
-              Барои дидани тарҷумаи ҳар калима, нишонгари мушро болои калима нигоҳ доред
-            </p>
-          </>
-        )}
-        
-        {/* Transliteration - show if available */}
-        {verse.transliteration && (
-          <div className="border-t border-gray-100 dark:border-gray-700 pt-3 pb-4 text-gray-800 dark:text-gray-200">
-            <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Талаффуз:</p>
-            <p className="italic">{verse.transliteration}</p>
+          
+          <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">
+            {verse.unique_key}
           </div>
-        )}
-        
-        {/* Primary translation */}
-        <div className="border-t border-gray-100 dark:border-gray-700 pt-3 text-gray-800 dark:text-gray-200">
-          <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
-          <p>{verse.tajik_text}</p>
         </div>
         
-        {/* Additional content section - only show if any additional content exists */}
-        {(verse.alternative_translation || verse.tafsir) && (
-          <Collapsible 
-            open={isAdditionalContentOpen} 
-            onOpenChange={setIsAdditionalContentOpen}
-            className="mt-4"
-          >
-            <div className="flex justify-between items-center">
-              <p className="text-sm text-primary dark:text-accent font-medium">
-                Маълумоти иловагӣ
-              </p>
+        {/* Right column - Verse content */}
+        <div className="p-6">
+          {/* Arabic Text */}
+          <div className="mb-6">
+            {!wordByWordMode ? (
+              <TajweedText 
+                surahNumber={parseInt(verse.unique_key.split(':')[0])}
+                verseNumber={verse.verse_number}
+                plainText={verse.arabic_text}
+                className="text-right"
+              />
+            ) : (
+              <>
+                <WordByWordText
+                  surahNumber={parseInt(verse.unique_key.split(':')[0])}
+                  verseNumber={verse.verse_number}
+                  plainText={verse.arabic_text}
+                  className="text-right mb-1"
+                />
+                <p className="text-xs text-right text-gray-500 dark:text-gray-400 mb-4 italic">
+                  Барои дидани тарҷумаи ҳар калима, нишонгари мушро болои калима нигоҳ доред
+                </p>
+              </>
+            )}
+          </div>
+          
+          {/* Transliteration */}
+          {verse.transliteration && (
+            <div className="border-t border-gray-100 dark:border-gray-700 pt-3 pb-4 text-gray-800 dark:text-gray-200">
+              <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Талаффуз:</p>
+              <p className="italic">{verse.transliteration}</p>
+            </div>
+          )}
+          
+          {/* Primary translation */}
+          <div className="border-t border-gray-100 dark:border-gray-700 pt-3 pb-4 text-gray-800 dark:text-gray-200">
+            <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
+            <p>{verse.tajik_text}</p>
+          </div>
+          
+          {/* Additional content - collapsible */}
+          {(verse.alternative_translation || verse.tafsir) && (
+            <Collapsible 
+              open={isAdditionalContentOpen} 
+              onOpenChange={setIsAdditionalContentOpen}
+              className="border-t border-gray-100 dark:border-gray-700 pt-3"
+            >
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="p-0 h-7 w-7">
-                  {isAdditionalContentOpen ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
+                <Button
+                  variant="ghost"
+                  className="flex items-center justify-between w-full py-1 px-0 hover:bg-transparent"
+                >
+                  <div className="flex items-center">
+                    <Book className="mr-2 h-4 w-4 text-primary dark:text-accent" /> 
+                    <span className="font-medium text-sm">Маълумоти иловагӣ</span>
+                  </div>
+                  {isAdditionalContentOpen ? 
+                    <ChevronUp className="h-4 w-4 text-gray-500" /> : 
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                  }
                 </Button>
               </CollapsibleTrigger>
-            </div>
-            
-            <CollapsibleContent className="mt-2">
-              <Tabs defaultValue="alternate" className="w-full">
-                <TabsList className="grid grid-cols-2 mb-2">
-                  {verse.alternative_translation && (
-                    <TabsTrigger value="alternate">Тарҷумаи дигар</TabsTrigger>
-                  )}
-                  {verse.tafsir && (
-                    <TabsTrigger value="tafsir">Тафсир</TabsTrigger>
-                  )}
-                </TabsList>
-                
+              
+              <CollapsibleContent className="mt-2 space-y-4">
+                {/* Alternative translation */}
                 {verse.alternative_translation && (
-                  <TabsContent value="alternate" className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                    <p>{verse.alternative_translation}</p>
-                  </TabsContent>
+                  <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
+                    <p className="text-sm font-medium mb-1">Тарҷумаи дигар:</p>
+                    <p className="text-sm">{verse.alternative_translation}</p>
+                  </div>
                 )}
                 
+                {/* Tafsir */}
                 {verse.tafsir && (
-                  <TabsContent value="tafsir" className="p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                    <p>{verse.tafsir}</p>
-                  </TabsContent>
+                  <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
+                    <p className="text-sm font-medium mb-1">Тафсир:</p>
+                    <p className="text-sm">{verse.tafsir}</p>
+                  </div>
                 )}
-              </Tabs>
-            </CollapsibleContent>
-          </Collapsible>
-        )}
-      </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+        </div>
+      </div>
     </Card>
   );
 }
