@@ -93,47 +93,34 @@ export default function WordByWordText({
               onMouseEnter={() => handleWordInteraction(word.word_position)}
               onMouseLeave={() => setActiveWordPos(null)}
             >
-              {word.translation || word.transliteration ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span 
-                      className={cn(
-                        "px-0.5 cursor-pointer transition-colors duration-200",
-                        activeWordPos === word.word_position 
-                          ? "text-primary dark:text-accent bg-primary/5 dark:bg-accent/10 rounded" 
-                          : "hover:text-primary dark:hover:text-accent"
-                      )}
-                    >
-                      {word.word_text}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent 
-                    side="bottom" 
-                    align="center"
-                    className="bg-white dark:bg-gray-800 z-50 max-w-xs shadow-lg border border-gray-200 dark:border-gray-700"
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span 
+                    className={cn(
+                      "px-0.5 cursor-pointer transition-colors duration-200",
+                      activeWordPos === word.word_position 
+                        ? "text-primary dark:text-accent bg-primary/5 dark:bg-accent/10 rounded" 
+                        : "hover:text-primary dark:hover:text-accent"
+                    )}
                   >
-                    <div className="text-center p-2">
-                      {word.transliteration && (
-                        <div className="font-medium mb-1 text-gray-800 dark:text-gray-200">
-                          {word.transliteration}
-                        </div>
-                      )}
-                      {word.translation && (
-                        <div className="text-sm text-gray-700 dark:text-gray-300">
-                          {word.translation}
-                        </div>
-                      )}
-                      {word.root && (
-                        <div className="mt-1 text-xs text-muted-foreground border-t border-gray-100 dark:border-gray-700 pt-1">
-                          Корен: <span className="font-medium">{word.root}</span>
-                        </div>
-                      )}
+                    {word.word_text}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent 
+                  side="bottom" 
+                  align="center"
+                  className="bg-white dark:bg-gray-800 z-50 max-w-xs shadow-lg border border-gray-200 dark:border-gray-700"
+                >
+                  <div className="text-center p-2">
+                    <div className="font-medium mb-1 text-gray-800 dark:text-gray-200">
+                      {word.word_text}
                     </div>
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                <span className="px-0.5">{word.word_text}</span>
-              )}
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Калимаи {word.word_position}
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
             </span>
           ))}
         </TooltipProvider>
