@@ -36,6 +36,9 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
   const addBookmark = useAddBookmark();
   const removeBookmark = useRemoveBookmark();
   
+  // State for text display mode (regular text or word-by-word)
+  const [textDisplayMode, setTextDisplayMode] = useState<'regular' | 'wordByWord'>('regular');
+  
   // State for additional content collapsible
   const [isAdditionalContentOpen, setIsAdditionalContentOpen] = useState(false);
   
@@ -353,13 +356,48 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
       </div>
       
       <CardContent className="p-4 md:p-6">
-        {/* Arabic Text with Tajweed support */}
-        <TajweedText 
-          surahNumber={parseInt(verse.unique_key.split(':')[0])}
-          verseNumber={verse.verse_number}
-          plainText={verse.arabic_text}
-          className="text-right mb-4"
-        />
+        {/* Text display mode toggle */}
+        <div className="flex justify-end mb-2">
+          <div className="inline-flex rounded-md shadow-sm">
+            <button
+              onClick={() => setTextDisplayMode('regular')}
+              className={`px-3 py-1 text-xs rounded-l-md border ${
+                textDisplayMode === 'regular' 
+                  ? 'bg-primary text-white dark:bg-accent' 
+                  : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+              }`}
+            >
+              Матни оддӣ
+            </button>
+            <button
+              onClick={() => setTextDisplayMode('wordByWord')}
+              className={`px-3 py-1 text-xs rounded-r-md border ${
+                textDisplayMode === 'wordByWord' 
+                  ? 'bg-primary text-white dark:bg-accent' 
+                  : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+              }`}
+            >
+              Калима ба калима
+            </button>
+          </div>
+        </div>
+        
+        {/* Arabic Text with appropriate display mode */}
+        {textDisplayMode === 'regular' ? (
+          <TajweedText 
+            surahNumber={parseInt(verse.unique_key.split(':')[0])}
+            verseNumber={verse.verse_number}
+            plainText={verse.arabic_text}
+            className="text-right mb-4"
+          />
+        ) : (
+          <WordByWordText
+            surahNumber={parseInt(verse.unique_key.split(':')[0])}
+            verseNumber={verse.verse_number}
+            plainText={verse.arabic_text}
+            className="text-right mb-4"
+          />
+        )}
         
         {/* Transliteration - show if available */}
         {verse.transliteration && (

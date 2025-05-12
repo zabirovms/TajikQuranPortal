@@ -38,7 +38,13 @@ export default function WordByWordText({
   // Fetch word analysis data
   const { data: wordAnalysis, isLoading, error } = useQuery({
     queryKey: ['/api/word-analysis', surahNumber, verseNumber],
-    queryFn: () => apiRequest(`/api/word-analysis/${surahNumber}/${verseNumber}`),
+    queryFn: async () => {
+      const response = await fetch(`/api/word-analysis/${surahNumber}/${verseNumber}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    },
     enabled: !!surahNumber && !!verseNumber,
     staleTime: 5 * 60 * 1000 // 5 minutes
   });
