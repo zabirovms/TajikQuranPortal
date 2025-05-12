@@ -355,36 +355,8 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
       </div>
       
       <CardContent className="p-4 md:p-6">
-        {/* Text display mode toggle */}
-        <div className="flex justify-end mb-2">
-          <div className="inline-flex rounded-md shadow-sm">
-            <button
-              onClick={() => setTextDisplayMode('regular')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-l-md border ${
-                textDisplayMode === 'regular' 
-                  ? 'bg-primary text-white dark:bg-accent border-primary dark:border-accent' 
-                  : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-              title="Намоиши матни оддӣ"
-            >
-              Матни оддӣ
-            </button>
-            <button
-              onClick={() => setTextDisplayMode('wordByWord')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-r-md border ${
-                textDisplayMode === 'wordByWord' 
-                  ? 'bg-primary text-white dark:bg-accent border-primary dark:border-accent' 
-                  : 'bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-              title="Намоиши калима ба калима бо тарҷумаи ҳар калима"
-            >
-              Калима ба калима
-            </button>
-          </div>
-        </div>
-        
         {/* Arabic Text with appropriate display mode */}
-        {textDisplayMode === 'regular' ? (
+        {!wordByWordMode ? (
           <TajweedText 
             surahNumber={parseInt(verse.unique_key.split(':')[0])}
             verseNumber={verse.verse_number}

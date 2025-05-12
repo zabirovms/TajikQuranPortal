@@ -7,8 +7,9 @@ import Surah from "@/pages/surah";
 import { useState } from "react";
 import SearchOverlay from "./components/overlay/SearchOverlay";
 import BookmarksOverlay from "./components/overlay/BookmarksOverlay";
-import { TajweedProvider } from "./hooks/useTajweedMode";
+import { DisplayProvider } from "./hooks/useDisplaySettings";
 import { ThemeProvider } from "./hooks/useTheme";
+import { SettingsDrawer } from "./components/layout/SettingsDrawer";
 
 // Global context for overlays
 export type GlobalOverlayType = 'search' | 'bookmarks' | null;
@@ -31,6 +32,9 @@ function Router() {
         onClose={closeOverlay} 
       />
       
+      {/* Global Settings Drawer */}
+      <SettingsDrawer />
+      
       <Switch>
         <Route path="/" component={() => <HomePage onOpenOverlay={openOverlay} />} />
         <Route path="/surah/:number">
@@ -45,11 +49,11 @@ function Router() {
 function App() {
   return (
     <ThemeProvider>
-      <TajweedProvider>
+      <DisplayProvider>
         <TooltipProvider>
           <Router />
         </TooltipProvider>
-      </TajweedProvider>
+      </DisplayProvider>
     </ThemeProvider>
   );
 }
