@@ -8,7 +8,7 @@ import AudioPlayer from '@/components/layout/AudioPlayer';
 import SurahHeader from '@/components/quran/SurahHeader';
 import VerseItem from '@/components/quran/VerseItem';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PlayCircle, Search, Bookmark } from 'lucide-react';
 import { Link } from 'wouter';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -106,17 +106,48 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
       
       {/* Floating header that appears when scrolling up */}
       {surah && (
-        <FloatingHeader>
-          <div className="container mx-auto flex items-center justify-between">
+        <FloatingHeader className="border-b border-gray-200 dark:border-gray-700">
+          <div className="container mx-auto flex items-center justify-between px-4">
             <div className="flex items-center">
-              <h2 className="text-lg font-semibold text-primary dark:text-accent mr-4">
-                {surah.name_tajik}
-              </h2>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {surah.verses_count} оят
-              </span>
+              <div className="mr-4">
+                <h2 className="text-lg font-semibold text-primary dark:text-accent">
+                  {surah.name_tajik}
+                </h2>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    Сураи {surah.number}
+                  </span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">•</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {surah.verses_count} оят
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
+              {/* Search button */}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="flex items-center" 
+                onClick={() => onOpenOverlay('search')}
+              >
+                <Search className="h-4 w-4 mr-1" />
+                <span className="text-sm hidden sm:inline">Ҷустуҷӯ</span>
+              </Button>
+              
+              {/* Bookmarks button */}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="flex items-center" 
+                onClick={() => onOpenOverlay('bookmarks')}
+              >
+                <Bookmark className="h-4 w-4 mr-1" />
+                <span className="text-sm hidden sm:inline">Хатчӯбҳо</span>
+              </Button>
+              
+              {/* Play button */}
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -124,24 +155,27 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
                 onClick={handlePlaySurah}
               >
                 <PlayCircle className="h-4 w-4 mr-1" />
-                <span className="text-sm">Тиловат</span>
+                <span className="text-sm hidden sm:inline">Тиловат</span>
               </Button>
               
-              {previousSurah && (
-                <Link href={`/surah/${previousSurah}`}>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                </Link>
-              )}
-              
-              {nextSurah && (
-                <Link href={`/surah/${nextSurah}`}>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-              )}
+              {/* Navigation buttons */}
+              <div className="flex border-l border-gray-200 dark:border-gray-700 ml-1 pl-1">
+                {previousSurah && (
+                  <Link href={`/surah/${previousSurah}`}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                )}
+                
+                {nextSurah && (
+                  <Link href={`/surah/${nextSurah}`}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </FloatingHeader>
