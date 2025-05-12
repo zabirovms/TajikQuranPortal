@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from './db';
 import { wordAnalysis, verses } from '@shared/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { log } from './vite';
 
 /**
@@ -120,11 +120,120 @@ export class WordService {
 }
 
 /**
+ * Import word data from the extracted JSON file
+ */
+export async function importWordData(surahLimit: number = 3) {
+  try {
+    console.log(`Starting import of word data for first ${surahLimit} surahs...`);
+    
+    // Read the JSON file
+    const fs = await import('fs');
+    const wordData = JSON.parse(fs.readFileSync('./quran_words.json', 'utf8'));
+    console.log(`Found ${wordData.length} words in the JSON file.`);
+    
+    // Filter to only include data up to the surah limit
+    const filteredData = wordData.filter((word: any) => word.surah_number <= surahLimit);
+    console.log(`Filtered to ${filteredData.length} words for first ${surahLimit} surahs.`);
+    
+    let importedWords = 0;
+    let errorCount = 0;
+    
+    // Process each word
+    for (const word of filteredData) {
+      try {
+        const { surah_number, verse_number, word_position, arabic, transliteration } = word;
+        
+        // Get the verse ID from the database
+        const verseKey = `${surah_number}:${verse_number}`;
+        
+        // Find the verse in our database
+        const verseResult = await db.select().from(verses).where(eq(verses.unique_key, verseKey));
+        
+        if (!verseResult || verseResult.length === 0) {
+          console.log(`Warning: Verse not found in database: ${verseKey}`);
+          errorCount++;
+          continue;
+        }
+        
+        const verse = verseResult[0];
+        
+        // Check if we already have this word in the database
+        const existingWord = await db
+          .select()
+          .from(wordAnalysis)
+          .where(
+            and(
+              eq(wordAnalysis.verse_id, verse.id),
+              eq(wordAnalysis.word_position, word_position)
+            )
+          );
+        
+        if (existingWord && existingWord.length > 0) {
+          // Update the existing word
+          await db
+            .update(wordAnalysis)
+            .set({
+              word_text: arabic,
+              transliteration: transliteration,
+            })
+            .where(
+              and(
+                eq(wordAnalysis.verse_id, verse.id),
+                eq(wordAnalysis.word_position, word_position)
+              )
+            );
+        } else {
+          // Insert a new word
+          await db.insert(wordAnalysis).values({
+            verse_id: verse.id,
+            word_position: word_position,
+            word_text: arabic,
+            transliteration: transliteration,
+            translation: null,
+            root: null,
+            part_of_speech: null,
+            created_at: new Date()
+          });
+        }
+        
+        importedWords++;
+        
+        // Log progress every 500 words
+        if (importedWords % 500 === 0) {
+          console.log(`Imported ${importedWords} words...`);
+        }
+      } catch (error) {
+        console.error('Error processing word:', error);
+        errorCount++;
+      }
+    }
+    
+    console.log(`Import complete! Successfully imported ${importedWords} words with ${errorCount} errors.`);
+    return { success: true, importedWords, errorCount };
+  } catch (error) {
+    console.error('Error importing word data:', error);
+    return { success: false, error: String(error) };
+  }
+}
+
+/**
  * Register the word service routes
  */
 export function registerWordServiceRoutes(app: any) {
   const wordService = WordService.getInstance();
   
+  // Get word analysis for a verse
   app.get('/api/word-analysis/:surahNumber/:verseNumber', 
     (req: Request, res: Response) => wordService.getVerseWordAnalysis(req, res));
+  
+  // Route to import word data
+  app.post('/api/word-analysis/import', async (req: Request, res: Response) => {
+    try {
+      const surahLimit = req.body.surahLimit || 3;
+      const result = await importWordData(surahLimit);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ success: false, error: String(error) });
+    }
+  });
 }

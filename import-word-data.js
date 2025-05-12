@@ -1,7 +1,7 @@
-const fs = require('fs');
-const { db } = require('./server/db');
-const { wordAnalysis, verses } = require('./shared/schema');
-const { eq } = require('drizzle-orm');
+import fs from 'fs';
+import { db } from './server/db.js';
+import { wordAnalysis, verses } from './shared/schema.js';
+import { eq } from 'drizzle-orm';
 
 async function importWordData() {
   try {
