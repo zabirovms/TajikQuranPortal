@@ -190,9 +190,9 @@ export default function Home({ onOpenOverlay }: HomeProps) {
       </Button>
       
       <main className="flex-1 container mx-auto px-4 py-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-primary dark:text-accent mb-2">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-6 text-center">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
               Қуръон бо Тафсири Осонбаён
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
@@ -200,43 +200,105 @@ export default function Home({ onOpenOverlay }: HomeProps) {
             </p>
           </div>
           
-          {lastRead && (
-            <Card className="mb-6 bg-primary/10 dark:bg-accent/10 border-primary dark:border-accent">
-              <CardHeader>
-                <CardTitle className="text-primary dark:text-accent flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  Саҳифаи охирон хондашуда
-                </CardTitle>
-                <CardDescription>
-                  Аз ҳамон ҷое, ки қатъ карда будед хонданро идома диҳед.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">Сураи {lastRead.surahName}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">ояти {lastRead.verseNumber}</p>
-                  </div>
-                  <Link href={`/surah/${lastRead.surahNumber}#verse-${lastRead.verseKey.replace(':', '-')}`}>
-                    <Button>
-                      Идома додан
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* Popular Surahs Section - Moved to the top */}
+          <div className="mb-8 bg-gradient-to-r from-primary/5 to-accent/5 p-5 rounded-lg border border-gray-100 dark:border-gray-700">
+            <h2 className="text-xl font-bold text-primary dark:text-accent mb-4 text-center">
+              Сураҳои маъмул
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {popularSurahs.map(surah => (
+                <Link 
+                  key={surah.number}
+                  href={`/surah/${surah.number}`}
+                  className="flex flex-col items-center p-3 rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700"
+                >
+                  <span className={`${getArabicFontClass('md')} text-primary dark:text-accent mb-1`}>{surah.name_arabic}</span>
+                  <span className="font-medium text-sm">{surah.name_tajik}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{surah.name_english}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
           
-          <div className="mb-6 relative">
-            <Input
-              type="text"
-              placeholder="Ҷустуҷӯи сура"
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          {/* Quick Access - Last Read Position */}
+          <div className="grid md:grid-cols-12 gap-6 mb-6">
+            {/* Last Read Section - Now in a prominent position */}
+            <div className="md:col-span-7">
+              {lastRead ? (
+                <Card className="h-full bg-gradient-to-br from-primary/10 to-accent/10 dark:from-primary/20 dark:to-accent/20 border-primary/20 dark:border-accent/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 text-primary dark:text-accent" />
+                      <span className="text-primary dark:text-accent">Саҳифаи охирон хондашуда</span>
+                    </CardTitle>
+                    <CardDescription>
+                      Аз ҳамон ҷое, ки қатъ карда будед хонданро идома диҳед.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">Сураи {lastRead.surahName}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">ояти {lastRead.verseNumber}</p>
+                      </div>
+                      <Link href={`/surah/${lastRead.surahNumber}#verse-${lastRead.verseKey.replace(':', '-')}`}>
+                        <Button>
+                          Идома додан
+                          <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="h-full bg-gradient-to-br from-primary/5 to-accent/5 dark:from-primary/10 dark:to-accent/10 border-primary/10 dark:border-accent/10">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 text-primary dark:text-accent" />
+                      <span className="text-primary dark:text-accent">Хонданро оғоз кунед</span>
+                    </CardTitle>
+                    <CardDescription>
+                      Шумо ҳоло ҳеҷ сураро нахондаед.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Link href="/surah/1">
+                      <Button className="w-full">
+                        Аз сураи Фотиҳа оғоз кунед
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+            
+            {/* Search Box - Now more prominent */}
+            <div className="md:col-span-5">
+              <Card className="h-full">
+                <CardHeader>
+                  <CardTitle className="text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                    <Search className="h-5 w-5 text-primary dark:text-accent" />
+                    Ҷустуҷӯи сураҳо
+                  </CardTitle>
+                  <CardDescription>
+                    Номи сураро ба забони тоҷикӣ ё англисӣ ҷустуҷӯ кунед.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      placeholder="Ҷустуҷӯи сура..."
+                      className="pl-10"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           
           <div>
@@ -294,23 +356,6 @@ export default function Home({ onOpenOverlay }: HomeProps) {
       
       <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8 mt-8">
         <div className="container mx-auto px-4 max-w-3xl">
-          {/* Popular Surahs */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-primary dark:text-accent mb-4 text-center">Сураҳои маъмул</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {popularSurahs.map(surah => (
-                <Link 
-                  key={surah.number}
-                  href={`/surah/${surah.number}`}
-                  className="flex flex-col items-center p-3 rounded-lg bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors border border-gray-200 dark:border-gray-700"
-                >
-                  <span className={`${getArabicFontClass('md')} text-primary dark:text-accent mb-1`}>{surah.name_arabic}</span>
-                  <span className="font-medium text-sm">{surah.name_tajik}</span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">{surah.name_english}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
           
           {/* Social Links */}
           <div className="mb-6">
