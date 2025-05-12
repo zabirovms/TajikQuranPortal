@@ -5,15 +5,32 @@ import { db } from './db';
 import { wordAnalysis, verses } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 import path from 'path';
+import { log } from './vite';
+import { promisify } from 'util';
 
 /**
  * Service to handle word-by-word analysis of Quranic verses
  */
 export class WordService {
   private static instance: WordService;
+  private execPromise = promisify(exec);
+  private jarPath = 'jqurantree-1.0.0.jar';
 
   private constructor() {
     // Singleton constructor
+    this.checkJarFile();
+  }
+
+  /**
+   * Check if the JQuranTree jar file exists
+   */
+  private async checkJarFile() {
+    try {
+      await fs.access(this.jarPath);
+      log(`JQuranTree jar file found at ${this.jarPath}`, 'word-service');
+    } catch (error) {
+      log(`WARNING: JQuranTree jar file not found at ${this.jarPath}`, 'word-service');
+    }
   }
 
   /**
@@ -24,6 +41,36 @@ export class WordService {
       WordService.instance = new WordService();
     }
     return WordService.instance;
+  }
+  
+  /**
+   * Run JQuranTree jar file to analyze a verse
+   */
+  private async runJQuranTreeAnalysis(surahNumber: number, verseNumber: number): Promise<any> {
+    try {
+      log(`Running JQuranTree analysis for ${surahNumber}:${verseNumber}`, 'word-service');
+      
+      // Command to run JQuranTree jar with surah and verse parameters
+      const command = `java -jar ${this.jarPath} analyze ${surahNumber} ${verseNumber}`;
+      
+      const { stdout, stderr } = await this.execPromise(command);
+      
+      if (stderr) {
+        log(`JQuranTree stderr: ${stderr}`, 'word-service');
+      }
+      
+      // Parse the output as JSON
+      try {
+        return JSON.parse(stdout);
+      } catch (error) {
+        log(`Error parsing JQuranTree output: ${error}`, 'word-service');
+        log(`Raw output: ${stdout}`, 'word-service');
+        return null;
+      }
+    } catch (error) {
+      log(`Error running JQuranTree: ${error}`, 'word-service');
+      return null;
+    }
   }
 
   /**
@@ -51,6 +98,8 @@ export class WordService {
         });
       }
       
+      log(`Processing word analysis request for ${surahNum}:${verseNum}`, 'word-service');
+      
       // Get verse ID from database
       const verseKey = `${surahNum}:${verseNum}`;
       const verseResults = await db.select().from(verses).where(eq(verses.unique_key, verseKey));
@@ -70,16 +119,43 @@ export class WordService {
       if (existingAnalysis && existingAnalysis.length > 0) {
         // Sort by word position
         existingAnalysis.sort((a: any, b: any) => a.word_position - b.word_position);
+        log(`Returning existing word analysis for ${surahNum}:${verseNum}`, 'word-service');
         return res.json(existingAnalysis);
       }
       
-      // If not in database, analyze using JQuranTree (not implemented yet)
-      // For now, we'll generate and store a placeholder implementation
-      const placeholderAnalysis = this.generatePlaceholderAnalysis(verse.id, verse.arabic_text);
+      // Try to get analysis from JQuranTree
+      let words;
+      try {
+        const jqtResult = await this.runJQuranTreeAnalysis(surahNum, verseNum);
+        
+        if (jqtResult && jqtResult.words) {
+          log(`JQuranTree analysis successful for ${surahNum}:${verseNum}`, 'word-service');
+          
+          // Map JQuranTree results to our schema
+          words = jqtResult.words.map((word: any, index: number) => ({
+            verse_id: verse.id,
+            word_position: index + 1,
+            word_text: word.arabic || '',
+            translation: word.translation || `калимаи ${index + 1}`,
+            transliteration: word.transliteration || `Калимаи ${index + 1}`,
+            root: word.root || null,
+            part_of_speech: word.partOfSpeech || null,
+            created_at: new Date()
+          }));
+        } else {
+          // JQuranTree analysis failed or returned invalid data
+          log(`Using fallback analysis for ${surahNum}:${verseNum}`, 'word-service');
+          words = this.generatePlaceholderAnalysis(verse.id, verse.arabic_text);
+        }
+      } catch (error) {
+        // JQuranTree analysis failed, use fallback
+        log(`JQuranTree error, using fallback: ${error}`, 'word-service');
+        words = this.generatePlaceholderAnalysis(verse.id, verse.arabic_text);
+      }
       
       try {
         // Store the generated analysis in the database
-        for (const word of placeholderAnalysis) {
+        for (const word of words) {
           await db.insert(wordAnalysis).values({
             verse_id: word.verse_id,
             word_position: word.word_position,
@@ -92,6 +168,8 @@ export class WordService {
           });
         }
         
+        log(`Stored ${words.length} words for ${surahNum}:${verseNum}`, 'word-service');
+        
         // Fetch the newly stored data from the database
         const storedAnalysis = await db.select().from(wordAnalysis).where(eq(wordAnalysis.verse_id, verse.id));
         
@@ -102,7 +180,7 @@ export class WordService {
       } catch (error) {
         console.error("Error storing word analysis:", error);
         // If storage fails, just return the generated data without storing
-        return res.json(placeholderAnalysis);
+        return res.json(words);
       }
     } catch (error: any) {
       console.error("Error in word analysis:", error);
@@ -159,6 +237,14 @@ export class WordService {
         translation: `калимаи ${index + 1}`,
         transliteration: `Калимаи ${index + 1}`
       };
+      
+      // Make sure we have translations, even if null in the dictionary
+      if (translation.translation === null) {
+        translation.translation = `калимаи ${index + 1}`;
+      }
+      if (translation.transliteration === null) {
+        translation.transliteration = `Калимаи ${index + 1}`;
+      }
       
       return {
         id: 0, // Will be assigned by database
