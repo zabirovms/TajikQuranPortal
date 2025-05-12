@@ -90,3 +90,24 @@ export const insertSearchHistorySchema = createInsertSchema(searchHistory).omit(
 
 export type InsertSearchHistory = z.infer<typeof insertSearchHistorySchema>;
 export type SearchHistory = typeof searchHistory.$inferSelect;
+
+// Word analysis table
+export const wordAnalysis = pgTable("word_analysis", {
+  id: serial("id").primaryKey(),
+  verse_id: integer("verse_id").notNull(),
+  word_position: integer("word_position").notNull(),
+  word_text: text("word_text").notNull(),
+  translation: text("translation"),
+  transliteration: text("transliteration"),
+  root: text("root"),
+  part_of_speech: text("part_of_speech"),
+  created_at: timestamp("created_at").defaultNow(),
+});
+
+export const insertWordAnalysisSchema = createInsertSchema(wordAnalysis).omit({
+  id: true,
+  created_at: true,
+});
+
+export type InsertWordAnalysis = z.infer<typeof insertWordAnalysisSchema>;
+export type WordAnalysis = typeof wordAnalysis.$inferSelect;
