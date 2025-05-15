@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Verse } from '@shared/schema';
@@ -39,15 +39,21 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
     translationTextSize, 
     tafsirTextSize,
     lineSpacing,
-    contentViewMode
+    contentViewMode,
+    showTransliteration
   } = useDisplaySettings();
   
   const { isBookmarked, bookmarkId, isLoading: isBookmarkLoading } = useIsVerseBookmarked(verse.id);
   const addBookmark = useAddBookmark();
   const removeBookmark = useRemoveBookmark();
   
-  // State for additional content collapsible
-  const [isAdditionalContentOpen, setIsAdditionalContentOpen] = useState(false);
+  // State for tafsir collapsible
+  const [isTafsirOpen, setIsTafsirOpen] = useState(false);
+  
+  // Close tafsir when verse changes
+  useEffect(() => {
+    setIsTafsirOpen(false);
+  }, [verse.id]);
   
   // Generate verse image URL from Islamic Network CDN
   const getVerseImageUrl = (highRes = false) => {
@@ -303,7 +309,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
           </div>
           
           {/* Transliteration */}
-          {verse.transliteration && (
+          {verse.transliteration && showTransliteration && (
             <div className="border-t border-gray-100 dark:border-gray-700 pt-3 pb-4 text-gray-800 dark:text-gray-200">
               <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Талаффуз:</p>
               <p className={cn(
