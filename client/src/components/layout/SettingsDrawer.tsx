@@ -72,9 +72,9 @@ export function SettingsDrawer() {
           size="icon"
           aria-label="Танзимот"
           title="Танзимот"
-          className="fixed top-4 right-4 z-50 rounded-full bg-primary/10 dark:bg-accent/10 backdrop-blur"
+          className="fixed bottom-4 right-4 z-40 rounded-full bg-background shadow-lg border border-border/40 hover:bg-primary/5 dark:hover:bg-accent/5"
         >
-          <Settings className="h-5 w-5 text-primary dark:text-accent" />
+          <Settings className="h-5 w-5" />
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[300px] sm:w-[400px]">
