@@ -1,19 +1,45 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSurahs, useSurah, useVerses } from '@/hooks/useQuran';
 import { useAudioPlayer } from '@/hooks/useAudio';
 import { GlobalOverlayType } from '@/App';
-import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
 import AudioPlayer from '@/components/layout/AudioPlayer';
-import SurahHeader from '@/components/quran/SurahHeader';
 import VerseItem from '@/components/quran/VerseItem';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, PlayCircle, Search, Bookmark } from 'lucide-react';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  PlayCircle, 
+  Search, 
+  Bookmark, 
+  Book, 
+  Info,
+  Home,
+  Menu,
+  X,
+  ArrowUp,
+  List,
+  Volume2,
+  MoreHorizontal
+} from 'lucide-react';
 import { Link } from 'wouter';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import SeoHead from '@/components/shared/SeoHead';
-import { FloatingHeader } from '@/components/layout/FloatingHeader';
+import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { useDisplaySettings } from '@/hooks/useDisplaySettings';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SurahProps {
   surahNumber: number;
@@ -26,6 +52,16 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
   const { data: verses, isLoading: isVersesLoading } = useVerses(surahNumber);
   const { playAudio, playSurah, audioState } = useAudioPlayer();
   const { toast } = useToast();
+  const { contentViewMode } = useDisplaySettings();
+  
+  // Refs for scroll handling
+  const scrollTopRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  
+  // Mobile drawer state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSurahInfoOpen, setIsSurahInfoOpen] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
   
   // Save the last read position
   useEffect(() => {
@@ -41,6 +77,20 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
     }
   }, [surah, surahNumber]);
   
+  // Scroll to top button visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 500) {
+        setShowScrollToTop(true);
+      } else {
+        setShowScrollToTop(false);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
   // Handle playing the entire surah
   const handlePlaySurah = () => {
     if (!surah) {
@@ -55,12 +105,17 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
     // Use the playSurah function from the top-level hook
     playSurah(surah.number, surah.name_tajik);
     
-    // Log for debugging
-    console.log(`Playing surah ${surah.number}: ${surah.name_tajik}`);
-    
     toast({
       title: "Playing Surah",
       description: `Now playing Сураи ${surah.name_tajik}`,
+    });
+  };
+  
+  // Handle scroll to top
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
     });
   };
   
@@ -79,7 +134,7 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
   const isLoading = isSurahsLoading || isSurahLoading || isVersesLoading;
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       {surah && (
         <SeoHead
           title={`Сураи ${surah.name_tajik} (${surah.name_arabic})`}
@@ -104,62 +159,105 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
         />
       )}
       
-      {/* Floating header that appears when scrolling up */}
-      {surah && (
-        <FloatingHeader className="border-b border-gray-200 dark:border-gray-700">
-          <div className="container mx-auto flex items-center justify-between px-4">
-            <div className="flex items-center">
-              <div className="mr-4">
-                <h2 className="text-lg font-semibold text-primary dark:text-accent">
-                  {surah.name_tajik}
-                </h2>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    Сураи {surah.number}
-                  </span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">•</span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {surah.verses_count} оят
-                  </span>
+      {/* New Header - Fixed at the top */}
+      <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/40">
+        <div className="container flex h-14 max-w-screen-2xl items-center">
+          <div className="flex w-full justify-between space-x-2 md:space-x-4">
+            <div className="flex items-center gap-2">
+              {/* Mobile Menu Button */}
+              <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMobileMenuOpen(true)}>
+                <Menu className="h-5 w-5" />
+              </Button>
+              
+              <Link href="/">
+                <Button variant="ghost" size="sm" className="hidden md:flex gap-2 items-center">
+                  <Home className="h-4 w-4" />
+                  <span>Хона</span>
+                </Button>
+              </Link>
+              
+              {surah && (
+                <div className="flex items-center">
+                  <div className="text-xs md:text-sm h-7 w-7 md:h-8 md:w-8 rounded-full bg-primary-foreground flex items-center justify-center border border-primary mx-2">
+                    {surahNumber}
+                  </div>
+                  <div>
+                    <h1 className="text-sm md:text-base font-medium">{surah.name_tajik}</h1>
+                    <p className="text-xs text-muted-foreground">{surah.name_arabic}</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
-            <div className="flex items-center space-x-1">
-              {/* Search button */}
+            
+            <div className="flex items-center gap-1">
+              {/* Search Button */}
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="flex items-center" 
+                className="hidden md:flex items-center" 
                 onClick={() => onOpenOverlay('search')}
               >
                 <Search className="h-4 w-4 mr-1" />
-                <span className="text-sm hidden sm:inline">Ҷустуҷӯ</span>
+                <span className="text-sm">Ҷустуҷӯ</span>
               </Button>
               
-              {/* Bookmarks button */}
+              {/* Bookmarks Button */}
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="flex items-center" 
+                className="hidden md:flex items-center" 
                 onClick={() => onOpenOverlay('bookmarks')}
               >
                 <Bookmark className="h-4 w-4 mr-1" />
-                <span className="text-sm hidden sm:inline">Хатчӯбҳо</span>
+                <span className="text-sm">Хатчӯбҳо</span>
               </Button>
               
-              {/* Play button */}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="flex items-center" 
-                onClick={handlePlaySurah}
-              >
-                <PlayCircle className="h-4 w-4 mr-1" />
-                <span className="text-sm hidden sm:inline">Тиловат</span>
-              </Button>
+              {/* Mobile Actions Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild className="md:hidden">
+                  <Button variant="ghost" size="icon">
+                    <MoreHorizontal className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onOpenOverlay('search')}>
+                    <Search className="h-4 w-4 mr-2" />
+                    <span>Ҷустуҷӯ</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onOpenOverlay('bookmarks')}>
+                    <Bookmark className="h-4 w-4 mr-2" />
+                    <span>Хатчӯбҳо</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               
-              {/* Navigation buttons */}
-              <div className="flex border-l border-gray-200 dark:border-gray-700 ml-1 pl-1">
+              {/* Play Button */}
+              {surah && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-2" 
+                  onClick={handlePlaySurah}
+                >
+                  <Volume2 className="h-4 w-4" />
+                  <span className="text-sm hidden md:inline">Тиловат</span>
+                </Button>
+              )}
+              
+              {/* Surah Info Button */}
+              {surah && (
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="flex md:hidden"
+                  onClick={() => setIsSurahInfoOpen(true)}
+                >
+                  <Info className="h-4 w-4" />
+                </Button>
+              )}
+              
+              {/* Navigation Buttons */}
+              <div className="hidden md:flex items-center gap-1 ml-2">
                 {previousSurah && (
                   <Link href={`/surah/${previousSurah}`}>
                     <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -178,53 +276,242 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
               </div>
             </div>
           </div>
-        </FloatingHeader>
+        </div>
+      </header>
+      
+      {/* Mobile Surah List Drawer */}
+      <Drawer open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <DrawerContent className="h-[80vh]">
+          <div className="p-4 h-full">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Сураҳо</h2>
+              <DrawerClose asChild>
+                <Button variant="ghost" size="icon">
+                  <X className="h-4 w-4" />
+                </Button>
+              </DrawerClose>
+            </div>
+            
+            {isSurahsLoading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : (
+              <div className="overflow-y-auto h-[90%] space-y-1 pr-2 pb-4">
+                {surahs && surahs.map((item: any) => (
+                  <Link 
+                    key={item.number} 
+                    href={`/surah/${item.number}`}
+                  >
+                    <Button
+                      variant={item.number === surahNumber ? "secondary" : "ghost"}
+                      className="w-full justify-start text-left mb-1 h-auto py-3"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center">
+                        <span className="inline-flex justify-center items-center h-8 w-8 rounded-full bg-muted mr-3 text-sm">
+                          {item.number}
+                        </span>
+                        <div>
+                          <div className="font-medium">
+                            {item.name_tajik}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {item.verses_count} оят • {item.revelation_type === 'Meccan' ? 'Макка' : 'Мадина'}
+                          </div>
+                        </div>
+                      </div>
+                    </Button>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </DrawerContent>
+      </Drawer>
+      
+      {/* Mobile Surah Info Drawer */}
+      <Drawer open={isSurahInfoOpen} onOpenChange={setIsSurahInfoOpen}>
+        <DrawerContent>
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Маълумот</h2>
+              <DrawerClose asChild>
+                <Button variant="ghost" size="icon">
+                  <X className="h-4 w-4" />
+                </Button>
+              </DrawerClose>
+            </div>
+            
+            {surah && (
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Номи суръа</p>
+                    <h3 className="text-xl font-medium">{surah.name_tajik}</h3>
+                    <p className="text-sm text-muted-foreground">{surah.name_arabic}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex items-center" 
+                      onClick={handlePlaySurah}
+                    >
+                      <PlayCircle className="h-4 w-4 mr-1" />
+                      <span className="text-sm">Тиловат</span>
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-muted p-3 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Шумора</p>
+                    <p className="text-lg">{surah.number}</p>
+                  </div>
+                  <div className="bg-muted p-3 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Оятҳо</p>
+                    <p className="text-lg">{surah.verses_count}</p>
+                  </div>
+                  <div className="bg-muted p-3 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Нозил шуда</p>
+                    <p className="text-lg">{surah.revelation_type === 'Meccan' ? 'Макка' : 'Мадина'}</p>
+                  </div>
+                </div>
+                
+                {surah.description && (
+                  <div className="mt-4 bg-gradient-to-br from-primary/5 to-accent/5 dark:from-primary/10 dark:to-accent/10 p-4 rounded-lg">
+                    <h4 className="font-medium text-primary dark:text-accent mb-2">Дар бораи сура</h4>
+                    <p className="text-sm">{surah.description}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </DrawerContent>
+      </Drawer>
+      
+      {/* Scroll to top button */}
+      {showScrollToTop && (
+        <Button 
+          variant="secondary" 
+          size="icon" 
+          className="fixed bottom-20 right-4 z-50 rounded-full shadow-lg"
+          onClick={scrollToTop}
+        >
+          <ArrowUp className="h-4 w-4" />
+        </Button>
       )}
       
-      <Header 
-        surahs={surahs as any}
-        currentSurah={surah} 
-        versesCount={surah?.verses_count}
-        onOpenOverlay={onOpenOverlay}
-        isLoading={isLoading}
-      />
-      
-      <div className="container mx-auto px-4 py-6 md:flex flex-1">
-        <Sidebar 
-          surahs={surahs as any || []} 
-          isLoading={isSurahsLoading} 
-          currentSurahNumber={surah?.number}
-        />
+      <div className="flex-1 flex">
+        {/* Left sidebar (desktop) */}
+        <aside className="hidden md:block w-56 lg:w-64 h-[calc(100vh-3.5rem)] sticky top-14 overflow-y-auto border-r border-border/40 py-4 px-2">
+          <div className="mb-4 px-2">
+            <h2 className="font-medium text-sm text-muted-foreground">СУРАҲО</h2>
+          </div>
+          
+          {isSurahsLoading ? (
+            <div className="space-y-2 px-2">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-1 pr-2">
+              {surahs && surahs.map((item: any) => (
+                <Link 
+                  key={item.number} 
+                  href={`/surah/${item.number}`}
+                >
+                  <Button
+                    variant={item.number === surahNumber ? "secondary" : "ghost"}
+                    className="w-full justify-start text-left mb-1"
+                  >
+                    <div className="flex items-center">
+                      <span className="inline-flex justify-center items-center h-6 w-6 rounded-full bg-muted mr-2 text-xs">
+                        {item.number}
+                      </span>
+                      <span className="truncate">{item.name_tajik}</span>
+                    </div>
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          )}
+        </aside>
         
-        <main className="flex-1">
-          {surah && (
-            <SurahHeader 
-              surah={surah} 
-              onPlaySurah={handlePlaySurah}
-              isLoading={isSurahLoading}
-            />
+        {/* Main content area */}
+        <main className="flex-1 max-w-4xl mx-auto w-full p-3 md:p-6" ref={contentRef}>
+          <div ref={scrollTopRef}></div>
+          
+          {/* Surah Information Card (desktop) */}
+          {surah && !isSurahLoading && (
+            <Card className="mb-6 overflow-hidden bg-gradient-to-b from-white to-white/20 dark:from-gray-800 dark:to-gray-800/20 shadow-md md:shadow-lg">
+              <div className="flex flex-col md:flex-row">
+                <div className="flex-1 p-6">
+                  <div className="mb-4">
+                    <h1 className="text-2xl md:text-3xl font-bold text-primary dark:text-accent">{surah.name_tajik}</h1>
+                    <h2 className="text-xl md:text-2xl text-gray-700 dark:text-gray-200 font-arabic mt-1">
+                      {surah.name_arabic}
+                    </h2>
+                    <div className="text-sm text-muted-foreground mt-2 flex items-center">
+                      <span>Сураи {surah.number}</span>
+                      <span className="mx-2">•</span>
+                      <span>{surah.verses_count} оят</span>
+                      <span className="mx-2">•</span>
+                      <span>{surah.revelation_type === 'Meccan' ? 'Макка' : 'Мадина'}</span>
+                    </div>
+                  </div>
+                  
+                  {surah.description && (
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <p>{surah.description}</p>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="md:w-56 bg-primary/5 dark:bg-primary/10 flex flex-col justify-center items-center p-4 md:p-6">
+                  <div className="font-arabic text-3xl md:text-4xl text-center mb-4 text-primary dark:text-accent">
+                    بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+                  </div>
+                  <Button
+                    size="lg"
+                    className="gap-2 font-medium mt-auto"
+                    onClick={handlePlaySurah}
+                  >
+                    <PlayCircle className="h-5 w-5" />
+                    <span>Тиловат</span>
+                  </Button>
+                </div>
+              </div>
+            </Card>
           )}
           
+          {/* Surah Header Skeleton */}
           {isSurahLoading && (
-            <SurahHeader 
-              surah={{
-                id: 0,
-                number: 0,
-                name_arabic: "",
-                name_tajik: "",
-                name_english: "",
-                revelation_type: "Meccan",
-                verses_count: 0,
-                description: null
-              }} 
-              onPlaySurah={() => {}}
-              isLoading={true}
-            />
+            <Card className="mb-6 overflow-hidden">
+              <div className="p-6">
+                <Skeleton className="h-8 w-48 mb-2" />
+                <Skeleton className="h-6 w-32 mb-4" />
+                <Skeleton className="h-4 w-full mb-1" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+            </Card>
           )}
           
-          {/* Bismillah is now handled directly in SurahHeader component */}
+          {/* Bismillah for the verses */}
+          {surah && surah.number !== 1 && surah.number !== 9 && (
+            <div className="bismillah text-center py-6 px-8 rounded-lg bg-gradient-to-r from-primary/5 to-accent/5 dark:from-primary/5 dark:to-accent/10 mb-8 shadow-sm">
+              <p className="font-arabic text-3xl md:text-4xl leading-relaxed tracking-wider">
+                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+              </p>
+            </div>
+          )}
           
-          <div className="space-y-6 mb-8">
+          {/* Verses */}
+          <div className={cn("space-y-6 mb-8", `content-${contentViewMode}`)}>
             {isVersesLoading && (
               // Show loading skeletons for verses
               Array.from({ length: 5 }).map((_, index) => (
@@ -259,36 +546,46 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
             ))}
           </div>
           
-          {/* Pagination */}
-          <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-8">
-            {previousSurah ? (
-              <Link href={`/surah/${previousSurah}`}>
-                <Button variant="link" className="flex items-center space-x-2 text-primary dark:text-accent">
-                  <ChevronLeft className="h-4 w-4" />
-                  <span>Сураи қаблӣ</span>
-                </Button>
-              </Link>
-            ) : (
-              <div /> // Empty div to maintain flex spacing
-            )}
-            
-            <div className="text-center">
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {surah ? `Сураи ${surah.number} аз 114` : ""}
-              </span>
+          {/* New Pagination */}
+          {surah && (
+            <div className="grid grid-cols-2 gap-4 mb-10">
+              {previousSurah ? (
+                <Link href={`/surah/${previousSurah}`} className="w-full">
+                  <Card className="h-full overflow-hidden transition-all hover:shadow-md">
+                    <div className="p-4 flex items-center">
+                      <ChevronLeft className="h-5 w-5 mr-2 text-primary dark:text-accent" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Сураи қаблӣ</p>
+                        <p className="font-medium">
+                          {surahs && surahs.find((s: any) => s.number === previousSurah)?.name_tajik || `Сураи ${previousSurah}`}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              ) : (
+                <div></div>
+              )}
+              
+              {nextSurah ? (
+                <Link href={`/surah/${nextSurah}`} className="w-full">
+                  <Card className="h-full overflow-hidden transition-all hover:shadow-md">
+                    <div className="p-4 flex items-center justify-between">
+                      <div className="text-right">
+                        <p className="text-sm text-muted-foreground">Сураи баъдӣ</p>
+                        <p className="font-medium">
+                          {surahs && surahs.find((s: any) => s.number === nextSurah)?.name_tajik || `Сураи ${nextSurah}`}
+                        </p>
+                      </div>
+                      <ChevronRight className="h-5 w-5 ml-2 text-primary dark:text-accent" />
+                    </div>
+                  </Card>
+                </Link>
+              ) : (
+                <div></div>
+              )}
             </div>
-            
-            {nextSurah ? (
-              <Link href={`/surah/${nextSurah}`}>
-                <Button variant="link" className="flex items-center space-x-2 text-primary dark:text-accent">
-                  <span>Сураи баъдӣ</span>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            ) : (
-              <div /> // Empty div to maintain flex spacing
-            )}
-          </div>
+          )}
         </main>
       </div>
       
