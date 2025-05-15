@@ -8,14 +8,15 @@ echo "===== Building for Railway production deployment ====="
 # Increase Node.js memory limit to prevent "JavaScript heap out of memory" errors
 export NODE_OPTIONS="--max-old-space-size=4096"
 
-# Build the client
+# Build the client with custom config for production and code splitting
 echo "1. Building client application..."
 
 # Skip TypeScript check since it's causing memory issues
-# npm run check
 echo "Skipping TypeScript check to avoid memory issues..."
 
-npx vite build
+# Use our custom Vite config for Railway
+echo "Using custom Vite config with chunk splitting..."
+npx vite build --config vite.railway.config.js
 
 # Ensure client build was successful
 if [ ! -f "dist/index.html" ]; then

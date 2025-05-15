@@ -34,8 +34,8 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files
-const staticDir = path.join(__dirname, 'dist');
+// Serve static files - Vite builds directly to ./dist directory
+const staticDir = path.join(__dirname);
 console.log(`Serving static files from: ${staticDir}`);
 app.use(express.static(staticDir));
 
