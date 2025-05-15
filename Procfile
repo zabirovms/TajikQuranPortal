@@ -1,1 +1,1 @@
-web: bash railway-build.sh && NODE_ENV=production NODE_OPTIONS="--max-old-space-size=512" node dist/railway-entry.js
+web: node railway-deploy.js && cd dist && NODE_ENV=production node server.js

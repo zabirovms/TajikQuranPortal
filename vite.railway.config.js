@@ -2,15 +2,22 @@ import { defineConfig } from 'vite';
 import path from 'path';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Check if we're in Railway environment
+const isRailway = process.env.RAILWAY_ENVIRONMENT === 'production';
 
 export default defineConfig({
   plugins: [react()],
   
+  // Set the root directory to client
+  root: path.resolve(__dirname, 'client'),
+  
   // Explicitly set the outDir to dist
   build: {
-    outDir: 'dist',
+    outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
     assetsDir: 'assets',
     
