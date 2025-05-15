@@ -35,6 +35,9 @@ export default function WordByWordText({
   plainText,
   className
 }: WordByWordTextProps) {
+  // Get text size settings
+  const { arabicTextSize } = useDisplaySettings();
+  
   // Add a state for the active word (hovered or clicked) - MUST BE BEFORE ANY CONDITIONALS
   const [activeWordPos, setActiveWordPos] = useState<number | null>(null);
 
@@ -63,7 +66,11 @@ export default function WordByWordText({
   if (isLoading) {
     return (
       <div className={cn("text-right", className)}>
-        <div className={arabicFontClass}>
+        <div className={cn(
+          arabicFontClass,
+          'arabic-text',
+          `arabic-text-${arabicTextSize}`
+        )}>
           <Skeleton className="h-10 w-full mb-2" />
           <Skeleton className="h-10 w-3/4 mb-2" />
         </div>
@@ -75,7 +82,11 @@ export default function WordByWordText({
   if (error || !wordAnalysis) {
     return (
       <div className={cn("text-right", className)}>
-        <div className={arabicFontClass}>
+        <div className={cn(
+          arabicFontClass,
+          'arabic-text',
+          `arabic-text-${arabicTextSize}`
+        )}>
           {plainText}
         </div>
       </div>
@@ -84,7 +95,11 @@ export default function WordByWordText({
 
   return (
     <div className={cn("text-right", className)}>
-      <div className={arabicFontClass}>
+      <div className={cn(
+        arabicFontClass,
+        'arabic-text',
+        `arabic-text-${arabicTextSize}`
+      )}>
         <TooltipProvider delayDuration={100}>
           {Array.isArray(wordAnalysis) && wordAnalysis.map((word: any) => (
             <span 
