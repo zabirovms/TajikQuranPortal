@@ -481,8 +481,8 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="gap-2 md:hidden"
-                      onClick={() => setIsSurahInfoOpen(true)}
+                      className="gap-2" // removed md:hidden
+                      onClick={() => setIsSurahInfoOpen(prev => !prev)}
                     >
                       <Info className="h-4 w-4" />
                       <span>Маълумот</span>
@@ -490,17 +490,11 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
                   </div>
                   
                   {/* Description paragraph - only shown on desktop and when exists */}
-                  {surah.description && (
-                    <div className="prose prose-sm dark:prose-invert max-w-none hidden md:block">
+                  {surah.description && isSurahInfoOpen && (
+                    <div className="prose prose-sm dark:prose-invert max-w-none mt-4">
                       <p>{surah.description}</p>
                     </div>
                   )}
-                </div>
-                
-                <div className="md:w-56 bg-primary/5 dark:bg-primary/10 flex flex-col justify-center items-center p-4 md:p-6">
-                  <div className="font-arabic text-3xl md:text-4xl text-center mb-4 text-primary dark:text-accent">
-                    بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-                  </div>
                 </div>
               </div>
             </Card>
