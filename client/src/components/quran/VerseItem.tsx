@@ -11,6 +11,7 @@ import { useAudioPlayer } from '@/hooks/useAudio';
 import { useToast } from '@/hooks/use-toast';
 import { useIsVerseBookmarked, useAddBookmark, useRemoveBookmark } from '@/hooks/useBookmarks';
 import { useDisplaySettings } from '@/hooks/useDisplaySettings';
+import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '@/components/ui/dialog';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -32,7 +33,14 @@ interface VerseItemProps {
 export default function VerseItem({ verse, surahName, isLoading = false }: VerseItemProps) {
   const { playAudio } = useAudioPlayer();
   const { toast } = useToast();
-  const { wordByWordMode } = useDisplaySettings();
+  const { 
+    wordByWordMode,
+    arabicTextSize,
+    translationTextSize, 
+    tafsirTextSize,
+    lineSpacing,
+    contentViewMode
+  } = useDisplaySettings();
   
   const { isBookmarked, bookmarkId, isLoading: isBookmarkLoading } = useIsVerseBookmarked(verse.id);
   const addBookmark = useAddBookmark();
@@ -257,7 +265,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
         </div>
         
         {/* Right column - Verse content */}
-        <div className="p-6">
+        <div className={cn("p-6", `content-${contentViewMode}`)}>
           {/* Arabic Text */}
           <div className="mb-6">
             {!wordByWordMode ? (
@@ -265,7 +273,13 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                 surahNumber={parseInt(verse.unique_key.split(':')[0])}
                 verseNumber={verse.verse_number}
                 plainText={verse.arabic_text}
-                className="text-right"
+                className={cn(
+                  "text-right",
+                  `arabic-text-${arabicTextSize}`,
+                  lineSpacing <= 1.3 ? "line-spacing-tight" : 
+                  lineSpacing <= 1.6 ? "line-spacing-normal" : 
+                  lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
+                )}
               />
             ) : (
               <>
@@ -273,7 +287,13 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                   surahNumber={parseInt(verse.unique_key.split(':')[0])}
                   verseNumber={verse.verse_number}
                   plainText={verse.arabic_text}
-                  className="text-right mb-1"
+                  className={cn(
+                    "text-right mb-1",
+                    `arabic-text-${arabicTextSize}`,
+                    lineSpacing <= 1.3 ? "line-spacing-tight" : 
+                    lineSpacing <= 1.6 ? "line-spacing-normal" : 
+                    lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
+                  )}
                 />
                 <p className="text-xs text-right text-gray-500 dark:text-gray-400 mb-4 italic">
                   Барои дидани тарҷумаи ҳар калима, нишонгари мушро болои калима нигоҳ доред
@@ -286,14 +306,29 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
           {verse.transliteration && (
             <div className="border-t border-gray-100 dark:border-gray-700 pt-3 pb-4 text-gray-800 dark:text-gray-200">
               <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Талаффуз:</p>
-              <p className="italic">{verse.transliteration}</p>
+              <p className={cn(
+                "italic",
+                `translation-text-${translationTextSize}`,
+                lineSpacing <= 1.3 ? "line-spacing-tight" : 
+                lineSpacing <= 1.6 ? "line-spacing-normal" : 
+                lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
+              )}>
+                {verse.transliteration}
+              </p>
             </div>
           )}
           
           {/* Primary translation */}
           <div className="border-t border-gray-100 dark:border-gray-700 pt-3 pb-4 text-gray-800 dark:text-gray-200">
             <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
-            <p>{verse.tajik_text}</p>
+            <p className={cn(
+              `translation-text-${translationTextSize}`,
+              lineSpacing <= 1.3 ? "line-spacing-tight" : 
+              lineSpacing <= 1.6 ? "line-spacing-normal" : 
+              lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
+            )}>
+              {verse.tajik_text}
+            </p>
           </div>
           
           {/* Additional content - collapsible */}
@@ -324,15 +359,29 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                 {verse.alternative_translation && (
                   <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
                     <p className="text-sm font-medium mb-1">Тарҷумаи дигар:</p>
-                    <p className="text-sm">{verse.alternative_translation}</p>
+                    <p className={cn(
+                      `translation-text-${translationTextSize}`,
+                      lineSpacing <= 1.3 ? "line-spacing-tight" : 
+                      lineSpacing <= 1.6 ? "line-spacing-normal" : 
+                      lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
+                    )}>
+                      {verse.alternative_translation}
+                    </p>
                   </div>
                 )}
                 
                 {/* Tafsir */}
                 {verse.tafsir && (
-                  <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
+                  <div className="tafsir-content">
                     <p className="text-sm font-medium mb-1">Тафсир:</p>
-                    <p className="text-sm">{verse.tafsir}</p>
+                    <p className={cn(
+                      `tafsir-text-${tafsirTextSize}`,
+                      lineSpacing <= 1.3 ? "line-spacing-tight" : 
+                      lineSpacing <= 1.6 ? "line-spacing-normal" : 
+                      lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
+                    )}>
+                      {verse.tafsir}
+                    </p>
                   </div>
                 )}
               </CollapsibleContent>

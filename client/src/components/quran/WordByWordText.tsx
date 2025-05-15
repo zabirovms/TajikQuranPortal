@@ -3,7 +3,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Skeleton } from '@/components/ui/skeleton';
 import { getArabicFontClass } from '@/lib/fonts';
 import { useQuery } from '@tanstack/react-query';
-
+import { useDisplaySettings } from '@/hooks/useDisplaySettings';
 import { cn } from '@/lib/utils';
 
 

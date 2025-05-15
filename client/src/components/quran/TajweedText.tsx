@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { parseTajweed, fetchTajweedAyah } from '@/lib/tajweed';
 import { getArabicFontClass } from '@/lib/fonts';
 import { useTajweedMode } from '@/hooks/useTajweedMode';
+import { useDisplaySettings } from '@/hooks/useDisplaySettings';
+import { cn } from '@/lib/utils';
 import '@/styles/tajweed.css';
 
 interface TajweedTextProps {
@@ -20,6 +22,7 @@ export default function TajweedText({
   showLoader = true 
 }: TajweedTextProps) {
   const { tajweedMode } = useTajweedMode();
+  const { arabicTextSize } = useDisplaySettings();
   const [text, setText] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(tajweedMode);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +65,12 @@ export default function TajweedText({
   // If tajweed mode is not enabled, simply display the plain text
   if (!tajweedMode) {
     return (
-      <div className={`${getArabicFontClass('md')} leading-loose ${className}`}>
+      <div className={cn(
+        getArabicFontClass('md'),
+        'arabic-text',
+        `arabic-text-${arabicTextSize}`,
+        className
+      )}>
         {plainText}
       </div>
     );
@@ -71,7 +79,12 @@ export default function TajweedText({
   // If there's an error loading tajweed and tajweed mode is enabled
   if (error) {
     return (
-      <div className={`${getArabicFontClass('md')} leading-loose ${className}`}>
+      <div className={cn(
+        getArabicFontClass('md'),
+        'arabic-text',
+        `arabic-text-${arabicTextSize}`,
+        className
+      )}>
         {plainText || `﴾الآية ${verseNumber} من سورة ${surahNumber}﴿`}
       </div>
     );
@@ -82,7 +95,12 @@ export default function TajweedText({
 
   return (
     <div 
-      className={`${getArabicFontClass('md')} leading-loose ${className}`}
+      className={cn(
+        getArabicFontClass('md'),
+        'arabic-text',
+        `arabic-text-${arabicTextSize}`,
+        className
+      )}
       dangerouslySetInnerHTML={{ __html: parsedText }}
     />
   );
