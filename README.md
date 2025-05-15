@@ -62,7 +62,7 @@ A comprehensive Tajik Quran web application providing an immersive digital Quran
 
 ## Deploying to Railway
 
-This project is optimized for deployment on Railway:
+This project is optimized for deployment on Railway with a custom build process:
 
 1. Create a new project on [Railway](https://railway.app/)
 2. Connect your GitHub repository
@@ -70,7 +70,16 @@ This project is optimized for deployment on Railway:
 4. Set up the following environment variables:
    - `DATABASE_URL`: This will be automatically set by Railway when you add a PostgreSQL service
    - `NODE_ENV`: Set to `production`
-5. Deploy!
+5. The deployment will automatically:
+   - Build the client application
+   - Generate production-ready server code
+   - Create a specialized entry point for Railway
+   - Start the application with proper path handling
+
+If you encounter any deployment issues:
+- Verify your DATABASE_URL environment variable is correctly set
+- Check the Railway logs for detailed error information
+- Ensure Railway has permissions to execute the railway-build.sh script
 
 ## Database Setup on Supabase
 

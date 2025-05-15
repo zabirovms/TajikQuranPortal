@@ -1,1 +1,1 @@
-web: bash railway-build.sh && NODE_ENV=production node dist/index.js
+web: bash railway-build.sh && NODE_ENV=production node dist/railway-entry.js
