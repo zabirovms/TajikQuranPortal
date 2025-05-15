@@ -105,8 +105,88 @@
   .arabic-text {
     font-family: 'Scheherazade New', serif;
     direction: rtl;
+    @apply text-2xl tracking-wide transition-all duration-200;
+  }
+  
+  /* Arabic text sizes */
+  .arabic-text-small {
+    @apply text-xl;
+  }
+  
+  .arabic-text-medium {
+    @apply text-2xl;
+  }
+  
+  .arabic-text-large {
+    @apply text-3xl;
+  }
+  
+  .arabic-text-extra-large {
+    @apply text-4xl;
+  }
+  
+  /* Translation text sizes */
+  .translation-text-small {
+    @apply text-sm;
+  }
+  
+  .translation-text-medium {
+    @apply text-base;
+  }
+  
+  .translation-text-large {
+    @apply text-lg;
+  }
+  
+  .translation-text-extra-large {
+    @apply text-xl;
+  }
+  
+  /* Tafsir text sizes */
+  .tafsir-text-small {
+    @apply text-sm;
+  }
+  
+  .tafsir-text-medium {
+    @apply text-base;
+  }
+  
+  .tafsir-text-large {
+    @apply text-lg;
+  }
+  
+  .tafsir-text-extra-large {
+    @apply text-xl;
+  }
+  
+  /* Line spacing classes */
+  .line-spacing-tight {
+    line-height: 1.2;
+  }
+  
+  .line-spacing-normal {
+    line-height: 1.5;
+  }
+  
+  .line-spacing-relaxed {
     line-height: 1.8;
-    @apply text-2xl leading-relaxed tracking-wide;
+  }
+  
+  .line-spacing-loose {
+    line-height: 2.0;
+  }
+  
+  /* Content view modes */
+  .content-compact {
+    @apply space-y-2 py-2;
+  }
+  
+  .content-comfortable {
+    @apply space-y-4 py-4;
+  }
+  
+  .content-expanded {
+    @apply space-y-6 py-6;
   }
   
   /* Ayah (verse) number styling */
@@ -132,5 +212,11 @@
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-black/20 dark:bg-white/20 rounded-sm;
+  }
+  
+  /* Tafsir content styling */
+  .tafsir-content {
+    @apply bg-muted/50 p-4 rounded-lg my-2 transition-all duration-200;
+    white-space: pre-line; /* Preserve line breaks in tafsir text */
   }
 }

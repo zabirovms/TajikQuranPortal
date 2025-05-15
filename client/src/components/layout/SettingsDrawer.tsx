@@ -9,29 +9,59 @@ import {
 } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { 
   Settings, 
   Moon, 
   Sun, 
   BookOpen, 
   Type, 
-  AlignJustify
+  AlignJustify,
+  TextSelect,
+  LayoutGrid,
+  ArrowUpDown,
+  Maximize,
+  Minimize
 } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { Button } from '@/components/ui/button';
-import { useDisplaySettings } from '@/hooks/useDisplaySettings';
+import { useDisplaySettings, TextSizeType, ContentViewType } from '@/hooks/useDisplaySettings';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
 export function SettingsDrawer() {
   const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const { 
+    // Display modes
     tajweedMode, 
     toggleTajweedMode,
     wordByWordMode,
     toggleWordByWordMode,
     showTransliteration,
-    toggleTransliteration
+    toggleTransliteration,
+    
+    // Text size settings
+    arabicTextSize,
+    setArabicTextSize,
+    translationTextSize,
+    setTranslationTextSize,
+    tafsirTextSize,
+    setTafsirTextSize,
+    
+    // Content layout
+    contentViewMode,
+    setContentViewMode,
+    
+    // Line spacing
+    lineSpacing,
+    setLineSpacing
   } = useDisplaySettings();
 
   return (
@@ -52,10 +82,10 @@ export function SettingsDrawer() {
           <SheetTitle className="text-primary dark:text-accent">Танзимот</SheetTitle>
         </SheetHeader>
         
-        <div className="mt-8 space-y-6">
+        <div className="mt-8 space-y-6 overflow-y-auto max-h-[80vh] pr-2 custom-scrollbar">
           {/* Display Settings */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Намоиш</h3>
+            <h3 className="text-lg font-medium">Ҳолати намоиш</h3>
             
             {/* Word by Word mode */}
             <div className="flex items-center justify-between">
@@ -109,6 +139,194 @@ export function SettingsDrawer() {
                 checked={showTransliteration}
                 onCheckedChange={toggleTransliteration}
               />
+            </div>
+          </div>
+          
+          {/* Text Size Settings */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium flex items-center gap-2">
+              <TextSelect className="h-5 w-5" />
+              Андозаи матн
+            </h3>
+            
+            {/* Arabic Text Size */}
+            <div className="space-y-2">
+              <Label htmlFor="arabic-text-size" className="text-sm">
+                Матни арабӣ
+              </Label>
+              <Select 
+                value={arabicTextSize} 
+                onValueChange={(value) => setArabicTextSize(value as TextSizeType)}
+              >
+                <SelectTrigger id="arabic-text-size">
+                  <SelectValue placeholder="Интихоб кунед" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Хурд</SelectItem>
+                  <SelectItem value="medium">Миёна</SelectItem>
+                  <SelectItem value="large">Калон</SelectItem>
+                  <SelectItem value="extra-large">Хеле калон</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="pt-2 flex items-center space-x-2">
+                <Minimize className="h-4 w-4 text-muted-foreground" />
+                <Slider 
+                  id="arabic-text-size-slider"
+                  defaultValue={[
+                    arabicTextSize === 'small' ? 25 : 
+                    arabicTextSize === 'medium' ? 50 : 
+                    arabicTextSize === 'large' ? 75 : 100
+                  ]}
+                  max={100}
+                  step={25}
+                  onValueChange={(value) => {
+                    const size = 
+                      value[0] <= 25 ? 'small' : 
+                      value[0] <= 50 ? 'medium' : 
+                      value[0] <= 75 ? 'large' : 'extra-large';
+                    setArabicTextSize(size as TextSizeType);
+                  }}
+                  className="flex-1"
+                />
+                <Maximize className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+            
+            {/* Translation Text Size */}
+            <div className="space-y-2">
+              <Label htmlFor="translation-text-size" className="text-sm">
+                Тарҷумаи тоҷикӣ
+              </Label>
+              <Select 
+                value={translationTextSize} 
+                onValueChange={(value) => setTranslationTextSize(value as TextSizeType)}
+              >
+                <SelectTrigger id="translation-text-size">
+                  <SelectValue placeholder="Интихоб кунед" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Хурд</SelectItem>
+                  <SelectItem value="medium">Миёна</SelectItem>
+                  <SelectItem value="large">Калон</SelectItem>
+                  <SelectItem value="extra-large">Хеле калон</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="pt-2 flex items-center space-x-2">
+                <Minimize className="h-4 w-4 text-muted-foreground" />
+                <Slider 
+                  id="translation-text-size-slider"
+                  defaultValue={[
+                    translationTextSize === 'small' ? 25 : 
+                    translationTextSize === 'medium' ? 50 : 
+                    translationTextSize === 'large' ? 75 : 100
+                  ]}
+                  max={100}
+                  step={25}
+                  onValueChange={(value) => {
+                    const size = 
+                      value[0] <= 25 ? 'small' : 
+                      value[0] <= 50 ? 'medium' : 
+                      value[0] <= 75 ? 'large' : 'extra-large';
+                    setTranslationTextSize(size as TextSizeType);
+                  }}
+                  className="flex-1"
+                />
+                <Maximize className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+            
+            {/* Tafsir Text Size */}
+            <div className="space-y-2">
+              <Label htmlFor="tafsir-text-size" className="text-sm">
+                Тафсир
+              </Label>
+              <Select 
+                value={tafsirTextSize} 
+                onValueChange={(value) => setTafsirTextSize(value as TextSizeType)}
+              >
+                <SelectTrigger id="tafsir-text-size">
+                  <SelectValue placeholder="Интихоб кунед" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Хурд</SelectItem>
+                  <SelectItem value="medium">Миёна</SelectItem>
+                  <SelectItem value="large">Калон</SelectItem>
+                  <SelectItem value="extra-large">Хеле калон</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="pt-2 flex items-center space-x-2">
+                <Minimize className="h-4 w-4 text-muted-foreground" />
+                <Slider 
+                  id="tafsir-text-size-slider"
+                  defaultValue={[
+                    tafsirTextSize === 'small' ? 25 : 
+                    tafsirTextSize === 'medium' ? 50 : 
+                    tafsirTextSize === 'large' ? 75 : 100
+                  ]}
+                  max={100}
+                  step={25}
+                  onValueChange={(value) => {
+                    const size = 
+                      value[0] <= 25 ? 'small' : 
+                      value[0] <= 50 ? 'medium' : 
+                      value[0] <= 75 ? 'large' : 'extra-large';
+                    setTafsirTextSize(size as TextSizeType);
+                  }}
+                  className="flex-1"
+                />
+                <Maximize className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+          </div>
+          
+          {/* Layout Settings */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium flex items-center gap-2">
+              <LayoutGrid className="h-5 w-5" />
+              Тартиби намоиш
+            </h3>
+            
+            {/* Content View Mode */}
+            <div className="space-y-2">
+              <Label htmlFor="content-view-mode" className="text-sm">
+                Намуди намоиши матн
+              </Label>
+              <Select 
+                value={contentViewMode} 
+                onValueChange={(value) => setContentViewMode(value as ContentViewType)}
+              >
+                <SelectTrigger id="content-view-mode">
+                  <SelectValue placeholder="Интихоб кунед" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="compact">Фишурда</SelectItem>
+                  <SelectItem value="comfortable">Мувофиқ</SelectItem>
+                  <SelectItem value="expanded">Васеъ</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Line Spacing */}
+            <div className="space-y-2">
+              <Label className="text-sm flex items-center gap-2">
+                <ArrowUpDown className="h-4 w-4" />
+                Фосилаи сатрҳо
+              </Label>
+              <div className="pt-2 flex items-center space-x-2">
+                <span className="text-xs text-muted-foreground">Кам</span>
+                <Slider 
+                  defaultValue={[lineSpacing * 50]}
+                  min={60}
+                  max={100}
+                  step={10}
+                  onValueChange={(value) => {
+                    const spacing = value[0] / 50;
+                    setLineSpacing(spacing);
+                  }}
+                  className="flex-1"
+                />
+                <span className="text-xs text-muted-foreground">Зиёд</span>
+              </div>
             </div>
           </div>
           
