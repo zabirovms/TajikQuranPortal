@@ -19,7 +19,8 @@ import {
   ArrowUp,
   List,
   Volume2,
-  MoreHorizontal
+  MoreHorizontal,
+  Settings
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -34,12 +35,20 @@ import {
   DrawerContent,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SettingsDrawer } from "@/components/layout/SettingsDrawer";
 
 interface SurahProps {
   surahNumber: number;
@@ -61,6 +70,7 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
   // Mobile drawer state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSurahInfoOpen, setIsSurahInfoOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   
   // Save the last read position
@@ -228,8 +238,18 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
                     <Bookmark className="h-4 w-4 mr-2" />
                     <span>Хатчӯбҳо</span>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setIsSettingsOpen(true)}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    <span>Танзимот</span>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              
+              {/* Settings Button (Desktop) */}
+              <div className="hidden md:block">
+                <SettingsDrawer />
+              </div>
               
               {/* Play Button */}
               {surah && (
@@ -331,6 +351,18 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
           </div>
         </DrawerContent>
       </Drawer>
+      
+      {/* Mobile Settings Sheet */}
+      <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <SheetContent side="right">
+          <SheetHeader>
+            <SheetTitle>Танзимот</SheetTitle>
+          </SheetHeader>
+          <div className="flex-1 mt-4">
+            <SettingsDrawer />
+          </div>
+        </SheetContent>
+      </Sheet>
       
       {/* Mobile Surah Info Drawer */}
       <Drawer open={isSurahInfoOpen} onOpenChange={setIsSurahInfoOpen}>
