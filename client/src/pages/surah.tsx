@@ -48,7 +48,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SettingsDrawer } from "@/components/layout/SettingsDrawer";
+import { SettingsDrawer, SettingsContent } from "@/components/layout/SettingsDrawer";
 
 interface SurahProps {
   surahNumber: number;
@@ -358,9 +358,7 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
           <SheetHeader>
             <SheetTitle>Танзимот</SheetTitle>
           </SheetHeader>
-          <div className="flex-1 mt-4">
-            <SettingsDrawer />
-          </div>
+          <SettingsContent />
         </SheetContent>
       </Sheet>
       
