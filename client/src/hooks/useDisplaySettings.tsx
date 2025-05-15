@@ -106,37 +106,30 @@ export function DisplayProvider({ children }: DisplayProviderProps) {
     loadFromLocalStorage('lineSpacing', 1.5));
 
   // Save settings to localStorage when they change
+  // Using a single effect to manage all localStorage saves to avoid potential update loops
   useEffect(() => {
-    saveToLocalStorage('tajweedMode', tajweedMode);
-  }, [tajweedMode]);
-  
-  useEffect(() => {
-    saveToLocalStorage('wordByWordMode', wordByWordMode);
-  }, [wordByWordMode]);
-  
-  useEffect(() => {
-    saveToLocalStorage('showTransliteration', showTransliteration);
-  }, [showTransliteration]);
-  
-  useEffect(() => {
-    saveToLocalStorage('arabicTextSize', arabicTextSize);
-  }, [arabicTextSize]);
-  
-  useEffect(() => {
-    saveToLocalStorage('translationTextSize', translationTextSize);
-  }, [translationTextSize]);
-  
-  useEffect(() => {
-    saveToLocalStorage('tafsirTextSize', tafsirTextSize);
-  }, [tafsirTextSize]);
-  
-  useEffect(() => {
-    saveToLocalStorage('contentViewMode', contentViewMode);
-  }, [contentViewMode]);
-  
-  useEffect(() => {
-    saveToLocalStorage('lineSpacing', lineSpacing);
-  }, [lineSpacing]);
+    const saveAll = () => {
+      saveToLocalStorage('tajweedMode', tajweedMode);
+      saveToLocalStorage('wordByWordMode', wordByWordMode);
+      saveToLocalStorage('showTransliteration', showTransliteration);
+      saveToLocalStorage('arabicTextSize', arabicTextSize);
+      saveToLocalStorage('translationTextSize', translationTextSize);
+      saveToLocalStorage('tafsirTextSize', tafsirTextSize);
+      saveToLocalStorage('contentViewMode', contentViewMode);
+      saveToLocalStorage('lineSpacing', lineSpacing);
+    };
+    
+    saveAll();
+  }, [
+    tajweedMode, 
+    wordByWordMode, 
+    showTransliteration, 
+    arabicTextSize, 
+    translationTextSize, 
+    tafsirTextSize, 
+    contentViewMode, 
+    lineSpacing
+  ]);
 
   // Toggle functions
   const toggleTajweedMode = () => {
