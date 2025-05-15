@@ -35,12 +35,11 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
   const { toast } = useToast();
   const { 
     wordByWordMode,
-    arabicTextSize,
-    translationTextSize, 
-    tafsirTextSize,
+    textSize,
     lineSpacing,
     contentViewMode,
-    showTransliteration
+    showTransliteration,
+    translationType
   } = useDisplaySettings();
   
   const { isBookmarked, bookmarkId, isLoading: isBookmarkLoading } = useIsVerseBookmarked(verse.id);
@@ -281,7 +280,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                 plainText={verse.arabic_text}
                 className={cn(
                   "text-right",
-                  `arabic-text-${arabicTextSize}`,
+                  `arabic-text-${textSize}`,
                   lineSpacing <= 1.3 ? "line-spacing-tight" : 
                   lineSpacing <= 1.6 ? "line-spacing-normal" : 
                   lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
@@ -295,7 +294,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                   plainText={verse.arabic_text}
                   className={cn(
                     "text-right mb-1",
-                    `arabic-text-${arabicTextSize}`,
+                    `arabic-text-${textSize}`,
                     lineSpacing <= 1.3 ? "line-spacing-tight" : 
                     lineSpacing <= 1.6 ? "line-spacing-normal" : 
                     lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
@@ -314,7 +313,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
               <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Талаффуз:</p>
               <p className={cn(
                 "italic",
-                `translation-text-${translationTextSize}`,
+                `translation-text-${textSize}`,
                 lineSpacing <= 1.3 ? "line-spacing-tight" : 
                 lineSpacing <= 1.6 ? "line-spacing-normal" : 
                 lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
@@ -324,16 +323,19 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
             </div>
           )}
           
-          {/* Primary translation */}
+          {/* Translation - based on selected type */}
           <div className="border-t border-gray-100 dark:border-gray-700 pt-3 pb-4 text-gray-800 dark:text-gray-200">
-            <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">Тарҷумаи тоҷикӣ:</p>
+            <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
+              {translationType === 'tajik' ? 'Тарҷумаи тоҷикӣ:' : 'Тарҷумаи дигар:'}
+            </p>
             <p className={cn(
-              `translation-text-${translationTextSize}`,
+              `translation-text-${textSize}`,
               lineSpacing <= 1.3 ? "line-spacing-tight" : 
               lineSpacing <= 1.6 ? "line-spacing-normal" : 
               lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
             )}>
-              {verse.tajik_text}
+              {translationType === 'tajik' ? verse.tajik_text : 
+               (verse.alternative_translation || 'Тарҷумаи дигар мавҷуд нест')}
             </p>
           </div>
           
@@ -364,7 +366,7 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                 {/* Tafsir */}
                 <div className="tafsir-content">
                   <p className={cn(
-                    `tafsir-text-${tafsirTextSize}`,
+                    `tafsir-text-${textSize}`,
                     lineSpacing <= 1.3 ? "line-spacing-tight" : 
                     lineSpacing <= 1.6 ? "line-spacing-normal" : 
                     lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"

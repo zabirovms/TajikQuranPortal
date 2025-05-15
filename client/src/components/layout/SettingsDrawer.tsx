@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { Button } from '@/components/ui/button';
-import { useDisplaySettings, TextSizeType, ContentViewType } from '@/hooks/useDisplaySettings';
+import { useDisplaySettings, TextSizeType, ContentViewType, TranslationType } from '@/hooks/useDisplaySettings';
 import { 
   Select, 
   SelectContent, 
@@ -47,13 +47,13 @@ export function SettingsDrawer() {
     showTransliteration,
     toggleTransliteration,
     
-    // Text size settings
-    arabicTextSize,
-    setArabicTextSize,
-    translationTextSize,
-    setTranslationTextSize,
-    tafsirTextSize,
-    setTafsirTextSize,
+    // Text size settings - unified
+    textSize,
+    setTextSize,
+    
+    // Translation selection
+    translationType,
+    setTranslationType,
     
     // Content layout
     contentViewMode,
@@ -149,16 +149,16 @@ export function SettingsDrawer() {
               Андозаи матн
             </h3>
             
-            {/* Arabic Text Size */}
+            {/* Unified Text Size */}
             <div className="space-y-2">
-              <Label htmlFor="arabic-text-size" className="text-sm">
-                Матни арабӣ
+              <Label htmlFor="text-size" className="text-sm">
+                Андозаи ҳамаи матн
               </Label>
               <Select 
-                value={arabicTextSize} 
-                onValueChange={(value) => setArabicTextSize(value as TextSizeType)}
+                value={textSize} 
+                onValueChange={(value) => setTextSize(value as TextSizeType)}
               >
-                <SelectTrigger id="arabic-text-size">
+                <SelectTrigger id="text-size">
                   <SelectValue placeholder="Интихоб кунед" />
                 </SelectTrigger>
                 <SelectContent>
@@ -171,11 +171,11 @@ export function SettingsDrawer() {
               <div className="pt-2 flex items-center space-x-2">
                 <Minimize className="h-4 w-4 text-muted-foreground" />
                 <Slider 
-                  id="arabic-text-size-slider"
+                  id="text-size-slider"
                   defaultValue={[
-                    arabicTextSize === 'small' ? 25 : 
-                    arabicTextSize === 'medium' ? 50 : 
-                    arabicTextSize === 'large' ? 75 : 100
+                    textSize === 'small' ? 25 : 
+                    textSize === 'medium' ? 50 : 
+                    textSize === 'large' ? 75 : 100
                   ]}
                   max={100}
                   step={25}
@@ -184,7 +184,7 @@ export function SettingsDrawer() {
                       value[0] <= 25 ? 'small' : 
                       value[0] <= 50 ? 'medium' : 
                       value[0] <= 75 ? 'large' : 'extra-large';
-                    setArabicTextSize(size as TextSizeType);
+                    setTextSize(size as TextSizeType);
                   }}
                   className="flex-1"
                 />
@@ -192,90 +192,23 @@ export function SettingsDrawer() {
               </div>
             </div>
             
-            {/* Translation Text Size */}
-            <div className="space-y-2">
-              <Label htmlFor="translation-text-size" className="text-sm">
-                Тарҷумаи тоҷикӣ
+            {/* Translation Selection */}
+            <div className="space-y-2 mt-4">
+              <Label htmlFor="translation-type" className="text-sm">
+                Интихоби тарҷума
               </Label>
               <Select 
-                value={translationTextSize} 
-                onValueChange={(value) => setTranslationTextSize(value as TextSizeType)}
+                value={translationType} 
+                onValueChange={(value) => setTranslationType(value as TranslationType)}
               >
-                <SelectTrigger id="translation-text-size">
+                <SelectTrigger id="translation-type">
                   <SelectValue placeholder="Интихоб кунед" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="small">Хурд</SelectItem>
-                  <SelectItem value="medium">Миёна</SelectItem>
-                  <SelectItem value="large">Калон</SelectItem>
-                  <SelectItem value="extra-large">Хеле калон</SelectItem>
+                  <SelectItem value="tajik">Тарҷумаи тоҷикӣ</SelectItem>
+                  <SelectItem value="alternative">Тарҷумаи дигар</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="pt-2 flex items-center space-x-2">
-                <Minimize className="h-4 w-4 text-muted-foreground" />
-                <Slider 
-                  id="translation-text-size-slider"
-                  defaultValue={[
-                    translationTextSize === 'small' ? 25 : 
-                    translationTextSize === 'medium' ? 50 : 
-                    translationTextSize === 'large' ? 75 : 100
-                  ]}
-                  max={100}
-                  step={25}
-                  onValueChange={(value) => {
-                    const size = 
-                      value[0] <= 25 ? 'small' : 
-                      value[0] <= 50 ? 'medium' : 
-                      value[0] <= 75 ? 'large' : 'extra-large';
-                    setTranslationTextSize(size as TextSizeType);
-                  }}
-                  className="flex-1"
-                />
-                <Maximize className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </div>
-            
-            {/* Tafsir Text Size */}
-            <div className="space-y-2">
-              <Label htmlFor="tafsir-text-size" className="text-sm">
-                Тафсир
-              </Label>
-              <Select 
-                value={tafsirTextSize} 
-                onValueChange={(value) => setTafsirTextSize(value as TextSizeType)}
-              >
-                <SelectTrigger id="tafsir-text-size">
-                  <SelectValue placeholder="Интихоб кунед" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="small">Хурд</SelectItem>
-                  <SelectItem value="medium">Миёна</SelectItem>
-                  <SelectItem value="large">Калон</SelectItem>
-                  <SelectItem value="extra-large">Хеле калон</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="pt-2 flex items-center space-x-2">
-                <Minimize className="h-4 w-4 text-muted-foreground" />
-                <Slider 
-                  id="tafsir-text-size-slider"
-                  defaultValue={[
-                    tafsirTextSize === 'small' ? 25 : 
-                    tafsirTextSize === 'medium' ? 50 : 
-                    tafsirTextSize === 'large' ? 75 : 100
-                  ]}
-                  max={100}
-                  step={25}
-                  onValueChange={(value) => {
-                    const size = 
-                      value[0] <= 25 ? 'small' : 
-                      value[0] <= 50 ? 'medium' : 
-                      value[0] <= 75 ? 'large' : 'extra-large';
-                    setTafsirTextSize(size as TextSizeType);
-                  }}
-                  className="flex-1"
-                />
-                <Maximize className="h-4 w-4 text-muted-foreground" />
-              </div>
             </div>
           </div>
           
