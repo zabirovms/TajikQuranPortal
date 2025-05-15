@@ -4,6 +4,9 @@ import { createContext, useContext, useState, ReactNode, useEffect } from 'react
 export type TextSizeType = 'small' | 'medium' | 'large' | 'extra-large';
 export type ContentViewType = 'compact' | 'comfortable' | 'expanded';
 
+// Define translation type
+export type TranslationType = 'tajik' | 'alternative'; 
+
 interface DisplayContextType {
   // Existing display modes
   tajweedMode: boolean;
@@ -13,13 +16,13 @@ interface DisplayContextType {
   showTransliteration: boolean;
   toggleTransliteration: () => void;
   
-  // New text size controls
-  arabicTextSize: TextSizeType;
-  setArabicTextSize: (size: TextSizeType) => void;
-  translationTextSize: TextSizeType;
-  setTranslationTextSize: (size: TextSizeType) => void;
-  tafsirTextSize: TextSizeType;
-  setTafsirTextSize: (size: TextSizeType) => void;
+  // Simplified text size control - one size for all text
+  textSize: TextSizeType;
+  setTextSize: (size: TextSizeType) => void;
+  
+  // Translation selection
+  translationType: TranslationType;
+  setTranslationType: (type: TranslationType) => void;
   
   // Content view mode
   contentViewMode: ContentViewType;
@@ -39,12 +42,11 @@ const DisplayContext = createContext<DisplayContextType>({
   showTransliteration: true,
   toggleTransliteration: () => {},
   
-  arabicTextSize: 'medium',
-  setArabicTextSize: () => {},
-  translationTextSize: 'medium',
-  setTranslationTextSize: () => {},
-  tafsirTextSize: 'medium',
-  setTafsirTextSize: () => {},
+  textSize: 'medium',
+  setTextSize: () => {},
+  
+  translationType: 'tajik',
+  setTranslationType: () => {},
   
   contentViewMode: 'comfortable',
   setContentViewMode: () => {},
@@ -89,13 +91,13 @@ export function DisplayProvider({ children }: DisplayProviderProps) {
   const [showTransliteration, setShowTransliteration] = useState(() => 
     loadFromLocalStorage('showTransliteration', true));
   
-  // Text sizes
-  const [arabicTextSize, setArabicTextSize] = useState<TextSizeType>(() => 
-    loadFromLocalStorage('arabicTextSize', 'medium'));
-  const [translationTextSize, setTranslationTextSize] = useState<TextSizeType>(() => 
-    loadFromLocalStorage('translationTextSize', 'medium'));
-  const [tafsirTextSize, setTafsirTextSize] = useState<TextSizeType>(() => 
-    loadFromLocalStorage('tafsirTextSize', 'medium'));
+  // Simplified text size - one setting for all text
+  const [textSize, setTextSize] = useState<TextSizeType>(() => 
+    loadFromLocalStorage('textSize', 'medium'));
+  
+  // Translation selection
+  const [translationType, setTranslationType] = useState<TranslationType>(() => 
+    loadFromLocalStorage('translationType', 'tajik'));
   
   // Content view mode
   const [contentViewMode, setContentViewMode] = useState<ContentViewType>(() => 
@@ -112,9 +114,8 @@ export function DisplayProvider({ children }: DisplayProviderProps) {
       saveToLocalStorage('tajweedMode', tajweedMode);
       saveToLocalStorage('wordByWordMode', wordByWordMode);
       saveToLocalStorage('showTransliteration', showTransliteration);
-      saveToLocalStorage('arabicTextSize', arabicTextSize);
-      saveToLocalStorage('translationTextSize', translationTextSize);
-      saveToLocalStorage('tafsirTextSize', tafsirTextSize);
+      saveToLocalStorage('textSize', textSize);
+      saveToLocalStorage('translationType', translationType);
       saveToLocalStorage('contentViewMode', contentViewMode);
       saveToLocalStorage('lineSpacing', lineSpacing);
     };
@@ -124,9 +125,8 @@ export function DisplayProvider({ children }: DisplayProviderProps) {
     tajweedMode, 
     wordByWordMode, 
     showTransliteration, 
-    arabicTextSize, 
-    translationTextSize, 
-    tafsirTextSize, 
+    textSize,
+    translationType,
     contentViewMode, 
     lineSpacing
   ]);
@@ -154,12 +154,11 @@ export function DisplayProvider({ children }: DisplayProviderProps) {
         showTransliteration,
         toggleTransliteration,
         
-        arabicTextSize,
-        setArabicTextSize,
-        translationTextSize,
-        setTranslationTextSize,
-        tafsirTextSize,
-        setTafsirTextSize,
+        textSize,
+        setTextSize,
+        
+        translationType,
+        setTranslationType,
         
         contentViewMode,
         setContentViewMode,

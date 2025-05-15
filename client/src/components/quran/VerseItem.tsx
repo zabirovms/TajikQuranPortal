@@ -337,11 +337,11 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
             </p>
           </div>
           
-          {/* Additional content - collapsible */}
-          {(verse.alternative_translation || verse.tafsir) && (
+          {/* Tafsir content - collapsible */}
+          {verse.tafsir && (
             <Collapsible 
-              open={isAdditionalContentOpen} 
-              onOpenChange={setIsAdditionalContentOpen}
+              open={isTafsirOpen} 
+              onOpenChange={setIsTafsirOpen}
               className="border-t border-gray-100 dark:border-gray-700 pt-3"
             >
               <CollapsibleTrigger asChild>
@@ -351,9 +351,9 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
                 >
                   <div className="flex items-center">
                     <Book className="mr-2 h-4 w-4 text-primary dark:text-accent" /> 
-                    <span className="font-medium text-sm">Маълумоти иловагӣ</span>
+                    <span className="font-medium text-sm">Тафсир</span>
                   </div>
-                  {isAdditionalContentOpen ? 
+                  {isTafsirOpen ? 
                     <ChevronUp className="h-4 w-4 text-gray-500" /> : 
                     <ChevronDown className="h-4 w-4 text-gray-500" />
                   }
@@ -361,35 +361,17 @@ export default function VerseItem({ verse, surahName, isLoading = false }: Verse
               </CollapsibleTrigger>
               
               <CollapsibleContent className="mt-2 space-y-4">
-                {/* Alternative translation */}
-                {verse.alternative_translation && (
-                  <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
-                    <p className="text-sm font-medium mb-1">Тарҷумаи дигар:</p>
-                    <p className={cn(
-                      `translation-text-${translationTextSize}`,
-                      lineSpacing <= 1.3 ? "line-spacing-tight" : 
-                      lineSpacing <= 1.6 ? "line-spacing-normal" : 
-                      lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
-                    )}>
-                      {verse.alternative_translation}
-                    </p>
-                  </div>
-                )}
-                
                 {/* Tafsir */}
-                {verse.tafsir && (
-                  <div className="tafsir-content">
-                    <p className="text-sm font-medium mb-1">Тафсир:</p>
-                    <p className={cn(
-                      `tafsir-text-${tafsirTextSize}`,
-                      lineSpacing <= 1.3 ? "line-spacing-tight" : 
-                      lineSpacing <= 1.6 ? "line-spacing-normal" : 
-                      lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
-                    )}>
-                      {verse.tafsir}
-                    </p>
-                  </div>
-                )}
+                <div className="tafsir-content">
+                  <p className={cn(
+                    `tafsir-text-${tafsirTextSize}`,
+                    lineSpacing <= 1.3 ? "line-spacing-tight" : 
+                    lineSpacing <= 1.6 ? "line-spacing-normal" : 
+                    lineSpacing <= 1.8 ? "line-spacing-relaxed" : "line-spacing-loose"
+                  )}>
+                    {verse.tafsir}
+                  </p>
+                </div>
               </CollapsibleContent>
             </Collapsible>
           )}
