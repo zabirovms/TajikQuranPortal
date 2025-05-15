@@ -465,8 +465,33 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
                     </div>
                   </div>
                   
+                  {/* Add reading info as an option */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      onClick={handlePlaySurah}
+                    >
+                      <Volume2 className="h-4 w-4" />
+                      <span>Тиловат</span>
+                    </Button>
+                    
+                    {/* Info button that opens the drawer on mobile and shows the info directly on desktop */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 md:hidden"
+                      onClick={() => setIsSurahInfoOpen(true)}
+                    >
+                      <Info className="h-4 w-4" />
+                      <span>Маълумот</span>
+                    </Button>
+                  </div>
+                  
+                  {/* Description paragraph - only shown on desktop and when exists */}
                   {surah.description && (
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <div className="prose prose-sm dark:prose-invert max-w-none hidden md:block">
                       <p>{surah.description}</p>
                     </div>
                   )}
@@ -476,14 +501,6 @@ export default function Surah({ surahNumber, onOpenOverlay }: SurahProps) {
                   <div className="font-arabic text-3xl md:text-4xl text-center mb-4 text-primary dark:text-accent">
                     بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                   </div>
-                  <Button
-                    size="lg"
-                    className="gap-2 font-medium mt-auto"
-                    onClick={handlePlaySurah}
-                  >
-                    <PlayCircle className="h-5 w-5" />
-                    <span>Тиловат</span>
-                  </Button>
                 </div>
               </div>
             </Card>
