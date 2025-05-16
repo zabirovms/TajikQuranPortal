@@ -7,6 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { build } from 'vite';
+import react from '@vitejs/plugin-react';
 
 // Fix for ESM __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -48,6 +49,16 @@ async function buildClient() {
   try {
     await build({
       root: clientDir,
+      plugins: [react()],
+      resolve: {
+        alias: {
+          '@': path.resolve(__dirname, 'client/src'),
+          '@components': path.resolve(__dirname, 'client/src/components'),
+          '@lib': path.resolve(__dirname, 'client/src/lib'),
+          '@hooks': path.resolve(__dirname, 'client/src/hooks'),
+          '@assets': path.resolve(__dirname, 'attached_assets')
+        }
+      },
       build: {
         outDir: distDir,
         emptyOutDir: true,
