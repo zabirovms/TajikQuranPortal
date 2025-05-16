@@ -95,12 +95,38 @@ async function buildClient() {
   }
 }
 
-// Build the server using TSX
+// Build the server using our simpler production server
 async function buildServer() {
   console.log('\n🔨 Building server...');
   try {
-    await runCommand(`npx esbuild ${serverEntryPath} --bundle --platform=node --packages=external --outfile=${path.join(distDir, 'server.js')} --format=cjs`);
-    console.log('✅ Server build completed successfully!');
+    // Copy the simplified server-prod.js file to the dist directory as server.js
+    fs.copyFileSync(
+      path.join(__dirname, 'server-prod.js'),
+      path.join(distDir, 'server.js')
+    );
+    
+    // Copy necessary server files
+    const serverDir = path.join(distDir, 'server');
+    if (!fs.existsSync(serverDir)) {
+      fs.mkdirSync(serverDir, { recursive: true });
+    }
+    
+    // Copy routes.js to dist/server
+    const routesContent = fs.readFileSync(path.join(__dirname, 'server', 'routes.ts'), 'utf8');
+    // Convert any import.meta references and TypeScript syntax to ESM compatible code
+    const processedContent = routesContent
+      .replace(/import\.meta\.dirname/g, 'import.meta.url')
+      .replace(/import\s+\{\s*([^{}]+)\s*\}\s+from\s+["']([^"']+)["'];?/g, (match, imports, source) => {
+        // Convert TypeScript imports to ESM
+        if (source.endsWith('.ts')) {
+          source = source.replace('.ts', '.js');
+        }
+        return `import { ${imports} } from "${source}";`;
+      });
+    
+    fs.writeFileSync(path.join(serverDir, 'routes.js'), processedContent);
+    
+    console.log('✅ Server files copied successfully!');
   } catch (error) {
     console.error('❌ Server build failed:', error);
     process.exit(1);
@@ -113,7 +139,7 @@ function createProductionPackageJson() {
   const packageJson = {
     name: 'tajik-quran-app',
     version: '1.0.0',
-    type: 'commonjs',
+    type: 'module',
     scripts: {
       start: 'NODE_ENV=production node server.js'
     },
